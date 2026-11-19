@@ -17,7 +17,7 @@ L'environnement Docker Compose déploie :
 - FHIR Data Type **1.6.1** ;
 - [Role Based Access Control](https://github.com/diridium-com/role-based-access-control) **1.3.0** (diridium-com) ;
 - [OIE Flow UI](https://github.com/kazepoy/oie-flow-ui-plugin) **0.9.0** (Flows Monitoring, Channel Flow) ;
-- FHIR Mapper **0.1.0-SNAPSHOT**, compilé depuis les sources du projet, avec ses deux étapes : [FHIR Mapper Transform](../../fr/reference/Mappeur-graphique.md) et [FHIR FML Transform](../../fr/reference/Transformation-FML.md).
+- FHIR Mapper **0.6.0**, compilé depuis les sources du projet, avec ses deux étapes : [FHIR Mapper Transform](../../fr/reference/Mappeur-graphique.md) et [FHIR FML Transform](../../fr/reference/Transformation-FML.md).
 
 Web Support, FHIR Data Type, RBAC, Flow UI et les packages [FR Core 2.2.0](https://hl7.fr/ig/fhir/core/2.2.0/) et [HL7 Europe Laboratory 2.0.0](https://hl7.eu/fhir/laboratory/2.0.0/) sont téléchargés au build avec vérification de leur SHA-256.
 

@@ -1,4 +1,4 @@
-// OIE FHIR Mapper 0.1.0-SNAPSHOT · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
+// OIE FHIR Mapper 0.6.0 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
 
 // src/i18n/locales/en.js
 var en_default = {
