@@ -1,0 +1,15 @@
+{
+  "reference": "CMD-2026-001",
+  "destinataire": "C042 - ATELIER DÉMO",
+  "priorite": "express",
+  "colis": [
+    {
+      "sku": "TUBE-EDTA",
+      "nombre": 3
+    },
+    {
+      "sku": "ETIQUETTE",
+      "nombre": 2
+    }
+  ]
+}

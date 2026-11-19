@@ -1,0 +1,130 @@
+name: fhir-mapper-security
+
+services:
+  trivy-fs:
+    image: aquasec/trivy:latest
+    profiles: [all, trivy]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /out
+        trivy fs /repo \
+          --cache-dir /trivy-cache \
+          --scanners vuln,misconfig,secret \
+          --include-dev-deps \
+          --severity ${TRIVY_SEVERITY:-HIGH,CRITICAL} \
+          --skip-dirs /repo/target,/repo/webadmin/node_modules,/repo/webadmin/test/e2e/output,/repo/tools/load/reports,/repo/tools/security/reports \
+          --format json --output /out/trivy-fs.json \
+          --exit-code ${TRIVY_EXIT_CODE:-1}
+        rc=$$?
+        trivy convert --format table /out/trivy-fs.json
+        exit $$rc
+    volumes:
+      - ../..:/repo:ro
+      - ./reports:/out:rw
+      - trivy-cache:/trivy-cache
+
+  trivy-sbom:
+    image: aquasec/trivy:latest
+    profiles: [all, sbom]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /out
+        trivy sbom /out/maven-sbom.json \
+          --cache-dir /trivy-cache \
+          --severity ${TRIVY_SEVERITY:-HIGH,CRITICAL} \
+          --format json --output /out/trivy-maven-sbom.json \
+          --exit-code ${TRIVY_SBOM_EXIT_CODE:-0}
+        rc=$$?
+        trivy convert --format table /out/trivy-maven-sbom.json
+        pkg_zip=$$(ls -t /repo/target/fhir-mapper-*.zip 2>/dev/null | head -n 1 || true)
+        if [ -n "$$pkg_zip" ]; then
+          rm -rf /tmp/plugin-zip
+          mkdir -p /tmp/plugin-zip
+          unzip -q "$$pkg_zip" -d /tmp/plugin-zip
+          trivy fs /tmp/plugin-zip \
+            --cache-dir /trivy-cache \
+            --scanners vuln \
+            --severity ${TRIVY_SEVERITY:-HIGH,CRITICAL} \
+            --format json --output /out/trivy-package.json \
+            --exit-code ${TRIVY_EXIT_CODE:-1} || rc=$$?
+          trivy convert --format table /out/trivy-package.json
+        fi
+        exit $$rc
+    volumes:
+      - ../..:/repo:ro
+      - ./reports:/out:rw
+      - trivy-cache:/trivy-cache
+
+  trivy-image:
+    image: aquasec/trivy:latest
+    profiles: [image]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /out
+        trivy image "${SECURITY_DEMO_IMAGE:-fhir-mapper-demo-oie:4.7.0}" \
+          --cache-dir /trivy-cache \
+          --scanners vuln,secret \
+          --severity ${TRIVY_SEVERITY:-HIGH,CRITICAL} \
+          --format json --output /out/trivy-image.json \
+          --exit-code ${TRIVY_EXIT_CODE:-0}
+        rc=$$?
+        trivy convert --format table /out/trivy-image.json
+        exit $$rc
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./reports:/out:rw
+      - trivy-cache:/trivy-cache
+
+  gitleaks:
+    image: zricethezav/gitleaks:latest
+    profiles: [all, gitleaks]
+    working_dir: /repo
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /out &&
+        git config --global --add safe.directory /repo &&
+        gitleaks git . \
+          --config /repo/tools/security/gitleaks.toml \
+          --report-format json --report-path /out/gitleaks-git.json \
+          --exit-code 1 &&
+        gitleaks dir . \
+          --config /repo/tools/security/gitleaks.toml \
+          --report-format json --report-path /out/gitleaks-dir.json \
+          --exit-code 1
+    volumes:
+      - ../..:/repo:ro
+      - ./reports:/out:rw
+
+  semgrep:
+    image: semgrep/semgrep:latest
+    profiles: [all, semgrep]
+    environment:
+      SEMGREP_SEND_METRICS: "off"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mkdir -p /out &&
+        semgrep scan \
+          --config p/java \
+          --config p/javascript \
+          --config p/dockerfile \
+          --config p/owasp-top-ten \
+          --metrics off \
+          --exclude target \
+          --exclude webadmin/node_modules \
+          --exclude webadmin/web/plugin.js \
+          --exclude webadmin/test/e2e/output \
+          --exclude tools/security/reports \
+          --text --json-output=/out/semgrep.json \
+          --error \
+          /repo/src /repo/webadmin/src /repo/tools /repo/demo/Dockerfile
+    volumes:
+      - ../..:/repo:ro
+      - ./reports:/out:rw
+
+volumes:
+  trivy-cache:

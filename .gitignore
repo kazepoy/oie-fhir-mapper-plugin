@@ -1,0 +1,10 @@
+/target/
+__pycache__/
+/tools/load/reports/
+/tools/security/reports/
+/webadmin/node_modules/
+/webadmin/test/e2e/output/
+/demo/.env
+/demo/custom-extensions/*
+!/demo/custom-extensions/.gitkeep
+/doc/dev/

@@ -1,0 +1,294 @@
+<serverConfiguration version="4.7.0">
+  <channelGroups/>
+  <channels/>
+  <channelTags>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000001</id>
+      <name>hl7v2</name>
+      <channelIds>
+        <string>8f4a19a4-2018-40c1-8e08-3e8361841907</string>
+        <string>82f45c2c-9f1f-4a73-ae96-b4fc4bc1422e</string>
+        <string>2faf2287-8dd8-4301-82d8-7ad542a410e2</string>
+        <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809500000001</string>
+        <string>5d0f6c2a-8b3e-4f1a-9c7d-2e6b1a0f3c48</string>
+        <string>9b1f4c10-6e2d-4a8b-9f11-108080000011</string>
+        <string>aa431dca-b805-4ac6-8dbd-e272b6fc4c18</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809700000001</string>
+      </channelIds>
+      <backgroundColor>
+        <red>59</red>
+        <green>130</green>
+        <blue>246</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000002</id>
+      <name>fhir</name>
+      <channelIds>
+        <string>040f4f94-d926-495d-ac5b-762dada9b384</string>
+      </channelIds>
+      <backgroundColor>
+        <red>239</red>
+        <green>68</green>
+        <blue>68</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000003</id>
+      <name>json</name>
+      <channelIds>
+        <string>78dfe889-afa8-49f9-afd5-5aaa07aeb4f7</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809600000001</string>
+        <string>89c98d20-f9c1-4ae4-a7eb-4133f8708090</string>
+      </channelIds>
+      <backgroundColor>
+        <red>245</red>
+        <green>158</green>
+        <blue>11</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000004</id>
+      <name>csv</name>
+      <channelIds>
+        <string>6a2b9104-4d15-4a2b-8f30-809400000001</string>
+        <string>33517dba-5b87-465d-988a-e291f5e88470</string>
+      </channelIds>
+      <backgroundColor>
+        <red>16</red>
+        <green>185</green>
+        <blue>129</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000005</id>
+      <name>fml</name>
+      <channelIds>
+        <string>8f4a19a4-2018-40c1-8e08-3e8361841907</string>
+        <string>82f45c2c-9f1f-4a73-ae96-b4fc4bc1422e</string>
+        <string>2faf2287-8dd8-4301-82d8-7ad542a410e2</string>
+        <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        <string>040f4f94-d926-495d-ac5b-762dada9b384</string>
+        <string>78dfe889-afa8-49f9-afd5-5aaa07aeb4f7</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809400000001</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809500000001</string>
+        <string>9b1f4c10-6e2d-4a8b-9f11-108080000011</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809700000001</string>
+      </channelIds>
+      <backgroundColor>
+        <red>139</red>
+        <green>92</green>
+        <blue>246</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000006</id>
+      <name>mapper</name>
+      <channelIds>
+        <string>33517dba-5b87-465d-988a-e291f5e88470</string>
+        <string>5d0f6c2a-8b3e-4f1a-9c7d-2e6b1a0f3c48</string>
+        <string>aa431dca-b805-4ac6-8dbd-e272b6fc4c18</string>
+        <string>8b031c27-0c2e-40e1-b7f3-69ce531e7a24</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809600000001</string>
+        <string>89c98d20-f9c1-4ae4-a7eb-4133f8708090</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809700000001</string>
+      </channelIds>
+      <backgroundColor>
+        <red>20</red>
+        <green>184</green>
+        <blue>166</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000007</id>
+      <name>termino</name>
+      <channelIds>
+        <string>82f45c2c-9f1f-4a73-ae96-b4fc4bc1422e</string>
+        <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        <string>5d0f6c2a-8b3e-4f1a-9c7d-2e6b1a0f3c48</string>
+        <string>9b1f4c10-6e2d-4a8b-9f11-108080000011</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809600000001</string>
+        <string>6a2b9104-4d15-4a2b-8f30-809900000001</string>
+      </channelIds>
+      <backgroundColor>
+        <red>236</red>
+        <green>72</green>
+        <blue>153</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000008</id>
+      <name>xml</name>
+      <channelIds>
+        <string>8b031c27-0c2e-40e1-b7f3-69ce531e7a24</string>
+      </channelIds>
+      <backgroundColor>
+        <red>99</red>
+        <green>102</green>
+        <blue>241</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+    <channelTag>
+      <id>11111111-1111-4111-8111-000000000009</id>
+      <name>r5</name>
+      <channelIds>
+        <string>6a2b9104-4d15-4a2b-8f30-809400000001</string>
+        <string>89c98d20-f9c1-4ae4-a7eb-4133f8708090</string>
+      </channelIds>
+      <backgroundColor>
+        <red>234</red>
+        <green>88</green>
+        <blue>12</blue>
+        <alpha>255</alpha>
+      </backgroundColor>
+    </channelTag>
+  </channelTags>
+  <alerts/>
+  <codeTemplateLibraries/>
+  <serverSettings>
+    <clearGlobalMap>true</clearGlobalMap>
+    <queueBufferSize>1000</queueBufferSize>
+    <defaultMetaDataColumns>
+      <metaDataColumn>
+        <name>SOURCE</name>
+        <type>STRING</type>
+        <mappingName>mirth_source</mappingName>
+      </metaDataColumn>
+      <metaDataColumn>
+        <name>TYPE</name>
+        <type>STRING</type>
+        <mappingName>mirth_type</mappingName>
+      </metaDataColumn>
+    </defaultMetaDataColumns>
+    <defaultAdministratorBackgroundColor>
+      <red>42</red>
+      <green>117</green>
+      <blue>178</blue>
+      <alpha>255</alpha>
+    </defaultAdministratorBackgroundColor>
+    <smtpTimeout>5000</smtpTimeout>
+    <smtpSecure>0</smtpSecure>
+    <smtpAuth>false</smtpAuth>
+    <loginNotificationEnabled>false</loginNotificationEnabled>
+    <loginNotificationMessage></loginNotificationMessage>
+    <administratorAutoLogoutIntervalEnabled>false</administratorAutoLogoutIntervalEnabled>
+    <administratorAutoLogoutIntervalField>5</administratorAutoLogoutIntervalField>
+  </serverSettings>
+  <updateSettings version="4.7.0">
+    <statsEnabled>true</statsEnabled>
+  </updateSettings>
+  <globalScripts>
+    <entry>
+      <string>Undeploy</string>
+      <string>// This script executes once for each deploy, undeploy, or redeploy task
+// if at least one channel was undeployed
+// You only have access to the globalMap here to persist data
+return;</string>
+    </entry>
+    <entry>
+      <string>Postprocessor</string>
+      <string>// This script executes once after a message has been processed
+// This script applies across all channels
+// Responses returned from here will be stored as &quot;Postprocessor&quot; in the response map
+// You have access to &quot;response&quot;, if returned from the channel postprocessor
+return;</string>
+    </entry>
+    <entry>
+      <string>Deploy</string>
+      <string>// This script executes once for each deploy or redeploy task
+// You only have access to the globalMap here to persist data
+return;</string>
+    </entry>
+    <entry>
+      <string>Preprocessor</string>
+      <string>// Modify the message variable below to pre process data
+// This script applies across all channels
+return message;</string>
+    </entry>
+  </globalScripts>
+  <pluginProperties>
+    <entry>
+      <string>FHIR Mapper</string>
+      <properties>
+        <property name="settings">{&quot;contexts&quot;:[{&quot;name&quot;:&quot;patient-r4&quot;,&quot;fhirVersion&quot;:&quot;R4&quot;,&quot;packages&quot;:[&quot;/fhir-volume/02-adt-patient-context&quot;],&quot;terminologyServer&quot;:&quot;http://term-server:8500/fhir&quot;,&quot;terminologyAuthorization&quot;:&quot;&quot;,&quot;cacheSeconds&quot;:0,&quot;timeoutSeconds&quot;:5,&quot;validation&quot;:&quot;always&quot;},{&quot;name&quot;:&quot;demo-labo&quot;,&quot;fhirVersion&quot;:&quot;R4&quot;,&quot;packages&quot;:[&quot;/fhir-volume/shared/lab-r4&quot;],&quot;terminologyServer&quot;:&quot;&quot;,&quot;terminologyAuthorization&quot;:&quot;&quot;,&quot;cacheSeconds&quot;:300,&quot;timeoutSeconds&quot;:10,&quot;validation&quot;:&quot;always&quot;},{&quot;name&quot;:&quot;external-terminology&quot;,&quot;fhirVersion&quot;:&quot;R4&quot;,&quot;packages&quot;:[],&quot;terminologyServer&quot;:&quot;http://localhost:10819/fhir&quot;,&quot;terminologyAuthorization&quot;:&quot;&quot;,&quot;cacheSeconds&quot;:0,&quot;timeoutSeconds&quot;:5,&quot;validation&quot;:&quot;always&quot;}]}</property>
+      </properties>
+    </entry>
+    <entry>
+      <string>Role-Based Access Control</string>
+      <properties>
+        <property name="schema_version">4</property>
+      </properties>
+    </entry>
+    <entry>
+      <string>Data Pruner</string>
+      <properties>
+        <property name="archiveEnabled">&lt;boolean&gt;false&lt;/boolean&gt;</property>
+        <property name="archiverBlockSize">50</property>
+        <property name="archiverOptions">&lt;com.mirth.connect.util.messagewriter.MessageWriterOptions&gt;
+  &lt;destinationContent&gt;false&lt;/destinationContent&gt;
+  &lt;encrypt&gt;false&lt;/encrypt&gt;
+  &lt;includeAttachments&gt;false&lt;/includeAttachments&gt;
+  &lt;passwordEnabled&gt;false&lt;/passwordEnabled&gt;
+&lt;/com.mirth.connect.util.messagewriter.MessageWriterOptions&gt;</property>
+        <property name="enabled">false</property>
+        <property name="includeAttachments">&lt;boolean&gt;false&lt;/boolean&gt;</property>
+        <property name="maxEventAge"></property>
+        <property name="pollingProperties">&lt;com.mirth.connect.donkey.model.channel.PollConnectorProperties version=&quot;4.7.0&quot;&gt;
+  &lt;pollingType&gt;INTERVAL&lt;/pollingType&gt;
+  &lt;pollOnStart&gt;false&lt;/pollOnStart&gt;
+  &lt;pollingFrequency&gt;3600000&lt;/pollingFrequency&gt;
+  &lt;pollingHour&gt;0&lt;/pollingHour&gt;
+  &lt;pollingMinute&gt;0&lt;/pollingMinute&gt;
+  &lt;cronJobs/&gt;
+  &lt;pollConnectorPropertiesAdvanced&gt;
+    &lt;weekly&gt;true&lt;/weekly&gt;
+    &lt;inactiveDays&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+      &lt;boolean&gt;false&lt;/boolean&gt;
+    &lt;/inactiveDays&gt;
+    &lt;dayOfMonth&gt;1&lt;/dayOfMonth&gt;
+    &lt;allDay&gt;true&lt;/allDay&gt;
+    &lt;startingHour&gt;8&lt;/startingHour&gt;
+    &lt;startingMinute&gt;0&lt;/startingMinute&gt;
+    &lt;endingHour&gt;17&lt;/endingHour&gt;
+    &lt;endingMinute&gt;0&lt;/endingMinute&gt;
+  &lt;/pollConnectorPropertiesAdvanced&gt;
+&lt;/com.mirth.connect.donkey.model.channel.PollConnectorProperties&gt;</property>
+        <property name="pruneEvents">false</property>
+        <property name="pruningBlockSize">1000</property>
+      </properties>
+    </entry>
+  </pluginProperties>
+  <resourceProperties>
+    <list>
+      <com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties version="4.7.0">
+  <pluginPointName>Directory Resource</pluginPointName>
+        <type>Directory</type>
+        <id>Default Resource</id>
+        <name>[Default Resource]</name>
+        <description>Loads libraries from the custom-lib folder in the Open Integration Engine home directory.</description>
+        <includeWithGlobalScripts>true</includeWithGlobalScripts>
+        <loadParentFirst>false</loadParentFirst>
+        <directory>custom-lib</directory>
+        <directoryRecursion>true</directoryRecursion>
+      </com.mirth.connect.plugins.directoryresource.DirectoryResourceProperties>
+    </list>
+  </resourceProperties>
+  <channelDependencies/>
+  <configurationMap/>
+</serverConfiguration>

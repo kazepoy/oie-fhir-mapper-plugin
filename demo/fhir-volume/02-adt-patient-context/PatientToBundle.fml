@@ -1,0 +1,25 @@
+map "http://example.org/fml-demo/StructureMap/PatientToBundle" = "PatientToBundle"
+
+// The principal source and target are deliberately not the first uses entries.
+uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OtherSource as source
+uses "http://hl7.org/fhir/StructureDefinition/Organization" alias Organization as target
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias InputPatient as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" alias OutputBundle as target
+
+imports "http://example.org/fml-demo/StructureMap/CopyPatient"
+
+group PatientToBundle(source src : InputPatient, target bundle : OutputBundle) {
+  src -> bundle.type = 'collection' "type";
+  src -> bundle.entry as entry then {
+    src -> entry.fullUrl = 'urn:uuid:00000000-0000-4000-8000-000000000001' "patient-url";
+    src -> entry.resource = create('Patient') as patient then CopyPatient(src, patient) "patient";
+  } "patient-entry";
+  src -> bundle.entry as entry then {
+    src -> entry.fullUrl = 'urn:uuid:00000000-0000-4000-8000-000000000002' "organization-url";
+    src -> entry.resource = create('Organization') as organization then {
+      src -> organization.active = true "active";
+      src -> organization.name = 'FML demo hospital' "name";
+    } "organization";
+  } "organization-entry";
+}

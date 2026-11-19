@@ -1,0 +1,20 @@
+{
+  "resourceType": "ValueSet",
+  "id": "v2-0203-fr",
+  "url": "http://example.org/fhir/hl7v2-demo/ValueSet/v2-0203-fr",
+  "name": "V2Table0203Fr",
+  "title": "HL7v2 table 0203, including the French INS code",
+  "status": "draft",
+  "experimental": true,
+  "description": "International HL7 v2 table 0203 extended with the IHE PAM FR INS code. demo-CX.json binds CX-5 to this ValueSet so PID-3 can carry an INS identifier.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+      },
+      {
+        "system": "http://example.org/fhir/hl7v2-demo/CodeSystem/v2-0203-fr"
+      }
+    ]
+  }
+}

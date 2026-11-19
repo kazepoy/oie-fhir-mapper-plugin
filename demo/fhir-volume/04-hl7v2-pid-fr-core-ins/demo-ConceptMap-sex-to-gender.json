@@ -1,0 +1,86 @@
+{
+  "resourceType": "ConceptMap",
+  "id": "sex-to-administrative-gender",
+  "url": "http://example.org/fhir/hl7v2-demo/ConceptMap/sex-to-administrative-gender",
+  "name": "SexToAdministrativeGender",
+  "title": "HL7v2 PID-8 (table 0001) to FHIR administrative-gender",
+  "status": "draft",
+  "experimental": true,
+  "description": "Table called by translate() in PidToFrCorePatientIns.map. Stored locally in ig-resources/ rather than taken from hl7.fhir.uv.v2mappings, so the demo needs no terminology package and avoids the Windows package terminology bug.",
+  "sourceUri": "http://terminology.hl7.org/ValueSet/v2-0001",
+  "targetUri": "http://hl7.org/fhir/ValueSet/administrative-gender",
+  "group": [
+    {
+      "source": "http://terminology.hl7.org/CodeSystem/v2-0001",
+      "target": "http://hl7.org/fhir/administrative-gender",
+      "element": [
+        {
+          "code": "F",
+          "display": "Female",
+          "target": [
+            {
+              "code": "female",
+              "display": "Female",
+              "equivalence": "equivalent"
+            }
+          ]
+        },
+        {
+          "code": "M",
+          "display": "Male",
+          "target": [
+            {
+              "code": "male",
+              "display": "Male",
+              "equivalence": "equivalent"
+            }
+          ]
+        },
+        {
+          "code": "O",
+          "display": "Other",
+          "target": [
+            {
+              "code": "other",
+              "display": "Other",
+              "equivalence": "equivalent"
+            }
+          ]
+        },
+        {
+          "code": "A",
+          "display": "Ambiguous",
+          "target": [
+            {
+              "code": "other",
+              "display": "Other",
+              "equivalence": "wider"
+            }
+          ]
+        },
+        {
+          "code": "N",
+          "display": "Not applicable",
+          "target": [
+            {
+              "code": "other",
+              "display": "Other",
+              "equivalence": "wider"
+            }
+          ]
+        },
+        {
+          "code": "U",
+          "display": "Unknown",
+          "target": [
+            {
+              "code": "unknown",
+              "display": "Unknown",
+              "equivalence": "equivalent"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

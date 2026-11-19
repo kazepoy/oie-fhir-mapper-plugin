@@ -1,0 +1,21 @@
+{
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "system": "http://example.org/fhir/sid/ipp",
+      "value": "100001"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "MARTIN",
+      "given": [
+        "CLAIRE",
+        "ANNE"
+      ]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1980-02-15"
+}

@@ -1,0 +1,33 @@
+map "http://example.org/fml-demo/StructureMap/AdtA28ToDemoPatient" = "AdtA28ToDemoPatient"
+
+uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "http://example.org/fml-demo/StructureDefinition/DemoPatient" alias Patient as target
+
+group AdtA28ToPatient(source src : OieMessage, target patient : Patient) {
+  src -> patient.meta as meta then { src -> meta.profile = 'http://example.org/fml-demo/StructureDefinition/DemoPatient' "profile"; } "meta";
+  src.node as pid where name = 'PID' then {
+    pid.node as cx where name = 'PID.3' and node.where(position = 5 and value = 'PI').exists() then {
+      cx.node as number where position = 1 -> patient.identifier as identifier then {
+        number -> identifier.system = 'http://example.org/fhir/sid/ipp' "system";
+        number.value as v -> identifier.value = v "identifier";
+      } "ipp";
+    } "identifiers";
+    pid.node as xpn where name = 'PID.5' -> patient.name as name then {
+      xpn.node as family where position = 1 then { family.value as v -> name.family = v "family"; } "family-name";
+      xpn.node as given where position = 2 then { given.value as v -> name.given = v "given"; } "given-name";
+      xpn.node as given where position = 3 then { given.value as v -> name.given = v "second-given"; } "second-given-name";
+      xpn.node as type where position = 7 and value = 'L' -> name.use = 'official' "official-name";
+    } "name";
+    pid.node as sex where name = 'PID.8' then {
+      sex.node as code where position = 1 then {
+        code.value as v -> patient.gender = translate(v, 'http://example.org/fml-demo/ConceptMap/v2-sex-to-gender', 'code') "gender";
+      } "gender";
+    } "sex";
+    pid.node as dob where name = 'PID.7' then {
+      dob.node as time where position = 1 then {
+        time.value as v where v.length() >= 8 -> patient.birthDate = (v.substring(0, 4) & '-' & v.substring(4, 2) & '-' & v.substring(6, 2)) "birthDate";
+      } "birth-time";
+    } "date-of-birth";
+  } "pid";
+}
+

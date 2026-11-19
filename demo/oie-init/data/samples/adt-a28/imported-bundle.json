@@ -1,0 +1,43 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:00000000-0000-4000-8000-000000000001",
+      "resource": {
+        "resourceType": "Patient",
+        "identifier": [
+          {
+            "system": "http://example.org/fhir/sid/ipp",
+            "value": "100001"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "MARTIN",
+            "given": [
+              "CLAIRE",
+              "ANNE"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1980-02-15",
+        "meta": {
+          "profile": [
+            "http://example.org/fml-demo/StructureDefinition/DemoPatient"
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000000-0000-4000-8000-000000000002",
+      "resource": {
+        "resourceType": "Organization",
+        "active": true,
+        "name": "FML demo hospital"
+      }
+    }
+  ]
+}

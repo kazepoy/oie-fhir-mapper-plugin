@@ -1,0 +1,309 @@
+<channel version="4.7.0">
+  <id>7bb123c3-8717-4f12-bbf0-fe8892bf8234</id>
+  <nextMetaDataId>2</nextMetaDataId>
+  <name>04 HL7v2 PID to FR Core INS</name>
+  <description>Logical PID example: HAPI Strict Parser, PID extraction without tag renaming, HAPI XML names declared through xml-name, direct XML reading using logical SDs (xmlText), unchanged PidToFrCorePatientIns FML rules and FR Core 2.2.0 validation. No OieMessage. POST /pid-fr-core-ins/ on port 10801.</description>
+  <revision>1</revision>
+  <sourceConnector version="4.7.0">
+    <metaDataId>0</metaDataId>
+    <name>sourceConnector</name>
+    <properties class="com.mirth.connect.connectors.http.HttpReceiverProperties" version="4.7.0">
+      <pluginProperties />
+      <listenerConnectorProperties version="4.7.0">
+        <host>0.0.0.0</host>
+        <port>10801</port>
+      </listenerConnectorProperties>
+      <sourceConnectorProperties version="4.7.0">
+        <responseVariable>d1</responseVariable>
+        <respondAfterProcessing>true</respondAfterProcessing>
+        <processBatch>false</processBatch>
+        <firstResponse>false</firstResponse>
+        <processingThreads>1</processingThreads>
+        <resourceIds class="linked-hash-map">
+          <entry>
+            <string>Default Resource</string>
+            <string>[Default Resource]</string>
+          </entry>
+        </resourceIds>
+        <queueBufferSize>1000</queueBufferSize>
+      </sourceConnectorProperties>
+      <xmlBody>false</xmlBody>
+      <parseMultipart>false</parseMultipart>
+      <includeMetadata>false</includeMetadata>
+      <binaryMimeTypes>application/.*(?&lt;!json|xml)|image/.*|video/.*|audio/.*</binaryMimeTypes>
+      <binaryMimeTypesRegex>true</binaryMimeTypesRegex>
+      <responseContentType>application/fhir+json; charset=UTF-8</responseContentType>
+      <responseDataTypeBinary>false</responseDataTypeBinary>
+      <responseStatusCode>200</responseStatusCode>
+      <responseHeaders class="linked-hash-map" />
+      <responseHeadersVariable />
+      <useResponseHeadersVariable>false</useResponseHeadersVariable>
+      <charset>UTF-8</charset>
+      <contextPath>/pid-fr-core-ins</contextPath>
+      <timeout>30000</timeout>
+      <staticResources />
+    </properties>
+    <transformer version="4.7.0">
+      <elements>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep version="4.7.0">
+          <name>Extract PID XML for the logical model</name><sequenceNumber>0</sequenceNumber><enabled>true</enabled>
+          <script>// The model declares HAPI XML names through xml-name. No renaming.
+msg = msg..PID[0].copy();</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <fr.kazepoy.fhir.fml.FhirFmlTransformStep version="4.7.0">
+          <name>PID to FR Core INS Patient</name><sequenceNumber>1</sequenceNumber><enabled>true</enabled>
+          <fhirVersion>R4</fhirVersion><context /><profiles>/fhir-volume/04-hl7v2-pid-fr-core-ins;/fhir-packages/hl7.fhir.fr.core-2.2.0.tgz;/fhir-packages/hl7.fhir.uv.extensions.r4-5.2.0.tgz;/fhir-packages/hl7.terminology.r4-7.1.0.tgz;/fhir-packages/ans.fr.terminologies-1.7.0.tgz;/fhir-volume/04-hl7v2-pid-fr-core-ins/ans-insee-20250328.tgz</profiles>
+          <mapUrl>http://example.org/fhir/hl7v2-demo/StructureMap/PidToFrCorePatientIns</mapUrl><mapSource />
+          <sourceModel>logical</sourceModel>
+          <sourceModelUrl>http://example.org/fhir/hl7v2-demo/StructureDefinition/PID</sourceModelUrl>
+          <variable /><validateOutput>true</validateOutput><contextVariables />
+          <sampleMessage>&lt;PID&gt;
+  &lt;PID.3&gt;
+    &lt;CX.1&gt;000003&lt;/CX.1&gt;
+    &lt;CX.5&gt;PI&lt;/CX.5&gt;
+  &lt;/PID.3&gt;
+  &lt;PID.3&gt;
+    &lt;CX.1&gt;279035121518989&lt;/CX.1&gt;
+    &lt;CX.5&gt;INS&lt;/CX.5&gt;
+  &lt;/PID.3&gt;
+  &lt;PID.5&gt;
+    &lt;XPN.1&gt;
+      &lt;FN.1&gt;PAT-TROIS&lt;/FN.1&gt;
+    &lt;/XPN.1&gt;
+    &lt;XPN.2&gt;DOMINIQUE&lt;/XPN.2&gt;
+    &lt;XPN.7&gt;L&lt;/XPN.7&gt;
+  &lt;/PID.5&gt;
+  &lt;PID.7&gt;
+    &lt;TS.1&gt;19790328&lt;/TS.1&gt;
+  &lt;/PID.7&gt;
+  &lt;PID.8&gt;F&lt;/PID.8&gt;
+  &lt;PID.11&gt;
+    &lt;XAD.3&gt;PARIS&lt;/XAD.3&gt;
+    &lt;XAD.7&gt;H&lt;/XAD.7&gt;
+  &lt;/PID.11&gt;
+  &lt;PID.11&gt;
+    &lt;XAD.7&gt;BDL&lt;/XAD.7&gt;
+    &lt;XAD.9&gt;63220&lt;/XAD.9&gt;
+  &lt;/PID.11&gt;
+&lt;/PID&gt;
+</sampleMessage><sampleFormat>xml</sampleFormat>
+        </fr.kazepoy.fhir.fml.FhirFmlTransformStep>
+      </elements>
+      <inboundTemplate>MSH|^~\&amp;|GAM|CHU-X|DPI|CHU-X|20240306111154||ADT^A01^ADT_A01|3975|D|2.5^FRA^2.11|||||FRA|UNICODE UTF-8|FR||2.11^IHE_FRANCE-2.11-PAM
+EVN||20240306111154||||20240306111154
+PID|1||000003^^^CHU-X&amp;000897406&amp;N^PI~279035121518989^^^ASIP-SANTE-INS-NIR&amp;1.2.250.1.213.1.4.10&amp;ISO^INS^^20101207||PAT-TROIS^DOMINIQUE^DOMINIQUE^^^^L||19790328|F|||28 Av de Breteuil^^PARIS^^75007^FRA^H^^^^^^^~^^^^^^BDL^^63220|||||S||24000006^^^CHU-X&amp;000897406&amp;M^AN|||||||1|||||N||VALI|20240306111153||||||
+PV1|1|I|^^^CHU-X&amp;000897406&amp;M^O^^||||||||||||||||000897406^^^CHU-X&amp;000897406&amp;M^VN^^20210409||||||||||||||||||||||||||||||||V
+ZBE|001^CHU-X^000897406|20240306110000||INSERT|N||Chir V^^^^^CHU-X&amp;000897406&amp;N^UF^^^6268|Chir V^^^^^CHU-X&amp;000897406&amp;N^UF^^^6268|HMS
+ZFA|ACTIF|20240306111154|||||||INO|20240306111154|IC|20240306111154
+</inboundTemplate>
+      <inboundDataType>HL7V2</inboundDataType>
+      <outboundDataType>RAW</outboundDataType>
+      <inboundProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DataTypeProperties" version="4.7.0">
+        <serializationProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2SerializationProperties" version="4.7.0">
+          <handleRepetitions>true</handleRepetitions>
+          <handleSubcomponents>true</handleSubcomponents>
+          <useStrictParser>true</useStrictParser>
+          <useStrictValidation>false</useStrictValidation>
+          <stripNamespaces>true</stripNamespaces>
+          <segmentDelimiter>\r</segmentDelimiter>
+          <convertLineBreaks>true</convertLineBreaks>
+        </serializationProperties>
+        <deserializationProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2DeserializationProperties" version="4.7.0">
+          <useStrictParser>false</useStrictParser>
+          <useStrictValidation>false</useStrictValidation>
+          <segmentDelimiter>\r</segmentDelimiter>
+        </deserializationProperties>
+        <batchProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2BatchProperties" version="4.7.0">
+          <splitType>MSH_Segment</splitType>
+          <batchScript />
+        </batchProperties>
+        <responseGenerationProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseGenerationProperties" version="4.7.0">
+          <segmentDelimiter>\r</segmentDelimiter>
+          <successfulACKCode>AA</successfulACKCode>
+          <successfulACKMessage />
+          <errorACKCode>AE</errorACKCode>
+          <errorACKMessage>An Error Occurred Processing Message.</errorACKMessage>
+          <rejectedACKCode>AR</rejectedACKCode>
+          <rejectedACKMessage>Message Rejected.</rejectedACKMessage>
+          <msh15ACKAccept>false</msh15ACKAccept>
+          <dateFormat>yyyyMMddHHmmss.SSS</dateFormat>
+        </responseGenerationProperties>
+        <responseValidationProperties class="com.mirth.connect.plugins.datatypes.hl7v2.HL7v2ResponseValidationProperties" version="4.7.0">
+          <successfulACKCode>AA,CA</successfulACKCode>
+          <errorACKCode>AE,CE</errorACKCode>
+          <rejectedACKCode>AR,CR</rejectedACKCode>
+          <validateMessageControlId>true</validateMessageControlId>
+          <originalMessageControlId>Destination_Encoded</originalMessageControlId>
+          <originalIdMapVariable />
+        </responseValidationProperties>
+      </inboundProperties>
+      <outboundProperties class="com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties" version="4.7.0">
+        <batchProperties class="com.mirth.connect.plugins.datatypes.raw.RawBatchProperties" version="4.7.0">
+          <splitType>JavaScript</splitType>
+          <batchScript />
+        </batchProperties>
+      </outboundProperties>
+    </transformer>
+    <filter version="4.7.0">
+      <elements />
+    </filter>
+    <transportName>HTTP Listener</transportName>
+    <mode>SOURCE</mode>
+    <enabled>true</enabled>
+    <waitForPrevious>true</waitForPrevious>
+  </sourceConnector>
+  <destinationConnectors>
+    <connector version="4.7.0">
+      <metaDataId>1</metaDataId>
+      <name>Return FR Core INS Patient</name>
+      <properties class="com.mirth.connect.connectors.js.JavaScriptDispatcherProperties" version="4.7.0">
+        <pluginProperties />
+        <destinationConnectorProperties version="4.7.0">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable />
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <script>return connectorMessage.getEncodedData();</script>
+      </properties>
+      <transformer version="4.7.0">
+      <elements />
+      
+      <inboundDataType>RAW</inboundDataType>
+      <outboundDataType>RAW</outboundDataType>
+      <inboundProperties class="com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties" version="4.7.0">
+        <batchProperties class="com.mirth.connect.plugins.datatypes.raw.RawBatchProperties" version="4.7.0">
+          <splitType>JavaScript</splitType>
+          <batchScript />
+        </batchProperties>
+      </inboundProperties>
+      <outboundProperties class="com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties" version="4.7.0">
+        <batchProperties class="com.mirth.connect.plugins.datatypes.raw.RawBatchProperties" version="4.7.0">
+          <splitType>JavaScript</splitType>
+          <batchScript />
+        </batchProperties>
+      </outboundProperties>
+    </transformer>
+      <responseTransformer version="4.7.0">
+        <elements />
+        <inboundDataType>RAW</inboundDataType>
+        <outboundDataType>RAW</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties" version="4.7.0">
+          <batchProperties class="com.mirth.connect.plugins.datatypes.raw.RawBatchProperties" version="4.7.0">
+            <splitType>JavaScript</splitType>
+            <batchScript />
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.raw.RawDataTypeProperties" version="4.7.0">
+          <batchProperties class="com.mirth.connect.plugins.datatypes.raw.RawBatchProperties" version="4.7.0">
+            <splitType>JavaScript</splitType>
+            <batchScript />
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="4.7.0">
+        <elements />
+      </filter>
+      <transportName>JavaScript Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>true</enabled>
+      <waitForPrevious>false</waitForPrevious>
+    </connector>
+  </destinationConnectors>
+  <preprocessingScript>return message;</preprocessingScript>
+  <postprocessingScript>return;</postprocessingScript>
+  <deployScript>return;</deployScript>
+  <undeployScript>return;</undeployScript>
+  <properties version="4.7.0">
+    <clearGlobalChannelMap>true</clearGlobalChannelMap>
+    <messageStorageMode>DEVELOPMENT</messageStorageMode>
+    <encryptData>false</encryptData>
+    <encryptAttachments>false</encryptAttachments>
+    <encryptCustomMetaData>false</encryptCustomMetaData>
+    <removeContentOnCompletion>false</removeContentOnCompletion>
+    <removeOnlyFilteredOnCompletion>false</removeOnlyFilteredOnCompletion>
+    <removeAttachmentsOnCompletion>false</removeAttachmentsOnCompletion>
+    <initialState>STARTED</initialState>
+    <storeAttachments>true</storeAttachments>
+    <metaDataColumns />
+    <attachmentProperties version="4.7.0">
+      <type>None</type>
+      <properties />
+    </attachmentProperties>
+    <resourceIds class="linked-hash-map">
+      <entry>
+        <string>Default Resource</string>
+        <string>[Default Resource]</string>
+      </entry>
+    </resourceIds>
+  </properties>
+  <exportData>
+    <metadata>
+      <enabled>true</enabled>
+      <lastModified>
+        <time>1787000000000</time>
+        <timezone>Europe/Paris</timezone>
+      </lastModified>
+      <pruningSettings>
+        <archiveEnabled>true</archiveEnabled>
+        <pruneErroredMessages>false</pruneErroredMessages>
+      </pruningSettings>
+      <userId>1</userId>
+    </metadata>
+    <channelTags>
+      <channelTag>
+        <id>11111111-1111-4111-8111-000000000001</id>
+        <name>hl7v2</name>
+        <channelIds>
+          <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        </channelIds>
+        <backgroundColor>
+          <red>59</red>
+          <green>130</green>
+          <blue>246</blue>
+          <alpha>255</alpha>
+        </backgroundColor>
+      </channelTag>
+      <channelTag>
+        <id>11111111-1111-4111-8111-000000000005</id>
+        <name>fml</name>
+        <channelIds>
+          <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        </channelIds>
+        <backgroundColor>
+          <red>139</red>
+          <green>92</green>
+          <blue>246</blue>
+          <alpha>255</alpha>
+        </backgroundColor>
+      </channelTag>
+      <channelTag>
+        <id>11111111-1111-4111-8111-000000000007</id>
+        <name>termino</name>
+        <channelIds>
+          <string>7bb123c3-8717-4f12-bbf0-fe8892bf8234</string>
+        </channelIds>
+        <backgroundColor>
+          <red>236</red>
+          <green>72</green>
+          <blue>153</blue>
+          <alpha>255</alpha>
+        </backgroundColor>
+      </channelTag>
+    </channelTags>
+  </exportData>
+</channel>

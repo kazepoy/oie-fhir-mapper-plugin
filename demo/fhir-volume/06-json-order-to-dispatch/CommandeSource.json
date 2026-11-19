@@ -1,0 +1,117 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "CommandeSource",
+  "url": "http://example.org/fml-demo/StructureDefinition/CommandeSource",
+  "name": "CommandeSource",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "CommandeSource",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/tools/StructureDefinition/json-suppress-resourcetype",
+      "valueBoolean": true
+    }
+  ],
+  "differential": {
+    "element": [
+      {
+        "id": "CommandeSource",
+        "path": "CommandeSource",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "CommandeSource.numero",
+        "path": "CommandeSource.numero",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.client",
+        "path": "CommandeSource.client",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.client.code",
+        "path": "CommandeSource.client.code",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.client.nom",
+        "path": "CommandeSource.client.nom",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.urgent",
+        "path": "CommandeSource.urgent",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "boolean"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.lignes",
+        "path": "CommandeSource.lignes",
+        "min": 1,
+        "max": "*",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.lignes.article",
+        "path": "CommandeSource.lignes.article",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CommandeSource.lignes.quantite",
+        "path": "CommandeSource.lignes.quantite",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "integer"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+<PID>
+  <PID.3>
+    <CX.1>000003</CX.1>
+    <CX.5>PI</CX.5>
+  </PID.3>
+  <PID.3>
+    <CX.1>279035121518989</CX.1>
+    <CX.5>INS</CX.5>
+  </PID.3>
+  <PID.5>
+    <XPN.1>
+      <FN.1>PAT-TROIS</FN.1>
+    </XPN.1>
+    <XPN.2>DOMINIQUE</XPN.2>
+    <XPN.7>L</XPN.7>
+  </PID.5>
+  <PID.7>
+    <TS.1>19790328</TS.1>
+  </PID.7>
+  <PID.8>F</PID.8>
+  <PID.11>
+    <XAD.3>PARIS</XAD.3>
+    <XAD.7>H</XAD.7>
+  </PID.11>
+  <PID.11>
+    <XAD.7>BDL</XAD.7>
+    <XAD.9>63220</XAD.9>
+  </PID.11>
+</PID>

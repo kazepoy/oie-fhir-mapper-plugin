@@ -1,0 +1,8 @@
+<patient>
+  <identifier>100001</identifier>
+  <family>MARTIN</family>
+  <given>CLAIRE</given>
+  <given>ANNE</given>
+  <birthDate>1980-02-15</birthDate>
+  <gender>female</gender>
+</patient>

@@ -1,0 +1,467 @@
+{
+  "groups": [
+    {
+      "key": "hl7v2-mapper",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da01",
+      "name": "HL7v2 - Mapper"
+    },
+    {
+      "key": "hl7v2-fml",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da03",
+      "name": "HL7v2 - FML"
+    },
+    {
+      "key": "fml-versus-mapper",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da09",
+      "name": "FML versus Mapper"
+    },
+    {
+      "key": "json-mapper",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da02",
+      "name": "JSON - Mapper"
+    },
+    {
+      "key": "csv-mapper",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da06",
+      "name": "CSV - Mapper"
+    },
+    {
+      "key": "csv-fml",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da04",
+      "name": "CSV - FML"
+    },
+    {
+      "key": "xml-mapper",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da05",
+      "name": "XML - Mapper"
+    },
+    {
+      "key": "fhir-fml",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da07",
+      "name": "FHIR - FML"
+    },
+    {
+      "key": "http-mock",
+      "id": "ce3d058f-a54e-55fd-b2d8-2221bd51da08",
+      "name": "HTTP - Mock"
+    }
+  ],
+  "channels": [
+    {
+      "channel": "oru-r01-to-fhir-bundle.xml",
+      "group": "hl7v2-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "Mapper",
+        "local-terminology",
+        "references",
+        "trace",
+        "transaction"
+      ],
+      "input": "hl7v2/oru-r01-labo.er7"
+    },
+    {
+      "channel": "oru-r01-to-fhir-patient.xml",
+      "group": "hl7v2-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "Mapper",
+        "contexts",
+        "samples",
+        "slices"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7"
+    },
+    {
+      "channel": "oru-r01-to-two-lab-bundles.xml",
+      "group": "hl7v2-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "Mapper",
+        "document",
+        "multi-bundles",
+        "transaction",
+        "variables"
+      ],
+      "input": "hl7v2/oru-r01-labo.er7"
+    },
+    {
+      "channel": "oru-r01-to-fhir-patient-strict.xml",
+      "group": "hl7v2-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "Mapper",
+        "strict-parser",
+        "typed-xml"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7"
+    },
+    {
+      "channel": "oru-r01-to-fhir-bundle-fml-typed.xml",
+      "group": "hl7v2-fml",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "FML",
+        "imports",
+        "logical-model",
+        "strict-parser",
+        "transaction"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7",
+      "preview": {
+        "dataType": "XML",
+        "input": "hl7v2/oru-r01-minimal-strict.xml",
+        "expected": "hl7v2/oru-r01-minimal-strict-expected.json"
+      }
+    },
+    {
+      "channel": "oru-r01-to-fhir-patient-fml-inline.xml",
+      "group": "hl7v2-fml",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "FML",
+        "inline",
+        "local-terminology",
+        "oie-message"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7",
+      "preview": {
+        "dataType": "HL7V2",
+        "input": "hl7v2/oru-r01-minimal.er7",
+        "expected": "hl7v2/oru-r01-minimal-expected.json"
+      }
+    },
+    {
+      "channel": "oru-r01-to-fhir-patient-fml-ig.xml",
+      "group": "hl7v2-fml",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "FML",
+        "map-url",
+        "oie-message",
+        "validation"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7",
+      "preview": {
+        "dataType": "HL7V2",
+        "input": "hl7v2/oru-r01-minimal.er7",
+        "expected": "hl7v2/oru-r01-minimal-expected.json"
+      },
+      "deployed": {
+        "portEnv": "IG_FML_PATIENT_PORT",
+        "port": 10815,
+        "route": "patient-fml-ig",
+        "expected": "hl7v2/oru-r01-minimal-expected.json",
+        "contentType": "text/plain",
+        "previewType": "HL7V2"
+      },
+      "invalid": {
+        "input": "hl7v2/oru-r01-sans-date-de-naissance.er7",
+        "diagnostic": "birthDate",
+        "contentType": "text/plain",
+        "dataType": "HL7V2"
+      }
+    },
+    {
+      "channel": "sql-xml-to-fhir-patient.xml",
+      "group": "xml-mapper",
+      "tags": [
+        "R4",
+        "XML",
+        "Mapper",
+        "accents",
+        "identifiers",
+        "simulated-sql"
+      ],
+      "input": "xml/patient-result-sql.xml"
+    },
+    {
+      "channel": "csv-business-patients-to-patient.xml",
+      "group": "csv-mapper",
+      "tags": [
+        "R4",
+        "CSV",
+        "Mapper",
+        "batch",
+        "cleanup",
+        "destination-mapping"
+      ],
+      "input": "csv/patients-metier-10.csv"
+    },
+    {
+      "channel": "csv-business-patients-to-collection.xml",
+      "group": "csv-mapper",
+      "tags": [
+        "R4",
+        "CSV",
+        "Mapper",
+        "cleanup",
+        "collection",
+        "destination-mapping"
+      ],
+      "input": "csv/patients-metier-10.csv"
+    },
+    {
+      "channel": "csv-to-permission-r5-fml.xml",
+      "group": "csv-fml",
+      "tags": [
+        "R5",
+        "CSV",
+        "FML",
+        "oie-message",
+        "permission",
+        "transaction",
+        "validation"
+      ],
+      "input": "csv/permissions-r5.csv",
+      "preview": {
+        "dataType": "DELIMITED",
+        "input": "csv/permissions-r5.csv",
+        "expected": "csv/permissions-r5-expected.json"
+      },
+      "deployed": {
+        "portEnv": "PERMISSION_R5_PORT",
+        "port": 10814,
+        "route": "permission-r5",
+        "expected": "csv/permissions-r5-expected.json",
+        "contentType": "text/csv",
+        "previewType": "DELIMITED"
+      },
+      "invalid": {
+        "input": "csv/permissions-r5-invalide.csv",
+        "diagnostic": "status",
+        "contentType": "text/csv",
+        "dataType": "DELIMITED"
+      }
+    },
+    {
+      "channel": "business-json-to-organization-r5.xml",
+      "group": "json-mapper",
+      "tags": [
+        "R5",
+        "JSON",
+        "Mapper",
+        "org-description",
+        "validation"
+      ],
+      "input": "json/organisation-metier.json",
+      "deployed": {
+        "portEnv": "ORGANIZATION_R5_PORT",
+        "port": 10810,
+        "route": "organization-r5",
+        "expected": "json/organisation-metier-expected.json"
+      },
+      "invalid": {
+        "input": "json/organisation-metier-invalide.json",
+        "diagnostic": "Organization.active"
+      }
+    },
+    {
+      "channel": "business-json-to-patient-fr-core.xml",
+      "group": "json-mapper",
+      "tags": [
+        "R4",
+        "JSON",
+        "Mapper",
+        "birth-place",
+        "pi-identifier",
+        "validation"
+      ],
+      "input": "json/patient-metier-fr-core.json",
+      "deployed": {
+        "portEnv": "FR_CORE_PATIENT_PORT",
+        "port": 10811,
+        "route": "patient-fr-core",
+        "expected": "json/patient-metier-fr-core-expected.json"
+      },
+      "invalid": {
+        "input": "json/patient-metier-fr-core-invalide.json",
+        "diagnostic": "official"
+      }
+    },
+    {
+      "channel": "business-json-to-obs-eu-lab.xml",
+      "group": "json-mapper",
+      "tags": [
+        "R4",
+        "JSON",
+        "Mapper",
+        "contexts",
+        "validation"
+      ],
+      "input": "json/observation-eu-lab.json",
+      "deployed": {
+        "portEnv": "EU_LAB_OBS_PORT",
+        "port": 10813,
+        "route": "eu-lab-observation",
+        "expected": "json/observation-eu-lab-expected.json"
+      },
+      "invalid": {
+        "input": "json/observation-eu-lab-invalide.json",
+        "diagnostic": "effective"
+      }
+    },
+    {
+      "channel": "business-json-to-obs-external-tx.xml",
+      "group": "json-mapper",
+      "tags": [
+        "R4",
+        "JSON",
+        "Mapper",
+        "contexts",
+        "external-terminology",
+        "validation"
+      ],
+      "input": "json/observation-tx-glu.json",
+      "deployed": {
+        "portEnv": "EXTERNAL_TX_OBS_PORT",
+        "port": 10816,
+        "route": "obs-external-tx",
+        "expected": "json/observation-tx-glu-expected.json"
+      },
+      "invalid": {
+        "input": "json/observation-tx-unavailable.json",
+        "diagnostic": "503"
+      }
+    },
+    {
+      "channel": "fhir-patient-to-summary-fml.xml",
+      "group": "fhir-fml",
+      "tags": [
+        "R4",
+        "FHIR",
+        "FML",
+        "projection",
+        "source-fhir",
+        "validation"
+      ],
+      "input": "json/patient-fhir-source.json",
+      "preview": {
+        "dataType": "JSON",
+        "input": "json/patient-fhir-source.json",
+        "expected": "json/patient-fhir-source-expected.json"
+      },
+      "deployed": {
+        "portEnv": "FHIR_SUMMARY_PORT",
+        "port": 10812,
+        "route": "patient-summary",
+        "expected": "json/patient-fhir-source-expected.json"
+      },
+      "invalid": {
+        "input": "json/patient-fhir-source-invalide.json",
+        "diagnostic": "inconnu"
+      }
+    },
+    {
+      "channel": "http-terminology-mock.xml",
+      "group": "http-mock",
+      "tags": [
+        "R4",
+        "HTTP",
+        "Mock",
+        "external-terminology",
+        "mock-server"
+      ],
+      "input": "api/terminology-translate-query.txt",
+      "mock": true
+    },
+    {
+      "channel": "oru-r01-patient-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7"
+    },
+    {
+      "channel": "oru-r01-patient-strict-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "HL7v2",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline",
+        "strict-parser"
+      ],
+      "input": "hl7v2/oru-r01-minimal.er7"
+    },
+    {
+      "channel": "csv-patient-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "CSV",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline"
+      ],
+      "input": "csv/patient-metier.csv"
+    },
+    {
+      "channel": "sql-xml-patient-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "XML",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline"
+      ],
+      "input": "xml/patient-result-sql.xml"
+    },
+    {
+      "channel": "business-json-patient-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "JSON",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline"
+      ],
+      "input": "json/patient-metier-fr-core.json"
+    },
+    {
+      "channel": "fhir-patient-summary-fml-vs-mapper.xml",
+      "group": "fml-versus-mapper",
+      "tags": [
+        "R4",
+        "FHIR",
+        "FML",
+        "Mapper",
+        "benchmark",
+        "destination-mapping",
+        "dual-destination",
+        "inline"
+      ],
+      "input": "json/patient-fhir-source.json"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+// Map de demonstration du service : n'utilise que le core FHIR R4, toujours charge.
+// Recopie l'identite d'un Patient, normalise le nom de famille en majuscules et marque
+// le patient actif. A remplacer par les maps de votre propre IG.
+map "http://example.org/fhir/StructureMap/PatientDemo" = "PatientDemo"
+
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
+
+group PatientDemo(source src : Patient, target tgt : Patient) {
+  src.id as id -> tgt.id = id "id";
+  src.identifier as identifier -> tgt.identifier = identifier "identifier";
+  src.name as srcName -> tgt.name as tgtName then Name(srcName, tgtName) "name";
+  src.gender as gender -> tgt.gender = gender "gender";
+  src.birthDate as birthDate -> tgt.birthDate = birthDate "birthDate";
+  src -> tgt.active = true "active";
+}
+
+group Name(source src : HumanName, target tgt : HumanName) {
+  src.use as use -> tgt.use = use "use";
+  src.family as family -> tgt.family = (family.upper()) "family";
+  src.given as given -> tgt.given = given "given";
+}

@@ -1,0 +1,18 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "v2-0203-fr",
+  "url": "http://example.org/fhir/hl7v2-demo/CodeSystem/v2-0203-fr",
+  "name": "V2Table0203Fr",
+  "title": "HL7v2 table 0203, French INS code",
+  "status": "draft",
+  "experimental": true,
+  "description": "INS code for HL7 v2 table 0203 (Identifier Type), added by IHE PAM FR and absent from the international table: a PID-3 with CX-5 equal to INS carries the patient's national health identifier. Limited to the code used in this demo; included alongside the international table in ValueSet v2-0203-fr, bound to CX-5 by demo-CX.json.",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "INS",
+      "display": "French national health identifier"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<set>
+  <channelGroup version="4.7.0">
+    <id>cbcb2872-e485-4be5-986c-19e3c03db09f</id>
+    <name>FML transformer</name>
+    <revision>1</revision>
+    <description>Curated FML transformer examples.</description>
+    <channels>
+      <channel version="4.7.0"><id>8f4a19a4-2018-40c1-8e08-3e8361841907</id></channel>
+      <channel version="4.7.0"><id>82f45c2c-9f1f-4a73-ae96-b4fc4bc1422e</id></channel>
+      <channel version="4.7.0"><id>2faf2287-8dd8-4301-82d8-7ad542a410e2</id></channel>
+      <channel version="4.7.0"><id>7bb123c3-8717-4f12-bbf0-fe8892bf8234</id></channel>
+      <channel version="4.7.0"><id>040f4f94-d926-495d-ac5b-762dada9b384</id></channel>
+      <channel version="4.7.0"><id>78dfe889-afa8-49f9-afd5-5aaa07aeb4f7</id></channel>
+      <channel version="4.7.0"><id>6a2b9104-4d15-4a2b-8f30-809400000001</id></channel>
+      <channel version="4.7.0"><id>6a2b9104-4d15-4a2b-8f30-809500000001</id></channel>
+      <channel version="4.7.0"><id>9b1f4c10-6e2d-4a8b-9f11-108080000011</id></channel>
+    </channels>
+  </channelGroup>
+</set>

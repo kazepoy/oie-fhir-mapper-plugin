@@ -1,0 +1,116 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "CX",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/CX",
+  "name": "CX",
+  "title": "HL7 v2 CX data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 CX logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: CX_1, CX_5. CX-5 is bound to the local v2-0203-fr ValueSet, which adds the French INS code to international table 0203.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/CX",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "CX",
+        "path": "CX",
+        "short": "HL7 v2 CX",
+        "definition": "CX carries an identifier and associated administrative information.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "CX.CX_1",
+        "path": "CX.CX_1",
+        "short": "ID Number",
+        "definition": "CX.1 - ID Number",
+        "alias": [
+          "CX.1",
+          "IDNumber",
+          "ID Number"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "CX.1"
+          }
+        ]
+      },
+      {
+        "id": "CX.CX_1.value",
+        "path": "CX.CX_1.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "ID Number",
+        "definition": "CX.1 - ID Number",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CX.CX_5",
+        "path": "CX.CX_5",
+        "short": "Identifier Type Code",
+        "definition": "CX.5 - Identifier Type Code",
+        "alias": [
+          "CX.5",
+          "IdentifierTypeCode"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "CX.5"
+          }
+        ]
+      },
+      {
+        "id": "CX.CX_5.value",
+        "path": "CX.CX_5.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Identifier Type Code",
+        "definition": "CX.5 - Identifier Type Code",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://example.org/fhir/hl7v2-demo/ValueSet/v2-0203-fr"
+        }
+      }
+    ]
+  }
+}

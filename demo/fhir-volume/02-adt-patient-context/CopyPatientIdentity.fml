@@ -1,0 +1,9 @@
+map "http://example.org/fml-demo/StructureMap/CopyPatientIdentity" = "CopyPatientIdentity"
+
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias PatientOut as target
+
+group CopyPatientIdentity(source src : Patient, target tgt : PatientOut) {
+  src.identifier as identifier -> tgt.identifier = identifier "identifier";
+  src.name as name -> tgt.name = name "name";
+}

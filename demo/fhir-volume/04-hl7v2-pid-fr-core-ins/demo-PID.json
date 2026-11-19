@@ -1,0 +1,166 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "PID",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/PID",
+  "name": "PID",
+  "title": "HL7 v2 PID segment",
+  "status": "draft",
+  "description": "Demo HL7 v2 PID logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: PID_3, PID_5, PID_7, PID_8, PID_11.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/PID",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "PID",
+        "path": "PID",
+        "short": "HL7 v2 PID segment",
+        "definition": "PID carries the patient's administrative and demographic identity.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "PID.PID_3",
+        "path": "PID.PID_3",
+        "short": "Patient Identifier List",
+        "definition": "PID.3 - Patient Identifier List",
+        "alias": [
+          "PID.3",
+          "PatientIdentifierList"
+        ],
+        "min": 1,
+        "max": "*",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/CX"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.3"
+          }
+        ]
+      },
+      {
+        "id": "PID.PID_5",
+        "path": "PID.PID_5",
+        "short": "Patient Name",
+        "definition": "PID.5 - Patient Name",
+        "alias": [
+          "PID.5",
+          "PatientName"
+        ],
+        "min": 1,
+        "max": "*",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XPN"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.5"
+          }
+        ]
+      },
+      {
+        "id": "PID.PID_7",
+        "path": "PID.PID_7",
+        "short": "Date/Time of Birth",
+        "definition": "PID.7 - Date/Time of Birth",
+        "alias": [
+          "PID.7",
+          "DateTimeOfBirth"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/TS"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.7"
+          }
+        ]
+      },
+      {
+        "id": "PID.PID_8",
+        "path": "PID.PID_8",
+        "short": "Administrative Sex",
+        "definition": "PID.8 - Administrative Sex",
+        "alias": [
+          "PID.8",
+          "AdministrativeSex"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/IS"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.8"
+          }
+        ]
+      },
+      {
+        "id": "PID.PID_8.value",
+        "path": "PID.PID_8.value",
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://terminology.hl7.org/ValueSet/v2-0001"
+        },
+        "representation": [
+          "xmlText"
+        ],
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "PID.PID_11",
+        "path": "PID.PID_11",
+        "short": "Patient Address",
+        "definition": "PID.11 - Patient Address",
+        "alias": [
+          "PID.11",
+          "PatientAddress"
+        ],
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XAD"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.11"
+          }
+        ]
+      }
+    ]
+  }
+}

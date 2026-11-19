@@ -1,0 +1,9 @@
+{
+  "id": "fhir-mapper",
+  "name": "FHIR Mapper",
+  "version": "${project.version}",
+  "author": "kazepoy",
+  "description": "Graphical FHIR mapper transform, FML transformations, and runtime.",
+  "oie": { "apiMin": "4.7" },
+  "client": { "entry": "web/plugin.js" }
+}

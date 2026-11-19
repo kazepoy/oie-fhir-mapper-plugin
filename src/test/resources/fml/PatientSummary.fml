@@ -1,0 +1,15 @@
+map "http://example.org/fhir/oru2fhir/StructureMap/PatientSummary" = "PatientSummary"
+
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Source as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Target as target
+
+// Explicit projection: contact details and other fields are not copied.
+// False values must be preserved, just like any other present value.
+group PatientSummary(source src : Source, target tgt : Target) {
+  src.id as id -> tgt.id = id "id";
+  src.active as active -> tgt.active = active "active";
+  src.identifier as identifier -> tgt.identifier = identifier "identifier";
+  src.name as name -> tgt.name = name "name";
+  src.gender as gender -> tgt.gender = gender "gender";
+  src.birthDate as birthDate -> tgt.birthDate = birthDate "birthDate";
+}

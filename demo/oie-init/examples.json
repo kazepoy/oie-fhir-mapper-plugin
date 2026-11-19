@@ -1,0 +1,191 @@
+{
+  "channels": [
+    {
+      "file": "01-adt-a28-patient-inline-fml.xml",
+      "id": "8f4a19a4-2018-40c1-8e08-3e8361841907",
+      "name": "01 ADT A28 to Patient - Inline FML",
+      "group": "FML transformer",
+      "port": 10804,
+      "route": "/simple-fml",
+      "input": "data/samples/adt-a28.er7",
+      "purpose": "Inline FML over native OIE XML",
+      "resources": null
+    },
+    {
+      "file": "02-adt-a28-patient-terminology.xml",
+      "id": "82f45c2c-9f1f-4a73-ae96-b4fc4bc1422e",
+      "name": "02 ADT A28 to Patient - Terminology",
+      "group": "FML transformer",
+      "port": 10805,
+      "route": "/fml-terminology",
+      "input": "data/samples/adt-a28.er7",
+      "purpose": "Remote terminology, shared profile and nested FML imports",
+      "resources": "02-adt-patient-context"
+    },
+    {
+      "file": "03-hl7v2-patient-oiemessage.xml",
+      "id": "2faf2287-8dd8-4301-82d8-7ad542a410e2",
+      "name": "03 HL7v2 to Patient - OieMessage",
+      "group": "FML transformer",
+      "port": 10800,
+      "route": "/oru-patient",
+      "input": "data/samples/oru-r01.er7",
+      "purpose": "Standard/Strict HL7v2 and prepared XML/JSON/text via OieMessage",
+      "resources": null
+    },
+    {
+      "file": "04-hl7v2-pid-fr-core-ins.xml",
+      "id": "7bb123c3-8717-4f12-bbf0-fe8892bf8234",
+      "name": "04 HL7v2 PID to FR Core INS",
+      "group": "FML transformer",
+      "port": 10801,
+      "route": "/pid-fr-core-ins",
+      "input": "data/samples/04-hl7v2-pid-fr-core-ins/input.er7",
+      "purpose": "Native HAPI XML and PID logical model to FR Core INS",
+      "resources": "04-hl7v2-pid-fr-core-ins"
+    },
+    {
+      "file": "05-fhir-patient-normalization.xml",
+      "id": "040f4f94-d926-495d-ac5b-762dada9b384",
+      "name": "05 FHIR Patient - Normalize Identity",
+      "group": "FML transformer",
+      "port": 10802,
+      "route": "/fhir-patient",
+      "input": "data/samples/05-fhir-patient-normalization/input.json",
+      "purpose": "FHIR source: normalize identity and set active",
+      "resources": "05-fhir-patient-normalization"
+    },
+    {
+      "file": "06-json-order-to-dispatch.xml",
+      "id": "78dfe889-afa8-49f9-afd5-5aaa07aeb4f7",
+      "name": "06 JSON Order to Dispatch",
+      "group": "FML transformer",
+      "port": 10803,
+      "route": "/commande-json",
+      "input": "data/samples/06-json-order-to-dispatch/input.json",
+      "purpose": "Logical JSON source and target without FHIR resources",
+      "resources": "06-json-order-to-dispatch"
+    },
+    {
+      "file": "07-csv-permission-r5-fml.xml",
+      "id": "6a2b9104-4d15-4a2b-8f30-809400000001",
+      "name": "07 CSV to R5 Permission - FML",
+      "group": "FML transformer",
+      "port": 10814,
+      "route": "/permission-r5",
+      "input": "data/samples/restored/permissions-r5.csv",
+      "purpose": "CSV to R5 Organization and Permission transaction",
+      "resources": "07-csv-permission-r5"
+    },
+    {
+      "file": "08-oru-patient-structuremap.xml",
+      "id": "6a2b9104-4d15-4a2b-8f30-809500000001",
+      "name": "08 ORU to Patient - StructureMap",
+      "group": "FML transformer",
+      "port": 10815,
+      "route": "/patient-fml-ig",
+      "input": "data/samples/restored/oru-patient.er7",
+      "purpose": "Published StructureMap JSON and local validation",
+      "resources": "08-oru-patient-structuremap"
+    },
+    {
+      "file": "09-csv-patient-bundle-mapper.xml",
+      "id": "33517dba-5b87-465d-988a-e291f5e88470",
+      "name": "09 CSV to Patient Bundle - Mapper",
+      "group": "Mapper transformer",
+      "port": 10806,
+      "route": "/csv-patients-collection",
+      "input": "data/samples/restored/business-patients.csv",
+      "purpose": "CSV cleanup to a collection of ten Patients",
+      "resources": "shared/lab-r4"
+    },
+    {
+      "file": "10-oru-lab-transaction-mapper.xml",
+      "id": "5d0f6c2a-8b3e-4f1a-9c7d-2e6b1a0f3c48",
+      "name": "10 ORU to Lab Bundle - Mapper",
+      "group": "Mapper transformer",
+      "port": 10807,
+      "route": "/oru",
+      "input": "data/samples/restored/oru-laboratory.er7",
+      "purpose": "Clinical transaction, repeating OBX values and resource references",
+      "resources": "shared/lab-r4"
+    },
+    {
+      "file": "11-hl7v2-patient-ig-tgz.xml",
+      "id": "9b1f4c10-6e2d-4a8b-9f11-108080000011",
+      "name": "11 HL7v2 to Patient - IG tgz",
+      "group": "FML transformer",
+      "port": 10808,
+      "route": "/devdays-patient",
+      "input": "data/samples/adt-a28.er7",
+      "purpose": "HL7v2 ADT A28 to DevDaysIGtutorial-Patient using a .tgz IG package and Hades terminology",
+      "resources": "11-hl7v2-patient-ig-tgz"
+    },
+    {
+      "file": "12-oru-two-lab-bundles-mapper.xml",
+      "id": "aa431dca-b805-4ac6-8dbd-e272b6fc4c18",
+      "name": "12 ORU to Two Lab Bundles - Mapper",
+      "group": "Mapper transformer",
+      "port": 10811,
+      "route": "/labo",
+      "input": "data/samples/restored/oru-laboratory.er7",
+      "purpose": "Two parallel Bundles (transaction and document) sharing the same clinical resources",
+      "resources": "shared/lab-r4"
+    },
+    {
+      "file": "13-sql-xml-patient-mapper.xml",
+      "id": "8b031c27-0c2e-40e1-b7f3-69ce531e7a24",
+      "name": "13 SQL XML to Patient - Mapper",
+      "group": "Mapper transformer",
+      "port": 10812,
+      "route": "/sql-patient",
+      "input": "examples/xml/patient-result-sql.xml",
+      "purpose": "Simulated SQL XML row to Patient with preserved accents and leading zeroes",
+      "resources": "shared/lab-r4"
+    },
+    {
+      "file": "14-json-obs-external-tx-mapper.xml",
+      "id": "6a2b9104-4d15-4a2b-8f30-809600000001",
+      "name": "14 JSON to Obs Ext TX - Mapper",
+      "group": "Mapper transformer",
+      "port": 10816,
+      "route": "/obs-external-tx",
+      "input": "examples/json/observation-tx-glu.json",
+      "purpose": "External terminology ConceptMap/$translate, fallback and 503 unavailability",
+      "resources": null
+    },
+    {
+      "file": "15-http-terminology-mock.xml",
+      "id": "6a2b9104-4d15-4a2b-8f30-809900000001",
+      "name": "15 Terminology Mock ($translate)",
+      "group": "Mapper transformer",
+      "port": 10819,
+      "route": "/fhir",
+      "input": "examples/api/terminology-translate-query.txt",
+      "purpose": "HTTP mock implementing GET /fhir/ConceptMap/$translate for channel 14",
+      "resources": null
+    },
+    {
+      "file": "16-json-organization-r5-mapper.xml",
+      "id": "89c98d20-f9c1-4ae4-a7eb-4133f8708090",
+      "name": "16 JSON to R5 Org - Mapper",
+      "group": "Mapper transformer",
+      "port": 10810,
+      "route": "/organization-r5",
+      "input": "examples/json/organisation-metier.json",
+      "purpose": "Business JSON to FHIR R5 Organization with R5 markdown description",
+      "resources": null
+    },
+    {
+      "file": "17-oru-patient-fml-vs-mapper.xml",
+      "id": "6a2b9104-4d15-4a2b-8f30-809700000001",
+      "name": "17 ORU to Patient - FML vs Mapper",
+      "group": "Mapper transformer",
+      "port": 10817,
+      "route": "/patient-compare",
+      "input": "data/samples/restored/oru-patient.er7",
+      "purpose": "Parallel destinations comparing inline FML and Mapper Transform outputs and timings",
+      "resources": "shared/lab-r4"
+    }
+  ]
+}

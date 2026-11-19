@@ -1,0 +1,49 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "IS",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/IS",
+  "name": "IS",
+  "title": "HL7 v2 IS primitive type",
+  "status": "draft",
+  "description": "Demo HL7 v2 IS logical model, restricted to components used by PidToFrCorePatientIns.map. The complete model is included; it carries a single value.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/IS",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "IS",
+        "path": "IS",
+        "short": "HL7 v2 IS",
+        "definition": "HL7 v2 value coded according to a user-defined table.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "IS.value",
+        "path": "IS.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Coded value",
+        "definition": "Primitive coded XML value for HL7 v2 IS.",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ]
+      }
+    ]
+  }
+}

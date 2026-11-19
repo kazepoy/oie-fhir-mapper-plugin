@@ -1,0 +1,158 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "XAD",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XAD",
+  "name": "XAD",
+  "title": "HL7 v2 XAD data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 XAD logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: XAD_3, XAD_7, XAD_9.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XAD",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "XAD",
+        "path": "XAD",
+        "short": "HL7 v2 XAD",
+        "definition": "XAD carries a complete HL7 v2 address and its usage context.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "XAD.XAD_3",
+        "path": "XAD.XAD_3",
+        "short": "City",
+        "definition": "XAD.3 - City",
+        "alias": [
+          "XAD.3",
+          "City"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XAD.3"
+          }
+        ]
+      },
+      {
+        "id": "XAD.XAD_3.value",
+        "path": "XAD.XAD_3.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "City",
+        "definition": "XAD.3 - City",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "XAD.XAD_7",
+        "path": "XAD.XAD_7",
+        "short": "Address Type",
+        "definition": "XAD.7 - Address Type",
+        "alias": [
+          "XAD.7",
+          "AddressType"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XAD.7"
+          }
+        ]
+      },
+      {
+        "id": "XAD.XAD_7.value",
+        "path": "XAD.XAD_7.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Address Type",
+        "definition": "XAD.7 - Address Type",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://terminology.hl7.org/ValueSet/v2-0190"
+        }
+      },
+      {
+        "id": "XAD.XAD_9",
+        "path": "XAD.XAD_9",
+        "short": "County/Parish Code",
+        "definition": "XAD.9 - County/Parish Code",
+        "alias": [
+          "XAD.9",
+          "CountyParishCode"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XAD.9"
+          }
+        ]
+      },
+      {
+        "id": "XAD.XAD_9.value",
+        "path": "XAD.XAD_9.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "County/Parish Code",
+        "definition": "XAD.9 - County/Parish Code",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://terminology.hl7.org/ValueSet/v2-0289"
+        }
+      }
+    ]
+  }
+}

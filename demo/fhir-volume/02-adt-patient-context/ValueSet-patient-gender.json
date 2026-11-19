@@ -1,0 +1,29 @@
+{
+  "resourceType": "ValueSet",
+  "id": "patient-gender",
+  "url": "http://example.org/fml-demo/ValueSet/patient-gender",
+  "name": "DemoPatientGender",
+  "status": "draft",
+  "experimental": true,
+  "compose": {
+    "include": [
+      {
+        "system": "http://hl7.org/fhir/administrative-gender",
+        "concept": [
+          {
+            "code": "female"
+          },
+          {
+            "code": "male"
+          },
+          {
+            "code": "other"
+          },
+          {
+            "code": "unknown"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "FN",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/FN",
+  "name": "FN",
+  "title": "HL7 v2 FN data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 FN logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: FN_1.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/FN",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "FN",
+        "path": "FN",
+        "short": "HL7 v2 FN",
+        "definition": "FN carries the components of an HL7 v2 family name.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "FN.FN_1",
+        "path": "FN.FN_1",
+        "short": "Surname",
+        "definition": "FN.1 - Surname",
+        "alias": [
+          "FN.1",
+          "Surname"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "FN.1"
+          }
+        ]
+      },
+      {
+        "id": "FN.FN_1.value",
+        "path": "FN.FN_1.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Surname",
+        "definition": "FN.1 - Surname",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

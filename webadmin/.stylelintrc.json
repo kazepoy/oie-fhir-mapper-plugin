@@ -1,0 +1,13 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "rule-empty-line-before": null,
+    "at-rule-empty-line-before": null,
+    "selector-attribute-quotes": null,
+    "value-keyword-case": null,
+    "no-descending-specificity": null,
+    "comment-empty-line-before": null
+  }
+}

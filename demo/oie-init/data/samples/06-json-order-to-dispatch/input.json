@@ -1,0 +1,18 @@
+{
+  "numero": "CMD-2026-001",
+  "client": {
+    "code": "C042",
+    "nom": "Atelier démo"
+  },
+  "urgent": true,
+  "lignes": [
+    {
+      "article": "TUBE-EDTA",
+      "quantite": 3
+    },
+    {
+      "article": "ETIQUETTE",
+      "quantite": 2
+    }
+  ]
+}

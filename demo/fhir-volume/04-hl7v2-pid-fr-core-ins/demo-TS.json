@@ -1,0 +1,56 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "TS",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/TS",
+  "name": "TS",
+  "title": "HL7 v2 TS data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 TS logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: TS_1.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/TS",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "TS",
+        "path": "TS",
+        "short": "HL7 v2 TS",
+        "definition": "TS carries an HL7 v2 timestamp and an optional degree of precision.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "TS.TS_1",
+        "path": "TS.TS_1",
+        "short": "TS.1 - Timestamp value",
+        "definition": "TS.1 - Timestamp value",
+        "alias": [
+          "TS.1",
+          "Time"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/DTM"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "TS.1"
+          }
+        ]
+      }
+    ]
+  }
+}

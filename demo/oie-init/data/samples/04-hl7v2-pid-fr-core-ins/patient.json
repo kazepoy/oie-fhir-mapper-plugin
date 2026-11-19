@@ -1,0 +1,51 @@
+{
+  "resourceType" : "Patient",
+  "meta" : {
+    "profile" : ["https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins"]
+  },
+  "extension" : [{
+    "url" : "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+    "valueAddress" : {
+      "extension" : [{
+        "url" : "https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-address-insee-code",
+        "valueCoding" : {
+          "system" : "https://mos.esante.gouv.fr/NOS/TRE_R13-CommuneOM/FHIR/TRE-R13-CommuneOM",
+          "code" : "63220"
+        }
+      }]
+    }
+  }],
+  "identifier" : [{
+    "use" : "official",
+    "type" : {
+      "coding" : [{
+        "system" : "https://hl7.fr/ig/fhir/core/CodeSystem/fr-core-cs-v2-0203",
+        "code" : "INS-NIR"
+      }]
+    },
+    "system" : "urn:oid:1.2.250.1.213.1.4.8",
+    "value" : "279035121518989"
+  },
+  {
+    "use" : "usual",
+    "type" : {
+      "coding" : [{
+        "system" : "http://terminology.hl7.org/CodeSystem/v2-0203",
+        "code" : "PI"
+      }]
+    },
+    "system" : "http://example.org/fhir/hl7v2-demo/sid/ipp",
+    "value" : "000003"
+  }],
+  "name" : [{
+    "extension" : [{
+      "url" : "https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-birth-list-given-name",
+      "valueString" : "DOMINIQUE"
+    }],
+    "use" : "official",
+    "family" : "PAT-TROIS",
+    "given" : ["DOMINIQUE"]
+  }],
+  "gender" : "female",
+  "birthDate" : "1979-03-28"
+}

@@ -1,0 +1,18 @@
+# Local Gitleaks configuration for OIE FHIR Mapper.
+# Extends Gitleaks built-in rules while allowing documented non-secret demo fixtures.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Demo environment default credentials, test fixtures, and generated reports"
+paths = [
+  '''(?:^|/)demo/''',
+  '''(?:^|/)doc/''',
+  '''(?:^|/)examples/''',
+  '''(?:^|/)tools/tests/''',
+  '''(?:^|/)tools/security/reports/''',
+  '''(?:^|/)webadmin/test/''',
+  '''(?:^|/)src/test/''',
+  '''(?:^|/)tools/security/gitleaks\.toml$''',
+]

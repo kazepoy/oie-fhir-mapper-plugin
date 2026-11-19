@@ -1,0 +1,9 @@
+{
+  "resourceType": "Patient",
+  "identifier": [
+    {
+      "system": "http://example.org/fhir/sid/ipp",
+      "value": "100001"
+    }
+  ]
+}

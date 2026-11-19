@@ -1,0 +1,106 @@
+map "http://example.org/fhir/hl7v2-demo/StructureMap/PidToFrCorePatientIns" = "PidToFrCorePatientIns"
+
+// HL7v2 -> FHIR demo: one PID segment to an FR Core Patient with INS.
+//
+// Source: demo-*.json logical models, restricted to the components used here.
+// Each component has a value child marked with the xmlText representation,
+// holding the XML element's text: hence CX_1 followed by .value.
+//
+// Target: https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins,
+// from package hl7.fhir.fr.core-2.2.0. The profile requires identifier, official
+// name with birth given names, gender, birthDate and the birthPlace extension
+// with its INSEE code: the map produces all of them.
+//
+// Input: the PID element extracted from native HAPI Strict Parser XML.
+// The logical models preserve dotted XML names through the xml-name extension.
+
+uses "http://example.org/fhir/hl7v2-demo/StructureDefinition/PID" alias PID as source
+uses "https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins" alias FrCorePatientIns as target
+
+group PidToFrCorePatientIns(source src : PID, target tgt : FrCorePatientIns) {
+  src -> tgt.meta as meta, meta.profile = 'https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins' "profile";
+
+  // PID-3 is repeatable; CX-5 identifies the identifier type.
+  // INS: the profile's INS-NIR slice, with type INS-NIR and OID 1.2.250.1.213.1.4.8.
+  src.PID_3 as cx where cx.CX_5.value = 'INS' -> tgt.identifier as identifier then {
+    cx -> identifier.use = 'official' "ins-use";
+    cx -> identifier.system = 'urn:oid:1.2.250.1.213.1.4.8' "ins-system";
+    cx -> identifier.type as type then {
+      cx -> type.coding as coding then {
+        cx -> coding.system = 'https://hl7.fr/ig/fhir/core/CodeSystem/fr-core-cs-v2-0203' "ins-type-system";
+        cx -> coding.code = 'INS-NIR' "ins-type-code";
+      } "ins-type-coding";
+    } "ins-type";
+    cx.CX_1 as idNumber then {
+      idNumber.value as idValue -> identifier.value = idValue "ins-value";
+    } "ins-number";
+  } "identifier-ins";
+
+  // Local patient identifier: PI slice, for which the profile does not require a specific system.
+  src.PID_3 as cx where cx.CX_5.value = 'PI' -> tgt.identifier as identifier then {
+    cx -> identifier.use = 'usual' "ipp-use";
+    cx -> identifier.system = 'http://example.org/fhir/hl7v2-demo/sid/ipp' "ipp-system";
+    cx -> identifier.type as type then {
+      cx -> type.coding as coding then {
+        cx -> coding.system = 'http://terminology.hl7.org/CodeSystem/v2-0203' "ipp-type-system";
+        cx -> coding.code = 'PI' "ipp-type-code";
+      } "ipp-type-coding";
+    } "ipp-type";
+    cx.CX_1 as idNumber then {
+      idNumber.value as idValue -> identifier.value = idValue "ipp-value";
+    } "ipp-number";
+  } "identifier-ipp";
+
+  // Birth name (XPN-7 = 'L') becomes the official name. The profile also requires
+  // the fr-core-patient-birth-list-given-name extension: this demo supplies the first
+  // given name; a production pipeline would supply the complete list (XPN-2 and XPN-3).
+  src.PID_5 as xpn where xpn.XPN_7.value = 'L' -> tgt.name as name then {
+    xpn -> name.use = 'official' "name-use";
+    xpn.XPN_1 as familyName then {
+      familyName.FN_1 as surname then {
+        surname.value as surnameValue -> name.family = surnameValue "family";
+      } "surname";
+    } "family-name";
+    xpn.XPN_2 as givenName then {
+      givenName.value as givenValue -> name.given = givenValue "given";
+    } "given-name";
+    xpn.XPN_2 as birthGivenName then {
+      birthGivenName.value as birthGivenValue -> name.extension as extension then {
+        birthGivenValue -> extension.url = 'https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-birth-list-given-name' "birth-given-url";
+        birthGivenValue -> extension.value = birthGivenValue "birth-given-value";
+      } "birth-given-extension";
+    } "birth-given-name";
+  } "name";
+
+  // YYYYMMDD to YYYY-MM-DD.
+  src.PID_7 as dateOfBirth then {
+    dateOfBirth.TS_1 as birthTime then {
+      birthTime.value as raw where raw.length() >= 8 -> tgt.birthDate = (raw.substring(0, 4) & '-' & raw.substring(4, 2) & '-' & raw.substring(6, 2)) "birth-date";
+    } "birth-time";
+  } "date-of-birth";
+
+  // translate() using the local demo-ConceptMap-sex-to-gender.json table.
+  src.PID_8 as administrativeSex then {
+    administrativeSex.value as sexValue -> tgt.gender = translate(sexValue, 'http://example.org/fhir/hl7v2-demo/ConceptMap/sex-to-administrative-gender', 'code') "gender";
+  } "administrative-sex";
+
+  // PID-11 of type 'BDL' carries the birthplace, with its INSEE municipality code in XAD-9.
+  // The profile requires the birthPlace extension and an INSEE code within its Address.
+  src.PID_11 as xad where xad.XAD_7.value = 'BDL' -> tgt.extension as extension then {
+    xad -> extension.url = 'http://hl7.org/fhir/StructureDefinition/patient-birthPlace' "birth-place-url";
+    xad -> extension.value = create('Address') as address then {
+      xad.XAD_3 as city then {
+        city.value as cityValue -> address.city = cityValue "birth-place-city";
+      } "city";
+      xad.XAD_9 as insee then {
+        insee.value as inseeValue -> address.extension as inseeExtension then {
+          inseeValue -> inseeExtension.url = 'https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-address-insee-code' "insee-url";
+          inseeValue -> inseeExtension.value = create('Coding') as coding then {
+            inseeValue -> coding.system = 'https://mos.esante.gouv.fr/NOS/TRE_R13-CommuneOM/FHIR/TRE-R13-CommuneOM' "insee-system";
+            inseeValue -> coding.code = inseeValue "insee-code";
+          } "insee-coding";
+        } "insee-extension";
+      } "insee";
+    } "birth-place-address";
+  } "birth-place";
+}

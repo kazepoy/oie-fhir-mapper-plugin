@@ -1,0 +1,43 @@
+map "http://example.org/fhir/oru2fhir/StructureMap/OruR01ToPatient" = "OruR01ToPatient"
+
+// Demo: the PID of an ORU^R01 becomes a Patient conforming to ExampleLabPatient (/fhir-volume/ig), like
+// the "ORU R01 to FHIR Patient" Mapper Transform channel, but in FML.
+// Source: the generic OIE logical model (OieMessage). A node is addressed by name
+// (PID, PID.5) or position (component 1, 2...); its value is in value.
+
+uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "http://example.org/fhir/oru2fhir/StructureDefinition/ExampleLabPatient" alias Patient as target
+
+group OruR01ToPatient(source src : OieMessage, target patient : Patient) {
+  src -> patient.meta as meta, meta.profile = 'http://example.org/fhir/oru2fhir/StructureDefinition/ExampleLabPatient' "profile";
+  src.node as pid where name = 'PID' then {
+    // IPP: the PID-3 whose identifier type (component 5) equals PI.
+    pid.node as cx where name = 'PID.3' and node.where(position = 5 and value = 'PI').exists() then {
+      cx.node as number where position = 1 -> patient.identifier as identifier then {
+        number -> identifier.system = 'http://example.org/fhir/oru2fhir/sid/ipp' "ipp-system";
+        number.value as v -> identifier.value = v "ipp-value";
+      } "ipp";
+    } "identifiers";
+    // Each name (repeatable PID-5): family name, given names, use based on name type.
+    pid.node as xpn where name = 'PID.5' -> patient.name as name then {
+      xpn.node as family where position = 1 then { family.value as v -> name.family = v "family"; } "family-name";
+      xpn.node as given where position = 2 then { given.value as v -> name.given = v "given"; } "given-name";
+      xpn.node as second where position = 3 then { second.value as v -> name.given = v "second-given"; } "second-given-name";
+      xpn.node as type where position = 7 and value = 'L' -> name.use = 'official' "use-official";
+      xpn.node as type where position = 7 and value = 'D' -> name.use = 'usual' "use-usual";
+      xpn.node as type where position = 7 and value = 'M' -> name.use = 'maiden' "use-maiden";
+    } "name";
+    // Gender: HL7 table 0001 to administrative-gender via the ConceptMap in /fhir-volume/ig.
+    pid.node as sex where name = 'PID.8' then {
+      sex.node as code where position = 1 then {
+        code.value as v -> patient.gender = translate(v, 'http://example.org/fhir/oru2fhir/ConceptMap/v2-0001-to-gender', 'code') "gender";
+      } "sex-code";
+    } "sex";
+    // Birth date: YYYYMMDD to YYYY-MM-DD.
+    pid.node as dob where name = 'PID.7' then {
+      dob.node as time where position = 1 then {
+        time.value as v where v.length() >= 8 -> patient.birthDate = (v.substring(0, 4) & '-' & v.substring(4, 2) & '-' & v.substring(6, 2)) "birthDate";
+      } "birth-time";
+    } "date-of-birth";
+  } "pid";
+}

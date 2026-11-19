@@ -1,0 +1,140 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "XPN",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XPN",
+  "name": "XPN",
+  "title": "HL7 v2 XPN data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 XPN logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: XPN_1, XPN_2, XPN_7.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/XPN",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "XPN",
+        "path": "XPN",
+        "short": "HL7 v2 XPN",
+        "definition": "XPN carries a person name with family name, given names, prefixes, suffixes and name type code.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "XPN.XPN_1",
+        "path": "XPN.XPN_1",
+        "short": "Family Name",
+        "definition": "XPN.1 - Family Name",
+        "alias": [
+          "XPN.1",
+          "FamilyName",
+          "Family Name"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/FN"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XPN.1"
+          }
+        ]
+      },
+      {
+        "id": "XPN.XPN_2",
+        "path": "XPN.XPN_2",
+        "short": "Given Name",
+        "definition": "XPN.2 - Given Name",
+        "alias": [
+          "XPN.2",
+          "GivenName",
+          "Given Name"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XPN.2"
+          }
+        ]
+      },
+      {
+        "id": "XPN.XPN_2.value",
+        "path": "XPN.XPN_2.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Given Name",
+        "definition": "XPN.2 - Given Name",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "XPN.XPN_7",
+        "path": "XPN.XPN_7",
+        "short": "Name Type Code",
+        "definition": "XPN.7 - Name Type Code",
+        "alias": [
+          "XPN.7",
+          "NameTypeCode"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XPN.7"
+          }
+        ]
+      },
+      {
+        "id": "XPN.XPN_7.value",
+        "path": "XPN.XPN_7.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Name Type Code",
+        "definition": "XPN.7 - Name Type Code",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "code"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "http://terminology.hl7.org/ValueSet/v2-0200"
+        }
+      }
+    ]
+  }
+}

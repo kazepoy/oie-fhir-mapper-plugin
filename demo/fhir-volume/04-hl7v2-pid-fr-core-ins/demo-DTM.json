@@ -1,0 +1,49 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "DTM",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "url": "http://example.org/fhir/hl7v2-demo/StructureDefinition/DTM",
+  "name": "DTM",
+  "title": "HL7 v2 DTM data type",
+  "status": "draft",
+  "description": "Demo HL7 v2 DTM logical model, restricted to components used by PidToFrCorePatientIns.map. The complete model is included; it carries a single value.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "http://example.org/fhir/hl7v2-demo/StructureDefinition/DTM",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "differential": {
+    "element": [
+      {
+        "id": "DTM",
+        "path": "DTM",
+        "short": "HL7 v2 DTM",
+        "definition": "HL7 v2 date/time value carried as normalized XML text.",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "DTM.value",
+        "path": "DTM.value",
+        "representation": [
+          "xmlText"
+        ],
+        "short": "Date/time value",
+        "definition": "Primitive XML text value for HL7 v2 DTM.",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

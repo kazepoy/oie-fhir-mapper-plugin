@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:8500/fhir
+
+### Server capabilities
+GET {{baseUrl}}/metadata
+Accept: application/fhir+json
+
+### Code F from HL7 v2 table 0001
+GET {{baseUrl}}/CodeSystem/$lookup?system=http://terminology.hl7.org/CodeSystem/v2-0001&code=F
+Accept: application/fhir+json
+
+### Available FHIR genders
+GET {{baseUrl}}/ValueSet/$expand?url=http://hl7.org/fhir/ValueSet/administrative-gender
+Accept: application/fhir+json
+
+### Translate F -> female, as in the FML
+POST {{baseUrl}}/ConceptMap/$translate
+Content-Type: application/fhir+json
+Accept: application/fhir+json
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "url", "valueUri": "http://example.org/fml-demo/ConceptMap/v2-sex-to-gender" },
+    { "name": "system", "valueUri": "http://terminology.hl7.org/CodeSystem/v2-0001" },
+    { "name": "code", "valueCode": "F" }
+  ]
+}

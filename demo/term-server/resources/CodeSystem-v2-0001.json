@@ -1,0 +1,29 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "demo-v2-0001",
+  "url": "http://terminology.hl7.org/CodeSystem/v2-0001",
+  "name": "DemoV2AdministrativeSex",
+  "title": "HL7 v2 table 0001 — demo subset F/M/O/U",
+  "status": "draft",
+  "experimental": true,
+  "caseSensitive": true,
+  "content": "fragment",
+  "concept": [
+    {
+      "code": "F",
+      "display": "Female"
+    },
+    {
+      "code": "M",
+      "display": "Male"
+    },
+    {
+      "code": "O",
+      "display": "Other"
+    },
+    {
+      "code": "U",
+      "display": "Unknown"
+    }
+  ]
+}

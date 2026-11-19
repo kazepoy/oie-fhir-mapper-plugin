@@ -1,0 +1,93 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "ExampleLabPatient",
+  "url": "http://example.org/fhir/oru2fhir/StructureDefinition/ExampleLabPatient",
+  "version": "0.1.0",
+  "name": "ExampleLabPatient",
+  "title": "Laboratory result patient",
+  "status": "draft",
+  "experimental": true,
+  "publisher": "Exemple oru2fhir",
+  "description": "Patient in a laboratory report: the local patient identifier (PID-3 of type PI) and its system are required.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient"
+      },
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": { "discriminator": [{ "type": "value", "path": "url" }], "rules": "open" }
+      },
+      {
+        "id": "Patient.extension:registrationMode",
+        "path": "Patient.extension",
+        "sliceName": "registrationMode",
+        "min": 0,
+        "max": "1",
+        "type": [{ "code": "Extension", "profile": ["http://example.org/fhir/oru2fhir/StructureDefinition/ExampleRegistrationMode"] }]
+      },
+      {
+        "id": "Patient.identifier",
+        "path": "Patient.identifier",
+        "min": 1,
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "system"
+            }
+          ],
+          "rules": "open"
+        },
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier:ipp",
+        "path": "Patient.identifier",
+        "sliceName": "ipp",
+        "min": 1,
+        "max": "1",
+        "short": "IPP (local patient identifier)",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier:ipp.system",
+        "path": "Patient.identifier.system",
+        "min": 1,
+        "fixedUri": "http://example.org/fhir/oru2fhir/sid/ipp"
+      },
+      {
+        "id": "Patient.identifier:ipp.value",
+        "path": "Patient.identifier.value",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.gender",
+        "path": "Patient.gender",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.birthDate",
+        "path": "Patient.birthDate",
+        "min": 1,
+        "mustSupport": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "BonPreparation",
+  "url": "http://example.org/fml-demo/StructureDefinition/BonPreparation",
+  "name": "BonPreparation",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "BonPreparation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/tools/StructureDefinition/json-suppress-resourcetype",
+      "valueBoolean": true
+    }
+  ],
+  "differential": {
+    "element": [
+      {
+        "id": "BonPreparation",
+        "path": "BonPreparation",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "BonPreparation.reference",
+        "path": "BonPreparation.reference",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "BonPreparation.destinataire",
+        "path": "BonPreparation.destinataire",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "BonPreparation.priorite",
+        "path": "BonPreparation.priorite",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "BonPreparation.colis",
+        "path": "BonPreparation.colis",
+        "min": 1,
+        "max": "*",
+        "type": [
+          {
+            "code": "Element"
+          }
+        ]
+      },
+      {
+        "id": "BonPreparation.colis.sku",
+        "path": "BonPreparation.colis.sku",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "BonPreparation.colis.nombre",
+        "path": "BonPreparation.colis.nombre",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "integer"
+          }
+        ]
+      }
+    ]
+  }
+}

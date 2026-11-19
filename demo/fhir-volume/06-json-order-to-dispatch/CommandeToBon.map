@@ -1,0 +1,17 @@
+map "http://example.org/fml-demo/StructureMap/CommandeToBon" = "CommandeToBon"
+
+uses "http://example.org/fml-demo/StructureDefinition/CommandeSource" alias Commande as source
+uses "http://example.org/fml-demo/StructureDefinition/BonPreparation" alias Bon as target
+
+group CommandeToBon(source src : Commande, target tgt : Bon) {
+  src.numero as v -> tgt.reference = v "reference";
+  src.client as client then {
+    client.nom as nom -> tgt.destinataire = (client.code & ' - ' & nom.upper()) "destinataire";
+  } "client";
+  src.urgent as urgent where urgent = true -> tgt.priorite = 'express' "urgent";
+  src.urgent as urgent where urgent = false -> tgt.priorite = 'standard' "standard";
+  src.lignes as ligne -> tgt.colis as colis then {
+    ligne.article as article -> colis.sku = article "article";
+    ligne.quantite as quantite -> colis.nombre = quantite "quantite";
+  } "lignes";
+}

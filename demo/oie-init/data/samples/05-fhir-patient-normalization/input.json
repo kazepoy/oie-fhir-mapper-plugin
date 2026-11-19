@@ -1,0 +1,23 @@
+{
+  "resourceType": "Patient",
+  "id": "demo-fhir",
+  "active": false,
+  "identifier": [
+    {
+      "system": "http://example.org/patients",
+      "value": "100001"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Martin",
+      "given": [
+        "Claire",
+        "Anne"
+      ]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1980-02-15"
+}

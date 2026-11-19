@@ -1,0 +1,13 @@
+map "http://example.org/fml-demo/StructureMap/CopyPatient" = "CopyPatient"
+
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias PatientOut as target
+
+imports "http://example.org/fml-demo/StructureMap/CopyPatientIdentity"
+
+group CopyPatient(source src : Patient, target tgt : PatientOut) {
+  src -> tgt then CopyPatientIdentity(src, tgt) "identity";
+  src.meta as meta -> tgt.meta = meta "meta";
+  src.gender as gender -> tgt.gender = gender "gender";
+  src.birthDate as date -> tgt.birthDate = date "birth-date";
+}
