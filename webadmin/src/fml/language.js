@@ -42,7 +42,7 @@ export const FML_LANGUAGE = {
 /** A map to start from: the generic OIE model as source, a resource as target. */
 export const FML_TEMPLATE = `map "http://example.org/fhir/StructureMap/MyMap" = "MyMap"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group MyMap(source src : OieMessage, target patient : Patient) {

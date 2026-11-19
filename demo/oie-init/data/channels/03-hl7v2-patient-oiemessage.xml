@@ -114,7 +114,7 @@ OBX|1|NM|GLU^Glucose^L||5.10|mmol/L^mmol/L^UCUM|3.90-5.50|N|||F|||20260114073000
           <mapUrl />
           <mapSource>map "http://example.org/fhir/StructureMap/OruPidToPatient" = "OruPidToPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group OruPidToPatient(source src : OieMessage, target patient : Patient) {
@@ -272,7 +272,7 @@ OBX|1|NM|GLU^Glucose^L||5.10|mmol/L^mmol/L^UCUM|3.90-5.50|N|||F|||20260114073000
             <mapUrl />
             <mapSource>map "http://example.org/fhir/oru2fhir/StructureMap/OruR01StrictToPatient" = "OruR01StrictToPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group OruR01StrictToPatient(source src : OieMessage, target patient : Patient) {
@@ -469,7 +469,7 @@ msg.gender = data.gender;</script>
           <mapUrl />
           <mapSource>map "http://example.org/fhir/StructureMap/PreparedPatient" = "PreparedPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group PreparedPatient(source src : OieMessage, target patient : Patient) {
@@ -642,7 +642,7 @@ msg = data;</script>
           <mapUrl />
           <mapSource>map "http://example.org/fhir/StructureMap/PreparedPatient" = "PreparedPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group PreparedPatient(source src : OieMessage, target patient : Patient) {
@@ -808,7 +808,7 @@ msg = identifier;</script>
           <mapUrl />
           <mapSource>map "http://example.org/fhir/StructureMap/PreparedIdentifier" = "PreparedIdentifier"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group PreparedIdentifier(source src : OieMessage, target patient : Patient) {

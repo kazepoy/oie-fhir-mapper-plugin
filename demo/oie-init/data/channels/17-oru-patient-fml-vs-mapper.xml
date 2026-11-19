@@ -191,7 +191,7 @@ OBX|1|NM|GLU^Glucose^L||5.10|mmol/L^mmol/L^UCUM|3.90-5.50|N|||F|||20260114073000
 // Source: the generic OIE logical model (OieMessage). A node is addressed by name
 // (PID, PID.5) or by position (component 1, 2...); its value is stored in value.
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://example.org/fhir/oru2fhir/StructureDefinition/ExampleLabPatient" alias Patient as target
 
 group OruR01ToPatient(source src : OieMessage, target patient : Patient) {

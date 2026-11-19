@@ -19,7 +19,7 @@ export function fmlCompletions(source, paths = []) {
 }
 
 export function fmlSkeleton({ sourceUrl, targetUrl, required = [] }) {
-  const source = sourceUrl || "http://oie.org/fhir/StructureDefinition/OieMessage";
+  const source = sourceUrl || "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage";
   const target = targetUrl || "http://hl7.org/fhir/StructureDefinition/Patient";
   const name = (target.split("/").pop() || "Target").replace(/[^A-Za-z0-9_]/g, "_");
   const reminders = required.length ? required.map(path => `  // TODO required: ${path}`).join("\n") : "  // Add source -> target rules here.";

@@ -6,7 +6,7 @@ map "http://example.org/fhir/r5/StructureMap/CsvToPermissionR5" = "CsvToPermissi
 // column1=permission_id, column2=status, column3=combining, column4=org_id,
 // column5=org_name, column6=rule_type, column7=action_code.
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Bundle" alias Bundle as target
 uses "http://hl7.org/fhir/StructureDefinition/Organization" alias Organization as target
 uses "http://hl7.org/fhir/StructureDefinition/Permission" alias Permission as target

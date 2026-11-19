@@ -5912,7 +5912,7 @@ var FML_LANGUAGE = {
 };
 var FML_TEMPLATE = `map "http://example.org/fhir/StructureMap/MyMap" = "MyMap"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group MyMap(source src : OieMessage, target patient : Patient) {
@@ -5942,7 +5942,7 @@ function fmlCompletions(source, paths = []) {
   return [...items.values()];
 }
 function fmlSkeleton({ sourceUrl, targetUrl, required = [] }) {
-  const source = sourceUrl || "http://oie.org/fhir/StructureDefinition/OieMessage";
+  const source = sourceUrl || "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage";
   const target = targetUrl || "http://hl7.org/fhir/StructureDefinition/Patient";
   const name = (target.split("/").pop() || "Target").replace(/[^A-Za-z0-9_]/g, "_");
   const reminders = required.length ? required.map((path) => `  // TODO required: ${path}`).join("\n") : "  // Add source -> target rules here.";
@@ -6232,7 +6232,7 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
       st.completionPaths = elements.map((item) => item.path).filter(Boolean);
       const required = elements.filter((item) => Number(item.min || 0) > 0 && item.path && item.path.includes(".")).map((item) => item.path);
       const model = element.sourceModel || "fhir";
-      const sourceUrl = model === "oie-message" ? "http://oie.org/fhir/StructureDefinition/OieMessage" : String(element.sourceModelUrl || "").trim() || "http://hl7.org/fhir/StructureDefinition/Resource";
+      const sourceUrl = model === "oie-message" ? "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" : String(element.sourceModelUrl || "").trim() || "http://hl7.org/fhir/StructureDefinition/Resource";
       st.check = null;
       set("mapSource", fmlSkeleton({ sourceUrl, targetUrl: target, required }));
     } catch (e) {

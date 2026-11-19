@@ -78,7 +78,7 @@ OieMessage appartient au plugin ; le Mapper Transform ne passe pas par ce modèl
 
 ### 2.1 Modèle logique OIE
 
-`http://oie.org/fhir/StructureDefinition/OieMessage`
+`https://openintegrationengine.org/fhir/StructureDefinition/OieMessage`
 ([StructureDefinition](../../../src/main/resources/fr/kazepoy/fhir/fml/bridge/StructureDefinition-OieMessage.json),
 canonique provisoire). Un **seul modèle** pour tous les types de messages : il
 reflète l'arbre XML interne d'OIE, celui que voit E4X, ou l'arbre d'un JSON. La
@@ -154,7 +154,7 @@ Extrait de la [map de démo](../../../src/test/resources/fml/OruR01ToPatient.fml
 ```fml
 map "http://example.org/fhir/oru2fhir/StructureMap/OruR01ToPatient" = "OruR01ToPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://example.org/fhir/oru2fhir/StructureDefinition/ExampleLabPatient" alias Patient as target
 
 group OruR01ToPatient(source src : OieMessage, target patient : Patient) {
@@ -287,7 +287,7 @@ par OIE.
 
 ## 8. Limites
 
-- **Canonique du modèle** `http://oie.org/fhir/StructureDefinition/OieMessage` : canonique interne du modèle générique `OieMessage`.
+- **Canonique du modèle** `https://openintegrationengine.org/fhir/StructureDefinition/OieMessage` : canonique interne du modèle générique `OieMessage`.
 - **Concurrence** : le contexte et les maps chargées sont partagés en lecture (avec verrouillage par clé lors de la construction initiale) ;
   chaque appel crée ses services, son `StructureMapUtilities`, sa source et sa
   cible. Un test unitaire exécute 24 transformations concurrentes sur 8 threads sans contamination.

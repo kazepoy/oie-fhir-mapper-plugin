@@ -6,7 +6,7 @@
   "status": "draft",
   "description": "Demo: the PID of an ORU^R01 becomes a Patient conforming to ExampleLabPatient (/fhir-volume/shared/lab-r4), like\r\nthe \"ORU R01 to FHIR Patient\" Mapper Transform channel, but in FML.\r\nSource: the generic OIE logical model (OieMessage). A node is addressed by name\r\n(PID, PID.5) or position (component 1, 2...); its value is in value.",
   "structure": [ {
-    "url": "http://oie.org/fhir/StructureDefinition/OieMessage",
+    "url": "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage",
     "mode": "source",
     "alias": "OieMessage"
   }, {

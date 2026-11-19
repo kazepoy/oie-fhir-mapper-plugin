@@ -236,7 +236,7 @@ function FmlTransformEditor({ element, onChange, platform }) {
       st.completionPaths = elements.map(item => item.path).filter(Boolean);
       const required = elements.filter(item => Number(item.min || 0) > 0 && item.path && item.path.includes(".")).map(item => item.path);
       const model = element.sourceModel || "fhir";
-      const sourceUrl = model === "oie-message" ? "http://oie.org/fhir/StructureDefinition/OieMessage"
+      const sourceUrl = model === "oie-message" ? "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage"
         : String(element.sourceModelUrl || "").trim() || "http://hl7.org/fhir/StructureDefinition/Resource";
       st.check = null;
       set("mapSource", fmlSkeleton({ sourceUrl, targetUrl: target, required }));

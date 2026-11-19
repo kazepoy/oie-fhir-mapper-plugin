@@ -351,7 +351,7 @@ public class FmlBridgeTest {
         props.setFhirVersion(FhirSerializationProperties.FhirVersion.R4);
         Map<String, String> opts = props.engineOptions();
         String map = "inline:map \"http://example.org/concurrent\" = \"Concurrent\"\n"
-                + "uses \"http://oie.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
+                + "uses \"https://openintegrationengine.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
                 + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias Patient as target\n"
                 + "group Concurrent(source src : OieMessage, target patient : Patient) {\n"
                 + "  src.value as v -> patient.id = v \"id\";\n"
@@ -379,7 +379,7 @@ public class FmlBridgeTest {
         props.setFhirVersion(FhirSerializationProperties.FhirVersion.R4);
         props.setProfiles(fixture("profiles"));
         String map = "inline:map \"http://example.org/DiffProfile\" = \"DiffProfile\"\n"
-                + "uses \"http://oie.org/fhir/StructureDefinition/OieMessage\" as source\n"
+                + "uses \"https://openintegrationengine.org/fhir/StructureDefinition/OieMessage\" as source\n"
                 + "uses \"http://example.org/fhir/StructureDefinition/patient-with-birthdate\" as target\n"
                 + "group main(source src : OieMessage, target tgt : PatientWithBirthDate) {\n"
                 + "  src.value as v -> tgt.birthDate = v \"birthDate\";\n"

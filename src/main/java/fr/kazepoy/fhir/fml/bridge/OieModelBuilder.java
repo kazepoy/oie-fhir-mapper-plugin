@@ -31,7 +31,7 @@ import org.xml.sax.InputSource;
  * (its rank among the siblings of the same name).
  */
 final class OieModelBuilder {
-    static final String MODEL_URL = "http://oie.org/fhir/StructureDefinition/OieMessage";
+    static final String MODEL_URL = "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage";
     private static final Pattern NUMBERED = Pattern.compile(".*\\.(\\d+)$");
 
     private final IWorkerContext worker;

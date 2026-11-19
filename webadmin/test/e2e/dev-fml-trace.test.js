@@ -41,7 +41,7 @@ test("FML trace is stored in message tracking on success and validation failure"
     assert.equal(trace.output.resourceType, "Patient");
     assert.match(trace.input, /<PID\.5\.1>MARTIN/);
     const mapSource = 'map "http://example.org/invalid" = "Invalid"\n'
-      + 'uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source\n'
+      + 'uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source\n'
       + 'uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target\n'
       + 'group Invalid(source src : OieMessage, target tgt : Patient) { src -> tgt.gender = \'invalid\' "gender"; }';
     await install(apply(original, 1, 0, { traceMessages: true, mapSource, validationOverride: true }));

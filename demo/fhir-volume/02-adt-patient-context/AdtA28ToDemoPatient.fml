@@ -1,6 +1,6 @@
 map "http://example.org/fml-demo/StructureMap/AdtA28ToDemoPatient" = "AdtA28ToDemoPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://example.org/fml-demo/StructureDefinition/DemoPatient" alias Patient as target
 
 group AdtA28ToPatient(source src : OieMessage, target patient : Patient) {

@@ -122,7 +122,7 @@ public class FhirFmlTransformStepTest {
         step.setSequenceNumber("1");
         step.setTraceMessages(true);
         step.setMapSource("map \"http://example.org/invalid\" = \"Invalid\"\n"
-                + "uses \"http://oie.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
+                + "uses \"https://openintegrationengine.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
                 + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias Patient as target\n"
                 + "group Invalid(source src : OieMessage, target tgt : Patient) { src -> tgt.gender = 'invalid' \"gender\"; }");
         Map<String, Object> channelMap = new HashMap<>();
@@ -258,7 +258,7 @@ public class FhirFmlTransformStepTest {
     @Test
     public void preparedJsonAndTextKeepTheirDeclaredShape() {
         String map = "map \"http://example.org/prepared\" = \"Prepared\"\n"
-                + "uses \"http://oie.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
+                + "uses \"https://openintegrationengine.org/fhir/StructureDefinition/OieMessage\" alias OieMessage as source\n"
                 + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias Patient as target\n"
                 + "group Prepared(source src : OieMessage, target patient : Patient) { "
                 + "src.value as v -> patient.id = v \"id\"; }";

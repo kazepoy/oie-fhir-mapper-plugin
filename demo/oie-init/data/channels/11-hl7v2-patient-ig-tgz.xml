@@ -153,7 +153,7 @@ PV1|1|N
             <mapUrl />
             <mapSource>map "http://example.org/fhir/StructureMap/AdtA28ToDevDaysPatient" = "AdtA28ToDevDaysPatient"
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://devdays-example-ig.com/fhir/StructureDefinition/DevDaysIGtutorial-Patient" alias Patient as target
 
 group AdtA28ToDevDaysPatient(source src : OieMessage, target patient : Patient) {

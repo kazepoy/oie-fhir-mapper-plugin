@@ -3,7 +3,7 @@ map "http://example.org/fhir/StructureMap/OruPatient" = "OruPatient"
 // HL7 v2 PID of an ORU^R01 to a Patient, on the generic OIE logical model:
 // a node is found by its name (PID, PID.5) or its position (component 1).
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 
 group OruPatient(source src : OieMessage, target tgt : Patient) {

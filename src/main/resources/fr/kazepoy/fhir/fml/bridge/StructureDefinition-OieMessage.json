@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
   "id": "OieMessage",
-  "url": "http://oie.org/fhir/StructureDefinition/OieMessage",
+  "url": "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage",
   "version": "0.1.0",
   "name": "OieMessage",
   "title": "OIE message",
@@ -10,7 +10,7 @@
   "fhirVersion": "4.0.1",
   "kind": "logical",
   "abstract": false,
-  "type": "http://oie.org/fhir/StructureDefinition/OieMessage",
+  "type": "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage",
   "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
   "derivation": "specialization",
   "snapshot": {

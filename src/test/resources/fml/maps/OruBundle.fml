@@ -3,7 +3,7 @@ map "http://example.org/fhir/StructureMap/OruBundle" = "OruBundle"
 // ORU^R01 to a transaction Bundle: the Patient through the imported map, one Observation per OBX
 // with a choice type (value[x] as a Quantity).
 
-uses "http://oie.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
+uses "https://openintegrationengine.org/fhir/StructureDefinition/OieMessage" alias OieMessage as source
 uses "http://hl7.org/fhir/StructureDefinition/Bundle" alias Bundle as target
 uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
 uses "http://hl7.org/fhir/StructureDefinition/Observation" alias Observation as target
