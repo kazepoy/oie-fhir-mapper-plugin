@@ -25,7 +25,7 @@ Toute étape **FHIR Mapper Transform** ou **FHIR FML Transform** qui sélectionn
 | **FHIR version** | Version FHIR des ressources et définitions (`R4`, `R4B` ou `R5`). |
 | **Validation of results** | `always` (valider systématiquement les ressources produites) ou `off` (désactiver la validation par défaut pour ce contexte). |
 | **Packages and profile files** | Un chemin serveur par ligne : dossier de ressources JSON/XML/FML (`/fhir-volume/shared/lab-r4`), fichier individuel ou archive NPM d'Implementation Guide (`/fhir-packages/hl7.fhir.fr.core-2.2.0.tgz`). |
-| **Terminology server** | URL de base d'un serveur terminologique FHIR (ex. `http://term-server:8080/fhir` ou `http://127.0.0.1:10819/fhir`). Laisser vide pour résoudre les traductions uniquement sur les `ConceptMap` locales des packages. |
+| **Terminology server** | URL de base d'un serveur terminologique FHIR (ex. `http://term-server:8500/fhir`). Laisser vide pour résoudre les traductions uniquement sur les `ConceptMap` locales des packages. |
 | **Authorization** | Expression JavaScript évaluée au runtime pour construire l'en-tête HTTP `Authorization` (ex. `'Bearer ' + $cfg('TX_TOKEN')`). La valeur résolue n'est jamais exposée dans les traces. |
 | **Cache (seconds)** | Durée de mise en cache des traductions terminologiques distantes (`300` s par défaut, `0` pour désactiver le cache). |
 | **Timeout (seconds)** | Délai maximal d'attente HTTP pour le serveur de terminologie (`10` s par défaut). |

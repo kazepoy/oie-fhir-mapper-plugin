@@ -11,8 +11,7 @@ Cette page détaille les parcours spécialisés de la démonstration : FHIR R5, 
 | **06 JSON Order to Dispatch** | FML transformer | `10803/commande-json/` | Modèles logiques JSON source et cible sans ressources FHIR. |
 | **07 CSV to R5 Permission - FML** | FML transformer | `10814/permission-r5/` | Source CSV vers `Bundle` transaction R5 (`Organization` + `Permission`). |
 | **08 ORU to Patient - StructureMap** | FML transformer | `10815/patient-fml-ig/` | `StructureMap` JSON publiée dans `/fhir-volume/08-oru-patient-structuremap`, appelée par `mapUrl`. |
-| **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | `ConceptMap/$translate` vers un serveur HTTP externe, repli `fixed` et panne 503. |
-| **15 Terminology Mock ($translate)** | Mapper transformer | `10819/fhir/` | Mock léger `ConceptMap/$translate` hébergé dans OIE. |
+| **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | `ConceptMap/$translate` vers `term-server` et repli `fixed` sur code inconnu. |
 | **16 JSON to R5 Org - Mapper** | Mapper transformer | `10810/organization-r5/` | Source JSON métier et champ `Organization.description` (`markdown`) propre à R5. |
 
 ## Organization R5 (canal 16)
@@ -39,8 +38,8 @@ Le canal **04 HL7v2 PID to FR Core INS** complète ces packages avec les ressour
 - **Canal 05 (`10802/fhir-patient/`)** : reçoit un `Patient` FHIR R4 JSON, exécute la map de [`05-fhir-patient-normalization`](../../../demo/fhir-volume/05-fhir-patient-normalization/README.md) en mode **FHIR resource / Logical model** (`sourceModel=fhir`), met le nom de famille en majuscules, conserve l'identifiant INS-NIR et force `active: true`.
 - **Canal 06 (`10803/commande-json/`)** : transforme un JSON métier `Commande` en `BonPreparation` à l'aide de deux `StructureDefinition` logiques ([`06-json-order-to-dispatch`](../../../demo/fhir-volume/06-json-order-to-dispatch/README.md)), avec la validation FHIR de sortie désactivée.
 
-## FML R5, StructureMap JSON et terminologie externe (canaux 07, 08, 14 et 15)
+## FML R5, StructureMap JSON et terminologie externe (canaux 07, 08 et 14)
 
 - **Canal 07 (`10814/permission-r5/`)** : transforme un CSV en `Bundle` R5 (`Organization` + `Permission`) avec [`CsvToPermissionR5.fml`](../../../demo/fhir-volume/07-csv-permission-r5/CsvToPermissionR5.fml), testé avec un [CSV nominal](../../../examples/csv/permissions-r5.csv) et un [CSV invalide](../../../examples/csv/permissions-r5-invalide.csv).
 - **Canal 08 (`10815/patient-fml-ig/`)** : résout une `StructureMap` JSON publiée via `mapUrl` ([`StructureMap-OruR01ToPatientIG.json`](../../../demo/fhir-volume/08-oru-patient-structuremap/StructureMap-OruR01ToPatientIG.json)) et permet de la copier vers l'éditeur inline avec **Copy to inline map**.
-- **Canaux 14 (`10816/obs-external-tx/`) et 15 (`10819/fhir/`)** : le canal 15 expose `ConceptMap/$translate` (`GLU` → LOINC `14749-6`, code inconnu → `result=false`, `UNAVAILABLE` → HTTP `503` sur [observation-tx-unavailable.json](../../../examples/json/observation-tx-unavailable.json)) ; le canal 14 l'interroge via le contexte `external-terminology` et applique le repli `data-absent-reason#unknown` lorsque le code n'est pas trouvé.
+- **Canal 14 (`10816/obs-external-tx/`)** : interroge le serveur terminologique Hades (`http://term-server:8500/fhir`) via le contexte `external-terminology` (`ConceptMap/$translate` : `GLU` → LOINC `14749-6`) et applique le repli `data-absent-reason#unknown` lorsque le code n'est pas trouvé.

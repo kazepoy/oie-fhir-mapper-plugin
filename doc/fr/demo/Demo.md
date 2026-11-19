@@ -42,8 +42,7 @@ La [matrice des exemples](Matrice-exemples.md) et le [détail des parcours JSON,
 | **11 HL7v2 to Patient - IG tgz** | FML transformer | `10808/devdays-patient/` | ADT A28 → `DevDaysIGtutorial-Patient` à partir d'un package IG `.tgz` et du serveur terminologique Hades. |
 | **12 ORU to Two Lab Bundles - Mapper** | Mapper transformer | `10811/labo/` | Construction simultanée de deux Bundles (`transaction` et `document`) partageant les mêmes ressources cliniques, sortie en variable (`bundleDocument`) et archivage conditionnel. |
 | **13 SQL XML to Patient - Mapper** | Mapper transformer | `10812/sql-patient/` | Ligne XML de résultat SQL vers `ExampleLabPatient`, conservation des accents et des zéros initiaux de l'IPP. |
-| **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | Traduction terminologique distante via `ConceptMap/$translate` (contexte `external-terminology`), repli sur code inconnu et erreur HTTP 503. |
-| **15 Terminology Mock ($translate)** | Mapper transformer | `10819/fhir/` | Mock HTTP OIE implémentant `GET /fhir/ConceptMap/$translate` pour le canal 14. |
+| **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | Traduction terminologique distante via `ConceptMap/$translate` sur `term-server` (contexte `external-terminology`) et repli sur code inconnu. |
 | **16 JSON to R5 Org - Mapper** | Mapper transformer | `10810/organization-r5/` | JSON métier vers `Organization` FHIR R5, avec le champ `description` de type `markdown` propre à R5. |
 | **17 ORU to Patient - FML vs Mapper** | Mapper transformer | `10817/patient-compare/` | Deux destinations parallèles (FML inline vs Mapper Transform) sur la même entrée HL7 v2, vérifiant l'égalité des sorties (`OUTPUTS_EQUAL=true`) et mesurant `FML_MS`, `MAPPER_MS` et `DIFF_MS`. |
 

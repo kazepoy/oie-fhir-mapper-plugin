@@ -20,8 +20,7 @@ The demo contains seventeen channels in the **FML transformer** and
 | [11 HL7v2 to Patient - IG tgz](data/channels/11-hl7v2-patient-ig-tgz.xml) | `http://localhost:10808/devdays-patient/` | ADT A28 → DevDaysIGtutorial-Patient with `.tgz` IG package and Hades terminology. |
 | [12 ORU to Two Lab Bundles - Mapper](data/channels/12-oru-two-lab-bundles-mapper.xml) | `http://localhost:10811/labo/` | Two parallel Bundles (transaction and document) sharing the same clinical resources. |
 | [13 SQL XML to Patient - Mapper](data/channels/13-sql-xml-patient-mapper.xml) | `http://localhost:10812/sql-patient/` | Simulated SQL XML row to Patient with preserved accents and leading zeroes. |
-| [14 JSON to Obs Ext TX - Mapper](data/channels/14-json-obs-external-tx-mapper.xml) | `http://localhost:10816/obs-external-tx/` | External terminology `ConceptMap/$translate`, fallback and 503 unavailability. |
-| [15 Terminology Mock ($translate)](data/channels/15-http-terminology-mock.xml) | `http://localhost:10819/fhir/` | HTTP mock implementing `GET /fhir/ConceptMap/$translate` for channel 14. |
+| [14 JSON to Obs Ext TX - Mapper](data/channels/14-json-obs-external-tx-mapper.xml) | `http://localhost:10816/obs-external-tx/` | External terminology `ConceptMap/$translate` and unmatched fallback via `term-server`. |
 | [16 JSON to R5 Org - Mapper](data/channels/16-json-organization-r5-mapper.xml) | `http://localhost:10810/organization-r5/` | Business JSON to FHIR R5 Organization with R5 markdown `description`. |
 | [17 ORU to Patient - FML vs Mapper](data/channels/17-oru-patient-fml-vs-mapper.xml) | `http://localhost:10817/patient-compare/` | Parallel destinations comparing inline FML and Mapper Transform outputs and timings. |
 

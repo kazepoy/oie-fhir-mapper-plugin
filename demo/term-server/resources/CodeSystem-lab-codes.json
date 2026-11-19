@@ -1,0 +1,29 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "demo-lab-codes",
+  "url": "http://example.org/fhir/oru2fhir/CodeSystem/lab-codes",
+  "name": "DemoLabCodes",
+  "title": "Demo local lab codes",
+  "status": "draft",
+  "experimental": true,
+  "caseSensitive": true,
+  "content": "fragment",
+  "concept": [
+    {
+      "code": "GLU",
+      "display": "Glucose"
+    },
+    {
+      "code": "K",
+      "display": "Potassium"
+    },
+    {
+      "code": "NA",
+      "display": "Sodium"
+    },
+    {
+      "code": "CREA",
+      "display": "Creatinine"
+    }
+  ]
+}

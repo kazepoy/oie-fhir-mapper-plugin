@@ -151,18 +151,7 @@
       "port": 10816,
       "route": "/obs-external-tx",
       "input": "examples/json/observation-tx-glu.json",
-      "purpose": "External terminology ConceptMap/$translate, fallback and 503 unavailability",
-      "resources": null
-    },
-    {
-      "file": "15-http-terminology-mock.xml",
-      "id": "6a2b9104-4d15-4a2b-8f30-809900000001",
-      "name": "15 Terminology Mock ($translate)",
-      "group": "Mapper transformer",
-      "port": 10819,
-      "route": "/fhir",
-      "input": "examples/api/terminology-translate-query.txt",
-      "purpose": "HTTP mock implementing GET /fhir/ConceptMap/$translate for channel 14",
+      "purpose": "External terminology ConceptMap/$translate and unmatched fallback via term-server",
       "resources": null
     },
     {

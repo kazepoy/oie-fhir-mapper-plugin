@@ -325,10 +325,6 @@
         "port": 10816,
         "route": "obs-external-tx",
         "expected": "json/observation-tx-glu-expected.json"
-      },
-      "invalid": {
-        "input": "json/observation-tx-unavailable.json",
-        "diagnostic": "503"
       }
     },
     {
@@ -358,19 +354,6 @@
         "input": "json/patient-fhir-source-invalide.json",
         "diagnostic": "inconnu"
       }
-    },
-    {
-      "channel": "http-terminology-mock.xml",
-      "group": "http-mock",
-      "tags": [
-        "R4",
-        "HTTP",
-        "Mock",
-        "external-terminology",
-        "mock-server"
-      ],
-      "input": "api/terminology-translate-query.txt",
-      "mock": true
     },
     {
       "channel": "oru-r01-patient-fml-vs-mapper.xml",

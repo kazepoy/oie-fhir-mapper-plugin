@@ -35,7 +35,7 @@ test("documented examples", () => {
 
 test("all demo channels conform to step schema and OIE name limit", () => {
   const channels = readdirSync(CHANNELS_DIR).filter((f) => f.endsWith(".xml")).sort();
-  assert.equal(channels.length, 17);
+  assert.equal(channels.length, 16);
   let mapperCount = 0;
   let fmlCount = 0;
   for (const file of channels) {
