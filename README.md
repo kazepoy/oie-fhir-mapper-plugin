@@ -41,9 +41,10 @@ with the step.
 ## FHIR FML Transform
 
 A second transformer step, next to the Mapper Transform: it runs an FML map
-(StructureMap) on a generic OIE model, a typed HL7 v2 logical model fed by the
-Strict Parser, or an inbound FHIR resource, then validates and publishes the
-result. The map is a file of the profile locations, or is written in the step
+(StructureMap) on an inbound FHIR resource, a logical model (XML or JSON,
+including HL7 v2 Strict Parser XML, described by a `StructureDefinition`), or a
+generic OIE model (`OieMessage`), then validates and publishes the result. The
+map is a file of the profile locations, or is written in the step itself, in an
 itself, in an editor with highlighting, completion, syntax check and skeleton
 generation. It uses the FML engine of the HL7 core
 that FHIR Data Type ships, with no extra library.
