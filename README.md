@@ -45,11 +45,21 @@ A second transformer step, next to the Mapper Transform: it runs an FML map
 including HL7 v2 Strict Parser XML, described by a `StructureDefinition`), or a
 generic OIE model (`OieMessage`), then validates and publishes the result. The
 map is a file of the profile locations, or is written in the step itself, in an
-itself, in an editor with highlighting, completion, syntax check and skeleton
+editor with highlighting, completion, syntax check and skeleton
 generation. It uses the FML engine of the HL7 core
 that FHIR Data Type ships, with no extra library.
 
 ![FHIR FML Transform with inline map](doc/fr/user-manual/images/fhir-fml.png)
+
+## Features
+
+- **FHIR versions & profiles**: supports R4, R4B and R5 `StructureDefinition`s, base resources, Implementation Guide `.tgz` packages, slices, sub-slices, choice types `[x]`, profile/context extensions, primitive extensions (including repeated primitives) and profiled `contained` resources.
+- **Graphical Mapper Transform**: JavaScript/E4X value expressions with Monaco completion, iterations (`each`), conditions, `ConceptMap` translations (local or remote `$translate` with fallback modes), modal element inspector (`?`) with per-rule notes and enable/disable toggles, undo/redo and branch duplication.
+- **Multi-step Bundles & references**: declares named Bundles (`transaction`, `batch`, `collection`, `document`, `message`), shares a resource across multiple Bundles, and resolves typed cross-step references (`fhirRef`, `fhirRefs`, forward reservation).
+- **FHIR FML Transform**: executes `StructureMap` or inline FML over inbound FHIR resources (`fhir`), logical XML/JSON models (`logical`, including HL7 v2 Strict Parser XML via `xml-name`), or the generic `OieMessage` envelope (`oie-message`), with syntax highlighting, completion, server `Check` and skeleton generation.
+- **Testing, diff & diagnostics**: live server preview (single-step or full-transformer), saved step samples with expected-result comparison (UUID-normalized diff), per-rule error navigation (`Go to rule`), generated script inspection and execution traces (`fhirMapperTrace`, `FML_TRACE_*`).
+- **Import / Export & documentation**: CSV and Markdown value tables (`key,expression,note`), standalone HTML/Markdown mapping documentation, and full-step JSON editing.
+- **Shared contexts, i18n & RBAC**: server-wide **Settings › FHIR Mapper** contexts (FHIR version, packages, terminology server with `Authorization` expression, cache/timeout, validation policy), English/French UI, light/dark themes and five RBAC permissions.
 
 ## Documentation
 
