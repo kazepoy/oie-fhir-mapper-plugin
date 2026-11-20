@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://example.org/fml-dynamic/CodeSystem/adt-event",
+        "code": "A08"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "http://example.org/fml-dynamic/sid/patient",
+      "value": "180008"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "MOREAU",
+      "given": [
+        "CAMILLE"
+      ]
+    }
+  ],
+  "gender": "other",
+  "birthDate": "1992-03-09"
+}

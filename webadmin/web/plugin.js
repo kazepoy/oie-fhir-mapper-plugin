@@ -1,4 +1,4 @@
-// OIE FHIR Mapper 0.3.0 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
+// OIE FHIR Mapper 0.6.1 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
 
 // src/i18n/locales/en.js
 var en_default = {
@@ -111,6 +111,11 @@ var en_default = {
   "fhir.translation": "Translation",
   "fhir.unknown_rule_property_p0": "Unknown rule property: {p0}",
   "fhir.variable_available_in_this_scope": "Variable available in this scope.",
+  "fml.map_reference_hint": "Canonical URL from the context, or ${fmlMapUrl} resolved from an OIE variable for each message. Inline FML takes precedence.",
+  "fml.logical_reference_hint": "Canonical URL of the logical StructureDefinition, or ${fmlSourceModelUrl} resolved for each message. The model must be loaded in the context.",
+  "fml.test_variables": "Test variables",
+  "fml.test_variables_hint": "Values for this test only. Filters and previous steps are not executed.",
+  "fml.resolved_references": "Resolved references",
   "fml.channel_map_variable": "Channel Map variable",
   "fml.checking": "Checking…",
   "fml.choose_a_map": "Choose a map…",
@@ -166,7 +171,7 @@ var en_default = {
   "fml.testing_a_step_requires_the_permission": "Testing a step requires the permission “Test FHIR FML transforms”.",
   "fml.the_map_declares_its_source_and": "The map declares its source and target models.",
   "fml.the_plugin_builds_oiemessage_nodes_from": "The plugin builds OieMessage nodes from the XML, JSON or text. FML source shows this instance as JSON.",
-  "fml.the_source_model_is_declared_by": "The source model is declared by the FML entry group and its uses statements. Load its StructureDefinition in the context.",
+  "fml.the_source_model_is_declared_by": "Choose how the input is read. For a logical model, specify its StructureDefinition below.",
   "fml.the_source_structuredefinition_is_resolved_from": "The source StructureDefinition is resolved from the FML map. XML and JSON are read directly, without OieMessage.",
   "fml.the_transformer_datatype_is_unavailable_or": "The transformer datatype is unavailable or unsupported. Use an already prepared message.",
   "fml.the_xml_or_json_is_read": "The XML or JSON is read directly using the logical StructureDefinition selected in Properties.",
@@ -676,6 +681,11 @@ var fr_default = {
   "fhir.translation": "Traduction",
   "fhir.unknown_rule_property_p0": "Propriété de règle inconnue : {p0}",
   "fhir.variable_available_in_this_scope": "Variable disponible dans cette portée.",
+  "fml.map_reference_hint": "URL canonique du contexte, ou ${fmlMapUrl} résolue depuis une variable OIE pour chaque message. La FML inline reste prioritaire.",
+  "fml.logical_reference_hint": "URL canonique de la StructureDefinition logique, ou ${fmlSourceModelUrl} résolue pour chaque message. Le modèle doit être chargé dans le contexte.",
+  "fml.test_variables": "Variables de test",
+  "fml.test_variables_hint": "Valeurs utilisées uniquement pour ce test. Les filtres et les étapes précédentes ne sont pas exécutés.",
+  "fml.resolved_references": "Références résolues",
   "fml.channel_map_variable": "Variable de Channel Map",
   "fml.checking": "Vérification…",
   "fml.choose_a_map": "Choisir une map…",
@@ -731,7 +741,7 @@ var fr_default = {
   "fml.testing_a_step_requires_the_permission": "Tester une étape nécessite la permission « Test FHIR FML transforms ».",
   "fml.the_map_declares_its_source_and": "La map déclare ses modèles source et cible.",
   "fml.the_plugin_builds_oiemessage_nodes_from": "Le plugin construit les nœuds OieMessage depuis le XML, le JSON ou le texte. Source FML affiche cette instance en JSON.",
-  "fml.the_source_model_is_declared_by": "Le modèle source est déclaré par le groupe d’entrée FML et ses déclarations uses. Charger sa StructureDefinition dans le contexte.",
+  "fml.the_source_model_is_declared_by": "Choisir comment lire le message. Pour un modèle logique, renseigner sa StructureDefinition ci-dessous.",
   "fml.the_source_structuredefinition_is_resolved_from": "La StructureDefinition source est déterminée depuis la map FML. Le XML et le JSON sont lus directement, sans OieMessage.",
   "fml.the_transformer_datatype_is_unavailable_or": "Le datatype du transformeur est indisponible ou non pris en charge. Utiliser un message déjà préparé.",
   "fml.the_xml_or_json_is_read": "Le XML ou JSON est lu directement selon la StructureDefinition logique choisie dans Properties.",
@@ -1883,7 +1893,7 @@ var editor_default = `/* SPDX-License-Identifier: MPL-2.0
 var mapper_transform_default = '/* SPDX-License-Identifier: MPL-2.0 */\n\n.fhir-mapper-transform { container-type: inline-size; min-width: 0; }\n.fhir-mapper-transform .mapper-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; align-items: start; }\n.fhir-mapper-transform .mapper-settings > *, .fhir-mapper-transform .field { min-width: 0; }\n.fhir-mapper-transform .mapper-settings .field { margin-bottom: 0; }\n.fhir-mapper-transform .mapper-wide { grid-column: 1 / -1; }\n.fhir-mapper-transform .mapper-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }\n.fhir-mapper-transform .mapper-actions input[type=text] { flex: 1 1 240px; min-width: 0; width: auto; }\n.fhir-mapper-transform .mapper-actions select { flex: none; width: auto; }\n.fhir-mapper-transform .mapper-actions button { flex: none; white-space: nowrap; }\n.fhir-mapper-transform .mapper-checks { display: flex; flex-wrap: wrap; gap: 10px 20px; }\n.fhir-mapper-transform .check { white-space: nowrap; }\n.fhir-mapper-transform .mapper-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }\n.fhir-mapper-transform .mapper-toolbar select { width: auto; max-width: 100%; }\n.fhir-mapper-transform .mapper-toolbar .hint { flex: 1 1 280px; }\n.fhir-mapper-transform .mapper-toolbar-right { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }\n.fhir-mapper-transform .mapper-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; min-height: 28px; padding: 0; border-radius: 6px; }\n.fhir-mapper-transform .mapper-expression { display: inline-flex; width: 100%; min-width: 0; }\n.fhir-mapper-transform .mapper-functions { position: fixed; inset: auto; margin: 0; padding: 4px; border: 1px solid #94a3b8; border-radius: 6px; background: var(--bg, white); color: var(--text, #1e293b); box-shadow: 0 4px 16px #0003; overflow: auto; box-sizing: border-box; }\n.fhir-mapper-transform .mapper-functions [role=option] { padding: 6px 8px; cursor: pointer; border-radius: 4px; font-size: 12px; white-space: normal; }\n.fhir-mapper-transform .mapper-functions [aria-selected=true] { background: color-mix(in srgb, var(--accent, #2563eb) 18%, var(--bg2, white)); color: var(--text, #1e293b); }\n.fhir-mapper-transform .mapper-functions code { display: block; overflow-wrap: anywhere; }\n.fhir-mapper-transform table.mapper-tree td { padding: 3px 8px; }\n.fhir-mapper-transform .mapper-tree input:not([type=checkbox]), .fhir-mapper-transform .mapper-tree select { box-sizing: border-box; height: 26px; min-height: 26px; padding: 2px 6px; line-height: 20px; }\n.fhir-mapper-transform .mapper-tree .mapper-expression { padding: 0; min-height: 0; vertical-align: middle; }\n.fhir-mapper-transform .mapper-tree .btn { height: 22px; min-height: 22px; line-height: 18px; font-size: 11px; }\n.fhir-mapper-transform .mapper-tree .mapper-toggle { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 20px; height: 20px; min-height: 0; padding: 0; margin: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-faint, #64748b); cursor: pointer; }\n.fhir-mapper-transform .mapper-tree .mapper-toggle:hover, .fhir-mapper-transform .mapper-tree .mapper-toggle:focus-visible { background: color-mix(in srgb, var(--accent, #2563eb) 14%, transparent); color: var(--text, #1e293b); }\n.fhir-mapper-transform .mapper-tree .mapper-toggle svg { transition: transform 0.12s ease; }\n.fhir-mapper-transform .mapper-tree .mapper-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }\n.fhir-mapper-transform .mapper-help { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; flex: 0 0 16px; width: 16px; height: 16px; min-height: 0; padding: 0; margin: 0; border: 1px solid color-mix(in srgb, currentColor 40%, transparent); border-radius: 50%; background: transparent; color: var(--text-faint, #64748b); font-size: 10px; line-height: 1; text-decoration: none; opacity: 0.65; cursor: pointer; }\n.fhir-mapper-transform .mapper-help:hover, .fhir-mapper-transform .mapper-help:focus-visible { opacity: 1; color: var(--accent, #2563eb); border-color: currentColor; background: transparent; }\n.fhir-mapper-transform .mapper-help:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; }\n.fhir-mapper-transform .mapper-tree tbody > tr > td:first-child { position: relative; border-left: 2px solid transparent; }\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr > td { background: color-mix(in srgb, var(--accent, #2563eb) 4%, var(--bg2, white)); }\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr > td:first-child { border-left-color: color-mix(in srgb, var(--accent, #2563eb) 40%, transparent); }\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr:first-child > td { border-top: 1px solid color-mix(in srgb, var(--accent, #2563eb) 25%, transparent); background: color-mix(in srgb, var(--accent, #2563eb) 8%, var(--bg2, white)); }\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr:last-child > td { border-bottom: 1px solid color-mix(in srgb, var(--accent, #2563eb) 25%, transparent); }\n.fhir-mapper-transform .mapper-node-open .mapper-node-label { font-weight: 600; }\n.fhir-mapper-transform .mapper-tree tr.mapper-node-disabled > td { opacity: 0.55; }\n.fhir-mapper-transform .mapper-tree tr.mapper-node-disabled .mapper-node-label,\n.fhir-mapper-transform .mapper-tree tr.mapper-node-disabled .mapper-expression-view { text-decoration: line-through; }\n.fhir-mapper-transform .mapper-tree tbody > tr:hover > td,\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr:hover > td,\n.fhir-mapper-transform .mapper-tree tr:focus-within > td,\n.fhir-mapper-transform .mapper-tree .mapper-branch-open tr:focus-within > td { background: color-mix(in srgb, var(--accent, #2563eb) 14%, var(--bg2, white)); }\n.fhir-mapper-transform .mapper-tree tbody > tr.mapper-node-selected > td,\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr.mapper-node-selected > td { background: color-mix(in srgb, var(--accent, #2563eb) 22%, var(--bg2, white)); }\n.fhir-mapper-transform .mapper-tree tbody > tr.mapper-node-selected > td:first-child,\n.fhir-mapper-transform .mapper-tree .mapper-branch-open > tr.mapper-node-selected > td:first-child { border-left: 3px solid var(--accent, #2563eb); }\n.fhir-mapper-transform .mapper-tree-guides { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }\n.fhir-mapper-transform .mapper-tree-guides i { position: absolute; top: -1px; bottom: -1px; border-left: 1px solid color-mix(in srgb, var(--text-faint, #64748b) 45%, transparent); }\n.fhir-mapper-transform .mapper-tree-guides b { position: absolute; top: 50%; width: 20px; border-top: 1px solid color-mix(in srgb, var(--text-faint, #64748b) 45%, transparent); }\n.fhir-mapper-transform .bundle-routing { padding: 14px; border: 1px solid color-mix(in srgb, var(--accent, #2563eb) 40%, var(--line, #cbd5e1)); border-radius: 8px; background: color-mix(in srgb, var(--accent, #2563eb) 7%, var(--bg2, #fff)); }\n.fhir-mapper-transform .bundle-routing-title { margin-bottom: 4px; font-weight: 600; }\n.fhir-mapper-transform .bundle-target { margin-top: 10px; padding: 12px; border: 1px solid color-mix(in srgb, var(--accent, #2563eb) 30%, var(--line, #cbd5e1)); border-radius: 6px; background: var(--bg2, #fff); }\n.fhir-mapper-transform .bundle-choice { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; text-transform: none; letter-spacing: normal; font-weight: 600; }\n.fhir-mapper-transform .bundle-choice input[type=checkbox] { width: 16px; height: 16px; margin: 0; flex: none; }\n.fhir-mapper-transform .bundle-request { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; margin-top: 10px; }\n.fhir-mapper-transform .bundle-target .field { margin-top: 8px; }\n.fhir-mapper-transform .mapper-tabs { display: flex; gap: 2px; margin-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--text-faint, #64748b) 35%, transparent); }\n.fhir-mapper-transform .mapper-tabs [role=tab] { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-faint, #64748b); font: inherit; font-weight: 600; cursor: pointer; }\n.fhir-mapper-transform .mapper-tabs [role=tab]:hover { color: var(--text, #1e293b); }\n.fhir-mapper-transform .mapper-tabs [role=tab][aria-selected=true] { color: var(--text, #1e293b); border-bottom-color: var(--accent, #2563eb); }\n.fhir-mapper-transform .mapper-tabs [role=tab]:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: -2px; }\n.fhir-mapper-transform .mapper-tab-badge { min-width: 16px; padding: 0 5px; border-radius: 8px; background: #b91c1c; color: white; font-size: 11px; line-height: 16px; text-align: center; }\n.fhir-mapper-transform .mapper-tab-panel > details:first-child, .fhir-mapper-transform .mapper-tab-panel > .mapper-settings + details { margin-top: 14px; }\n.fhir-mapper-transform.mapper-layout { display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box; overflow: hidden; }\n.fhir-mapper-transform.mapper-layout.mapper-fullscreen { overflow: hidden; }\n.fhir-mapper-transform.mapper-layout > :not([role=tabpanel]) { flex: none; }\n.fhir-mapper-transform.mapper-layout > [role=tabpanel] { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }\n.fhir-mapper-transform.mapper-testing-layout > [role=tabpanel],\n.fhir-mapper-transform.mapper-mapping-layout > [role=tabpanel] { overflow: hidden; }\n.fhir-mapper-transform .mapper-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; }\n.fhir-mapper-transform .mapper-panel > :not(.mapper-workspace) { flex: none; }\n.fhir-mapper-transform .mapper-panel > .mapper-workspace { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; margin-top: 8px; }\n.fhir-mapper-transform .mapper-status { margin-bottom: 4px; }\n.fhir-mapper-transform .mapper-test { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }\n.fhir-mapper-transform .mapper-test-actions { display: flex; align-items: center; gap: 8px; flex: none; border-bottom: 1px solid var(--line, #cbd5e1); }\n.fhir-mapper-transform .mapper-test-actions > button { flex: none; margin-bottom: 6px; }\n.fhir-mapper-transform .mapper-test-tabs { flex: 1; min-width: 0; flex-wrap: wrap; margin-bottom: -1px; border-bottom: 0; }\n.fhir-mapper-transform .mapper-test-tabs [role=tab] { padding: 8px 10px; }\n.fhir-mapper-transform .mapper-test-tabs [role=tab].mapper-error { color: var(--err, #b91c1c); }\n.fhir-mapper-transform .mapper-test-tabs [role=tab].mapper-issue-warning { color: var(--warn, #b45309); }\n.fhir-mapper-transform .mapper-test-status { flex: none; max-height: 25%; overflow: auto; }\n.fhir-mapper-transform .mapper-test-status:empty { display: none; }\n.fhir-mapper-transform .mapper-test-panel { display: flex; flex-direction: column; flex: 1; gap: 8px; min-height: 0; }\n.fhir-mapper-transform .mapper-test-panel[hidden] { display: none; }\n.fhir-mapper-transform .mapper-test-validation,\n.fhir-mapper-transform .mapper-test-trace { overflow: auto; }\n.fhir-mapper-transform .mapper-sample-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; flex: none; }\n.fhir-mapper-transform .mapper-sample-controls label { margin: 0; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }\n.fhir-mapper-transform .mapper-sample-controls select { width: auto; flex: none; max-width: 260px; }\n.fhir-mapper-transform .mapper-test-output,\n.fhir-mapper-transform .mapper-test-script { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 6px; }\n.fhir-mapper-transform .mapper-test-diagnostics { flex: none; max-height: 40%; overflow: auto; }\n.fhir-mapper-transform .mapper-test-diagnostics:empty { display: none; }\n.fhir-mapper-transform .mapper-test .fm-code-box { flex: 1; min-height: 0; }\n.fhir-mapper-transform .mapper-error { color: var(--err, #b91c1c); overflow-wrap: anywhere; }\n.fhir-mapper-transform .mapper-issue-warning { color: var(--warn, #b45309); }\n.fhir-mapper-transform .mapper-ok { color: var(--ok, #15803d); }\n.fhir-mapper-transform .mapper-properties { display: flex; flex-direction: column; gap: 16px; }\n.fhir-mapper-transform .mapper-context-section { padding: 14px 16px; border: 1px solid var(--line, #cbd5e1); border-radius: 8px; background: var(--bg2, #fff); }\n.fhir-mapper-transform .mapper-context-details > .fhir-context-fields { margin-top: 12px; }\n.fhir-mapper-transform .mapper-context-details > summary { cursor: pointer; font-size: 13px; font-weight: 600; }\n.fhir-mapper-transform .mapper-context-summary { margin: 6px 0 10px; font-size: 13px; color: var(--text-faint, #64748b); }\n.fhir-mapper-transform .mapper-property-section { padding: 0 0 14px; border-bottom: 1px solid var(--line, #cbd5e1); }\n.fhir-mapper-transform .mapper-property-section:last-child { border-bottom: 0; padding-bottom: 0; }\n.fhir-mapper-transform .mapper-property-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 14px; }\n.fhir-mapper-transform .mapper-flow-number { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent, #2563eb); color: white; font-size: 12px; }\n.fhir-mapper-transform .mapper-property-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; align-items: start; }\n.fhir-mapper-transform .mapper-property-grid > *, .fhir-mapper-transform .field { min-width: 0; }\n.fhir-mapper-transform .mapper-tools { display: flex; flex-direction: column; gap: 12px; }\n.fhir-mapper-transform .mapper-tools-card { padding: 14px 16px; border: 1px solid var(--line, #cbd5e1); border-radius: 8px; background: var(--bg2, #fff); }\n.fhir-mapper-transform .mapper-tools-card h3,\n.fhir-mapper-transform .mapper-tools-card > summary { margin: 0 0 6px; font-size: 14px; font-weight: 600; cursor: pointer; }\n.fhir-mapper-transform .mapper-tools-card h3 { cursor: default; }\n.fhir-mapper-transform .mapper-tools-hint { margin: 0 0 10px; font-size: 12px; color: var(--text-faint, #64748b); }\n.fhir-mapper-transform .mapper-tools-groups { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-start; }\n.fhir-mapper-transform .mapper-tools-group { display: flex; flex-direction: column; gap: 6px; }\n.fhir-mapper-transform .mapper-tools-group-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-faint, #64748b); }\n.fhir-mapper-transform .mapper-tools-json-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }\n.fhir-mapper-transform .mapper-tools-json-body .mapper-tools-hint { margin: 0; }\n@container (max-width: 640px) {\n  .fhir-mapper-transform .mapper-settings,\n  .fhir-mapper-transform .mapper-property-grid { grid-template-columns: minmax(0, 1fr); }\n}\n';
 
 // src/styles/fml.css
-var fml_default = "/* SPDX-License-Identifier: MPL-2.0 */\n\n.fhir-fml { container-type: inline-size; min-width: 0; }\n.fhir-fml .fml-property-grid > *, .fhir-fml .field { min-width: 0; }\n.fhir-fml .fml-wide { grid-column: 1 / -1; }\n.fhir-fml .fml-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }\n.fhir-fml .fml-row > select, .fhir-fml .fml-row > input[type=text] { flex: 1 1 240px; min-width: 0; width: auto; }\n.fhir-fml .fml-row > button { flex: none; white-space: nowrap; }\n.fhir-fml .fml-tabs { display: flex; gap: 2px; margin-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--text-faint, #64748b) 35%, transparent); }\n.fhir-fml .fml-tabs [role=tab] { padding: 6px 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-faint, #64748b); font: inherit; font-weight: 600; cursor: pointer; }\n.fhir-fml .fml-tabs [role=tab]:hover { color: var(--text, #1e293b); }\n.fhir-fml .fml-tabs [role=tab][aria-selected=true] { color: var(--text, #1e293b); border-bottom-color: var(--accent, #2563eb); }\n.fhir-fml pre.fml-json { max-height: 420px; overflow: auto; padding: 8px; border: 1px solid var(--border, #cbd5e1); border-radius: 4px; font-size: 12px; white-space: pre; }\n.fhir-fml .fml-error { color: var(--err, #b91c1c); overflow-wrap: anywhere; }\n.fhir-fml .fml-issue-warning { color: var(--warn, #b45309); }\n.fhir-fml .fml-ok { color: var(--ok, #15803d); }\n.fhir-fml.fml-layout { display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box; overflow: hidden; }\n.fhir-fml.fml-layout.mapper-fullscreen { overflow: hidden; }\n.fhir-fml.fml-layout > .fml-tabs { flex: none; }\n.fhir-fml.fml-layout > [role=tabpanel] { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }\n.fhir-fml.fml-testing-layout > [role=tabpanel] { overflow: hidden; }\n.fhir-fml .fml-map { display: flex; flex-direction: column; height: 100%; min-height: 0; }\n.fhir-fml .fml-map > .fml-row, .fhir-fml .fml-map > .fml-error { flex: none; }\n.fhir-fml .fml-map-editor { flex: 1; min-height: 0; min-width: 0; }\n.fhir-fml .fml-test { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }\n.fhir-fml .fml-test-actions { display: flex; align-items: center; gap: 12px; flex: none; border-bottom: 1px solid var(--border, #cbd5e1); }\n.fhir-fml .fml-test-actions > button { flex: none; margin-bottom: 6px; }\n.fhir-fml .fml-test-tabs { flex: 1; min-width: 0; flex-wrap: wrap; margin-bottom: -1px; border-bottom: 0; }\n.fhir-fml .fml-test-tabs [role=tab] { padding: 8px 10px; }\n.fhir-fml .fml-sample-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; flex: none; }\n.fhir-fml .fml-sample-controls label { margin: 0; font-weight: 500; font-size: 13px; }\n.fhir-fml .fml-sample-controls select { flex: 0 1 260px; width: auto; min-width: 0; }\n.fhir-fml .fml-parser-badge { font-size: 12px; color: var(--text-faint, #64748b); }\n.fhir-fml .fml-format-sample { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }\n.fhir-fml .fml-format-sample input { margin: 0; }\n.fhir-fml .fml-test-tabs [role=tab].fml-error { color: var(--err, #b91c1c); }\n.fhir-fml .fml-test-tabs [role=tab].fml-issue-warning { color: var(--warn, #b45309); }\n.fhir-fml .fml-test-status { flex: none; max-height: 25%; overflow: auto; }\n.fhir-fml .fml-test-status:empty { display: none; }\n.fhir-fml .fml-test-panel { display: flex; flex-direction: column; flex: 1; gap: 8px; min-height: 0; }\n.fhir-fml .fml-test-panel[hidden] { display: none; }\n.fhir-fml .fml-test-validation { overflow: auto; }\n.fhir-fml .fml-test .fm-code-box { flex: 1; min-height: 0; }\n\n.fhir-fml .fml-properties { display: flex; flex-direction: column; gap: 16px; }\n.fhir-fml .fml-context-section { padding: 14px 16px; border: 1px solid var(--border, #cbd5e1); border-radius: 8px; background: var(--bg2, #fff); }\n.fhir-fml .fml-context-details > .fhir-context-fields { margin-top: 12px; }\n.fhir-fml .fml-context-details > summary, .fhir-context-terminology > summary { cursor: pointer; font-size: 13px; font-weight: 600; }\n.fhir-fml .fml-context-summary { margin: 6px 0 10px; font-size: 13px; color: var(--text-faint, #64748b); }\n.fhir-fml .fml-property-section { padding: 0 0 14px; border-bottom: 1px solid var(--border, #cbd5e1); }\n.fhir-fml .fml-property-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 14px; }\n.fhir-fml .fml-flow-number { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent, #2563eb); color: white; font-size: 12px; }\n.fhir-fml .fml-property-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }\n.fhir-fml .fml-map-kind { font-size: 13px; font-weight: 600; }\n@container (max-width: 640px) { .fhir-fml .fml-property-grid { grid-template-columns: minmax(0, 1fr); } }\n";
+var fml_default = "/* SPDX-License-Identifier: MPL-2.0 */\n\n.fhir-fml { container-type: inline-size; min-width: 0; }\n.fhir-fml .fml-property-grid > *, .fhir-fml .field { min-width: 0; }\n.fhir-fml .fml-wide { grid-column: 1 / -1; }\n.fhir-fml .fml-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }\n.fhir-fml .fml-row > select, .fhir-fml .fml-row > input[type=text] { flex: 1 1 240px; min-width: 0; width: auto; }\n.fhir-fml .fml-row > button { flex: none; white-space: nowrap; }\n.fhir-fml .fml-tabs { display: flex; gap: 2px; margin-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--text-faint, #64748b) 35%, transparent); }\n.fhir-fml .fml-tabs [role=tab] { padding: 6px 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--text-faint, #64748b); font: inherit; font-weight: 600; cursor: pointer; }\n.fhir-fml .fml-tabs [role=tab]:hover { color: var(--text, #1e293b); }\n.fhir-fml .fml-tabs [role=tab][aria-selected=true] { color: var(--text, #1e293b); border-bottom-color: var(--accent, #2563eb); }\n.fhir-fml pre.fml-json { max-height: 420px; overflow: auto; padding: 8px; border: 1px solid var(--border, #cbd5e1); border-radius: 4px; font-size: 12px; white-space: pre; }\n.fhir-fml .fml-error { color: var(--err, #b91c1c); overflow-wrap: anywhere; }\n.fhir-fml .fml-issue-warning { color: var(--warn, #b45309); }\n.fhir-fml .fml-ok { color: var(--ok, #15803d); }\n.fhir-fml.fml-layout { display: flex; flex-direction: column; height: 100%; min-height: 0; box-sizing: border-box; overflow: hidden; }\n.fhir-fml.fml-layout.mapper-fullscreen { overflow: hidden; }\n.fhir-fml.fml-layout > .fml-tabs { flex: none; }\n.fhir-fml.fml-layout > [role=tabpanel] { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }\n.fhir-fml.fml-testing-layout > [role=tabpanel] { overflow: hidden; }\n.fhir-fml .fml-map { display: flex; flex-direction: column; height: 100%; min-height: 0; }\n.fhir-fml .fml-map > .fml-row, .fhir-fml .fml-map > .fml-error { flex: none; }\n.fhir-fml .fml-map-editor { flex: 1; min-height: 0; min-width: 0; }\n.fhir-fml .fml-test { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }\n.fhir-fml .fml-test-actions { display: flex; align-items: center; gap: 12px; flex: none; border-bottom: 1px solid var(--border, #cbd5e1); }\n.fhir-fml .fml-test-actions > button { flex: none; margin-bottom: 6px; }\n.fhir-fml .fml-test-tabs { flex: 1; min-width: 0; flex-wrap: wrap; margin-bottom: -1px; border-bottom: 0; }\n.fhir-fml .fml-test-tabs [role=tab] { padding: 8px 10px; }\n.fhir-fml .fml-sample-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; flex: none; }\n.fhir-fml .fml-sample-controls label { margin: 0; font-weight: 500; font-size: 13px; }\n.fhir-fml .fml-sample-controls select { flex: 0 1 260px; width: auto; min-width: 0; }\n.fhir-fml .fml-parser-badge { font-size: 12px; color: var(--text-faint, #64748b); }\n.fhir-fml .fml-format-sample { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }\n.fhir-fml .fml-format-sample input { margin: 0; }\n.fhir-fml .fml-test-tabs [role=tab].fml-error { color: var(--err, #b91c1c); }\n.fhir-fml .fml-test-tabs [role=tab].fml-issue-warning { color: var(--warn, #b45309); }\n.fhir-fml .fml-test-status { flex: none; max-height: 25%; overflow: auto; }\n.fhir-fml .fml-test-status:empty { display: none; }\n.fhir-fml .fml-test-panel { display: flex; flex-direction: column; flex: 1; gap: 8px; min-height: 0; }\n.fhir-fml .fml-test-panel[hidden] { display: none; }\n.fhir-fml .fml-test-validation { overflow: auto; }\n.fhir-fml .fml-test .fm-code-box { flex: 1; min-height: 0; }\n\n.fhir-fml .fml-properties { display: flex; flex-direction: column; gap: 16px; }\n.fhir-fml .fml-context-section { padding: 14px 16px; border: 1px solid var(--border, #cbd5e1); border-radius: 8px; background: var(--bg2, #fff); }\n.fhir-fml .fml-context-details > .fhir-context-fields { margin-top: 12px; }\n.fhir-fml .fml-context-details > summary, .fhir-context-terminology > summary { cursor: pointer; font-size: 13px; font-weight: 600; }\n.fhir-fml .fml-context-summary { margin: 6px 0 10px; font-size: 13px; color: var(--text-faint, #64748b); }\n.fhir-fml .fml-property-section { padding: 0 0 14px; border-bottom: 1px solid var(--border, #cbd5e1); }\n.fhir-fml .fml-property-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 14px; }\n.fhir-fml .fml-flow-number { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent, #2563eb); color: white; font-size: 12px; }\n.fhir-fml .fml-property-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }\n.fhir-fml .fml-map-kind { font-size: 13px; font-weight: 600; }\n@container (max-width: 640px) { .fhir-fml .fml-property-grid { grid-template-columns: minmax(0, 1fr); } }\n\n.fhir-fml .fml-test-variables { flex: none; }\n.fhir-fml .fml-test-variables summary, .fhir-fml .fml-resolved-references summary { cursor: pointer; }\n.fhir-fml .fml-test-variables label { display: grid; grid-template-columns: 140px minmax(0, 1fr); align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; }\n.fhir-fml .fml-test-variables input { flex: 1; min-width: 0; }\n.fhir-fml .fml-resolved-references code { overflow-wrap: anywhere; }\n";
 
 // src/fhir/mapping-table.js
 var escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -5978,6 +5988,13 @@ function fmlSample(platform2, element) {
   let key = ctx ? `fhir-fml-sample:${ctx.channel.id}:${ctx.connector.metaDataId}:${ctx.transformer === ctx.connector.responseTransformer ? "response" : "transformer"}:${element.sequenceNumber}` : "fhir-fml-sample:unknown";
   const message = element.sampleMessage || ctx?.transformer.inboundTemplate || "";
   if (element.sampleMessage) key += ":embedded:" + (element.sampleFormat || "inbound");
+  let variables = {};
+  try {
+    const saved = JSON.parse(element.sampleVariables || "{}");
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) variables = saved;
+  } catch {
+  }
+  if (Object.keys(variables).length) key += ":variables:" + JSON.stringify(variables);
   return {
     key,
     transformer: ctx?.transformer,
@@ -5986,11 +6003,25 @@ function fmlSample(platform2, element) {
       response: ctx.transformer === ctx.connector.responseTransformer,
       id: ctx.connector.metaDataId
     } : null,
-    sample: { message, inputMode: element.sampleFormat ? "prepared" : "raw", format: element.sampleFormat || "xml" }
+    sample: {
+      message,
+      inputMode: element.sampleFormat ? "prepared" : "raw",
+      format: element.sampleFormat || "xml",
+      ...Object.keys(variables).length ? { variables } : {}
+    }
   };
+}
+function fmlReferenceVariables(element) {
+  const references = [
+    String(element.mapSource || "").trim() ? "" : element.mapUrl,
+    element.sourceModel === "logical" ? element.sourceModelUrl : ""
+  ];
+  return [...new Set(references.map((value) => String(value || "").trim().match(/^\$\{([A-Za-z_$][A-Za-z0-9_$.-]*)\}$/)?.[1]).filter(Boolean))];
 }
 function fmlTestRequest(element, sample, transformer) {
   const base = { step: element, message: sample.message, inputMode: sample.inputMode || "raw" };
+  const names = fmlReferenceVariables(element);
+  if (names.length) base.variables = Object.fromEntries(names.map((name) => [name, sample.variables?.[name] ?? ""]));
   return base.inputMode === "prepared" ? { ...base, format: sample.format || "xml" } : { ...base, dataType: transformer?.inboundDataType || "", dataTypeProperties: transformer?.inboundProperties || {} };
 }
 
@@ -6142,7 +6173,7 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
   const copyMap = async () => {
     const url = element.mapUrl;
     const context2 = element.context;
-    if (!url) return;
+    if (!url || fmlReferenceVariables({ mapUrl: url }).length) return;
     st.copying = true;
     st.loadError = "";
     rerender();
@@ -6291,7 +6322,6 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
     (st.check?.errors || []).map((e, i) => h2("div", { key: i, className: "fml-error", style: { marginTop: "4px" } }, t("fml.line_p0_column_p1_p2", { p0: e.line, p1: e.column, p2: e.message })))
   );
   const mapOptions = st.maps || [];
-  const knownMap = mapOptions.some((m) => m.url === element.mapUrl);
   const localContext = {
     fhirVersion: element.fhirVersion || "R4",
     packages: String(element.profiles || "").split(";"),
@@ -6387,7 +6417,8 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
           h2("input", {
             type: "text",
             list: "fml-logical-models",
-            placeholder: "http://example.org/fhir/StructureDefinition/MyLogicalModel",
+            "aria-label": t("fml.logical_model_url"),
+            placeholder: "${fmlSourceModelUrl}",
             value: element.sourceModelUrl ?? "",
             onChange: (e) => set("sourceModelUrl", e.target.value)
           }),
@@ -6402,7 +6433,7 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
             (st.logicalModels || []).map((m) => h2("option", { key: m.url, value: m.url }, m.title || m.name || m.url))
           )
         ),
-        t("fml.the_xml_or_json_is_read"),
+        t("fml.logical_reference_hint"),
         true
       ) : null,
       (element.sourceModel || "fhir") === "oie-message" ? field(
@@ -6427,18 +6458,21 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
         h2(
           "div",
           { className: "fml-row" },
-          h2(
-            "select",
-            { value: element.mapUrl || "", disabled: st.loading, "aria-label": t("fml.map_from_the_context"), onChange: (e) => set("mapUrl", e.target.value) },
-            h2("option", { value: "" }, st.maps ? mapOptions.length ? t("fml.choose_a_map") : t("fml.no_map_in_these_locations") : t("fml.load_the_maps_first")),
-            element.mapUrl && !knownMap ? h2("option", { value: element.mapUrl }, element.mapUrl) : null,
-            mapOptions.map((m) => h2("option", { key: m.url, value: m.url }, m.title || m.name || m.url))
-          ),
+          h2("input", {
+            type: "text",
+            value: element.mapUrl || "",
+            list: "fml-map-urls",
+            disabled: st.loading,
+            "aria-label": t("fml.map_from_the_context"),
+            placeholder: "${fmlMapUrl}",
+            onChange: (e) => set("mapUrl", e.target.value)
+          }),
+          h2("datalist", { id: "fml-map-urls" }, mapOptions.map((m) => h2("option", { key: m.url, value: m.url }, m.title || m.name || m.url))),
           h2("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !locations.trim(), onClick: () => loadMaps(false) }, st.loading ? t("common.loading") : t("fml.load_maps")),
           h2("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !locations.trim(), onClick: () => loadMaps(true) }, t("fml.reload")),
-          h2("button", { type: "button", className: "btn btn-sm", disabled: st.copying || !element.mapUrl, onClick: copyMap }, st.copying ? t("fml.copying") : t("fml.copy_to_inline_map"))
+          h2("button", { type: "button", className: "btn btn-sm", disabled: st.copying || !element.mapUrl || fmlReferenceVariables({ mapUrl: element.mapUrl }).length > 0, onClick: copyMap }, st.copying ? t("fml.copying") : t("fml.copy_to_inline_map"))
         ),
-        t("fml.the_map_declares_its_source_and"),
+        t("fml.map_reference_hint"),
         true
       ),
       st.loadError ? h2("div", { className: "fml-wide fml-error" }, st.loadError) : null,
@@ -6516,6 +6550,7 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
     "logical": "fml.the_xml_or_json_is_read",
     "fhir": "fml.the_source_structuredefinition_is_resolved_from"
   }[element.sourceModel || "fhir"];
+  const referenceVariables = fmlReferenceVariables(element);
   const inputControls = h2(
     React2.Fragment,
     null,
@@ -6568,7 +6603,43 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
         ...!prepared && inputOptions.length ? [{ title: "fml.parser_settings", lines: inputOptions.map(([key, value]) => [key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()), typeof value === "object" ? JSON.stringify(value) : String(value)]) }] : []
       ], note: "fml.formatting_changes_the_display_only_previous" })
     ),
-    !prepared && !supported ? h2("div", { className: "fml-error" }, t("fml.the_transformer_datatype_is_unavailable_or")) : null
+    !prepared && !supported ? h2("div", { className: "fml-error" }, t("fml.the_transformer_datatype_is_unavailable_or")) : null,
+    referenceVariables.length ? h2(
+      "details",
+      {
+        className: "fml-test-variables",
+        open: st.testVariablesOpen ?? referenceVariables.some((name) => !String(st.sample.variables?.[name] || "").trim()),
+        onToggle: (e) => {
+          st.testVariablesOpen = e.currentTarget.open;
+        }
+      },
+      h2(
+        "summary",
+        null,
+        t("fml.test_variables"),
+        " (",
+        referenceVariables.length,
+        ") ",
+        h2(HelpButton, { compact: true, label: "fml.test_variables", sections: [
+          { title: "fml.test_variables", lines: ["fml.test_variables_hint"] }
+        ] })
+      ),
+      referenceVariables.map((name) => h2(
+        "label",
+        { key: name },
+        name,
+        h2("input", {
+          type: "text",
+          "aria-label": name,
+          value: st.sample.variables?.[name] || "",
+          onChange: (e) => {
+            st.sample.variables = { ...st.sample.variables, [name]: e.target.value };
+            saveSample();
+            rerender();
+          }
+        })
+      ))
+    ) : null
   );
   const test = h2(
     "div",
@@ -6596,7 +6667,13 @@ function FmlTransformEditor({ element, onChange, platform: platform2 }) {
       "div",
       { className: "fml-test-status", role: "status", "aria-live": "polite" },
       result && st.testedInput !== testInput() ? h2("div", { className: "fml-issue-warning" }, t("common.run_again_to_update_the_result")) : null,
-      errors.map((e, i) => h2("div", { key: i, className: "fml-error" }, t("common.p0_p1", { p0: e.phase, p1: e.message })))
+      errors.map((e, i) => h2("div", { key: i, className: "fml-error" }, t("common.p0_p1", { p0: e.phase, p1: e.message }))),
+      result?.resolvedReferences && referenceVariables.length ? h2(
+        "details",
+        { className: "fml-resolved-references" },
+        h2("summary", null, t("fml.resolved_references")),
+        Object.entries(result.resolvedReferences).filter(([, value]) => value).map(([key, value]) => h2("div", { key }, h2("strong", null, key === "mapUrl" ? t("common.map") : t("fml.logical_model_url")), ": ", h2("code", null, value)))
+      ) : null
     ),
     testTabs.map((t2) => h2(
       "div",
@@ -6706,6 +6783,7 @@ function register2(platform2) {
       traceMessages: false,
       sampleMessage: "",
       sampleFormat: "",
+      sampleVariables: "",
       contextVariables: "",
       terminologyServer: "",
       terminologyAuthorization: "",

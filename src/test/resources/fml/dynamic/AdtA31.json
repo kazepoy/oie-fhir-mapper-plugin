@@ -1,0 +1,40 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "AdtA31",
+  "url": "http://example.org/fhir/StructureDefinition/AdtA31",
+  "name": "AdtA31",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "AdtA31",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/tools/StructureDefinition/json-suppress-resourcetype",
+      "valueBoolean": true
+    }
+  ],
+  "differential": {
+    "element": [
+      {
+        "id": "AdtA31",
+        "path": "AdtA31",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "AdtA31.identifier",
+        "path": "AdtA31.identifier",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

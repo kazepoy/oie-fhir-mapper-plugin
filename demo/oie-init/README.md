@@ -23,6 +23,7 @@ The demo contains seventeen channels in the **FML transformer** and
 | [14 JSON to Obs Ext TX - Mapper](data/channels/14-json-obs-external-tx-mapper.xml) | `http://localhost:10816/obs-external-tx/` | External terminology `ConceptMap/$translate` and unmatched fallback via `term-server`. |
 | [16 JSON to R5 Org - Mapper](data/channels/16-json-organization-r5-mapper.xml) | `http://localhost:10810/organization-r5/` | Business JSON to FHIR R5 Organization with R5 markdown `description`. |
 | [17 ORU to Patient - FML vs Mapper](data/channels/17-oru-patient-fml-vs-mapper.xml) | `http://localhost:10817/patient-compare/` | Parallel destinations comparing inline FML and Mapper Transform outputs and timings. |
+| [18 ADT to Patient - Dynamic FML](data/channels/18-adt-patient-dynamic-fml.xml) | `http://localhost:10818/adt-dynamic-fml/` | A28/A31/A08 → Patient; one destination selects three map/SD pairs from message variables. |
 
 ## Sources and resources
 

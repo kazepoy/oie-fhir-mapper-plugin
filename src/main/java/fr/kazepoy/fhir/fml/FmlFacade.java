@@ -2,6 +2,8 @@
 package fr.kazepoy.fhir.fml;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.regex.Pattern;
 
 import fr.kazepoy.fhir.fml.integration.FmlBridgeAdapter;
 import fr.kazepoy.fhir.mapper.fhir.FhirValidation;
@@ -19,6 +21,38 @@ public final class FmlFacade {
     /** The map a step runs: its own text when it has one, else the canonical URL it names. */
     public static String mapReference(String mapSource, String mapUrl) {
         return mapSource != null && !mapSource.isBlank() ? INLINE + mapSource : (mapUrl == null ? "" : mapUrl.trim());
+    }
+
+    private static final Pattern REFERENCE_VARIABLE = Pattern.compile("\\$\\{([A-Za-z_$][A-Za-z0-9_$.\\-]*)\\}");
+
+    /** A whole canonical reference may be supplied by one OIE variable; inline FML is literal. */
+    public static String referenceVariable(String reference) {
+        if (reference == null || reference.startsWith(INLINE)) return null;
+        var match = REFERENCE_VARIABLE.matcher(reference.trim());
+        if (match.matches()) return match.group(1);
+        if (reference.contains("${"))
+            throw new IllegalArgumentException("Use a canonical URL or a whole variable reference such as ${fmlMapUrl}.");
+        return null;
+    }
+
+    private static String resolveReference(String label, String reference, Map<String, String> variables) {
+        String name = referenceVariable(reference);
+        if (name == null) return reference == null ? "" : reference.trim();
+        String value = variables.get(name);
+        if (value == null || value.isBlank())
+            throw new IllegalArgumentException(label + ": variable " + name + " is missing or empty.");
+        if (value.trim().startsWith(INLINE))
+            throw new IllegalArgumentException(label + ": variable " + name + " must contain a canonical URL, not inline FML.");
+        return value.trim();
+    }
+
+    /** Resolve per-message values without changing the step or the cached FHIR context. */
+    public static Map<String, String> resolveReferences(Map<String, String> options, Map<String, String> variables) {
+        Map<String, String> resolved = new LinkedHashMap<>(options);
+        resolved.put("mapReference", resolveReference("FML map", options.get("mapReference"), variables));
+        if ("logical".equals(options.get("sourceModel")))
+            resolved.put("sourceModelUrl", resolveReference("Logical source model", options.get("sourceModelUrl"), variables));
+        return resolved;
     }
 
     private static String mapLabel(String reference) {
@@ -66,6 +100,19 @@ public final class FmlFacade {
             trace.put("validationPerformed", false);
         }
         try {
+            options = new LinkedHashMap<>(options);
+            options.put("mapReference", mapUrl);
+            if (trace != null) trace.put("phase", "configuration");
+            options = resolveReferences(options, variables);
+            mapUrl = options.get("mapReference");
+            if (trace != null) {
+                trace.put("mapReference", mapUrl);
+                trace.put("sourceModelUrl", options.getOrDefault("sourceModelUrl", ""));
+                Map<String, Object> parameters = new LinkedHashMap<>(options);
+                parameters.remove("authorization");
+                parameters.put("validateOutput", validate);
+                trace.put("parameters", parameters);
+            }
             String output = FmlBridgeAdapter.transform(mapUrl, source, format, context, variables, options, trace);
             if (trace != null) trace.put("output", fr.kazepoy.fhir.mapper.util.FhirJson.parse(output));
             if (validate) {

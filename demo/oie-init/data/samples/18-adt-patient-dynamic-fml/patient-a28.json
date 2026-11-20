@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://example.org/fml-dynamic/CodeSystem/adt-event",
+        "code": "A28"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "http://example.org/fml-dynamic/sid/patient",
+      "value": "180028"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "MARTIN",
+      "given": [
+        "CLAIRE"
+      ]
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1980-02-15"
+}

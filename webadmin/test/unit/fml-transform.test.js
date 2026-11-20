@@ -23,7 +23,7 @@ test("registers the step with the defaults of the Java step", () => {
   assert.deepEqual(step.create(), {
     __type: "fr.kazepoy.fhir.fml.FhirFmlTransformStep", name: "", enabled: true, fhirVersion: "R4", profiles: "", mapUrl: "", mapSource: "",
     sourceModel: "fhir", context: "",
-    variable: "", validateOutput: true, validationOverride: null, traceMessages: false, contextVariables: "", terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, sampleMessage: "", sampleFormat: ""
+    variable: "", validateOutput: true, validationOverride: null, traceMessages: false, contextVariables: "", terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, sampleMessage: "", sampleFormat: "", sampleVariables: ""
   });
 });
 
@@ -85,4 +85,30 @@ test("a sample without a prepared format uses the owning transformer's inbound",
   const initial = fmlSample({}, { sampleMessage: "<HL7Message/>", sampleFormat: "" });
   assert.equal(initial.sample.inputMode, "raw");
   assert.equal(initial.key.endsWith(":embedded:inbound"), true);
+});
+
+test("dynamic references expose only the variables required by the active map and logical model", async () => {
+  const { fmlReferenceVariables } = await import("../../src/fml/test-input.js");
+  const step = { mapUrl: "${fmlMapUrl}", sourceModel: "logical", sourceModelUrl: "${fmlSourceModelUrl}" };
+  assert.deepEqual(fmlReferenceVariables(step), ["fmlMapUrl", "fmlSourceModelUrl"]);
+  const request = fmlTestRequest(step, { message: "{}", inputMode: "prepared", format: "json",
+    variables: { fmlMapUrl: "http://example.org/map", fmlSourceModelUrl: "http://example.org/model", unused: "not sent" } });
+  assert.deepEqual(request.variables, { fmlMapUrl: "http://example.org/map", fmlSourceModelUrl: "http://example.org/model" });
+  assert.deepEqual(fmlTestRequest(step, { message: "{}" }).variables, { fmlMapUrl: "", fmlSourceModelUrl: "" });
+  assert.deepEqual(fmlReferenceVariables({ ...step, mapSource: "map inline" }), ["fmlSourceModelUrl"]);
+  assert.deepEqual(fmlReferenceVariables({ ...step, sourceModel: "fhir" }), ["fmlMapUrl"]);
+  assert.deepEqual(fmlReferenceVariables({ ...step, sourceModelUrl: "${fmlMapUrl}" }), ["fmlMapUrl"]);
+  assert.deepEqual(fmlReferenceVariables({ mapUrl: "http://example.org/map" }), []);
+});
+
+
+test("saved example variables prefill the sample and separate its browser cache", () => {
+  const step = { sampleMessage: "<PID/>", sampleFormat: "xml" };
+  const previous = fmlSample({}, step);
+  step.sampleVariables = JSON.stringify({ fmlMapUrl: "http://example.org/map", fmlSourceModelUrl: "http://example.org/model" });
+  const initial = fmlSample({}, step);
+  assert.deepEqual(initial.sample.variables, JSON.parse(step.sampleVariables));
+  assert.notEqual(initial.key, previous.key, "Existing empty cached variables must not hide new example defaults");
+  assert.deepEqual(fmlTestRequest({ ...step, mapUrl: "${fmlMapUrl}", sourceModel: "logical", sourceModelUrl: "${fmlSourceModelUrl}" }, initial.sample).variables,
+    initial.sample.variables);
 });

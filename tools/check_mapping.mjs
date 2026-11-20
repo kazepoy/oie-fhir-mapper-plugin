@@ -190,6 +190,7 @@ export function* errors(step) {
 export const FML_PROPERTIES = new Set([
   "sampleMessage",
   "sampleFormat",
+  "sampleVariables",
   "name",
   "sequenceNumber",
   "enabled",

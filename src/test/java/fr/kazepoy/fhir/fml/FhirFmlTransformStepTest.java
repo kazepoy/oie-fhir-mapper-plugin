@@ -42,19 +42,100 @@ public class FhirFmlTransformStepTest {
     /** Runs a script as a transformer would: msg is the E4X message, tmp absent. */
     private static Map<String, Object> run(String script, Map<String, Object> channelMap) throws Exception {
         String oru = Files.readString(Path.of(fixture("fml/messages/oru-r01-minimal.xml"))).replaceFirst("^<\\?xml[^>]*>", "");
+        return run(script, channelMap, oru, false);
+    }
+
+    private static Map<String, Object> run(String script, Map<String, Object> channelMap, String input, boolean json) throws Exception {
         Context cx = Context.enter();
         try {
             cx.setLanguageVersion(Context.VERSION_DEFAULT);
             Scriptable scope = cx.initStandardObjects();
             scope.put("channelMap", scope, Context.javaToJS(channelMap, scope));
-            scope.put("__oru", scope, oru);
-            Object out = cx.evaluateString(scope, "var msg = new XML(__oru);\nfunction doTransform() {\n" + script
+            scope.put("__oru", scope, input);
+            Object out = cx.evaluateString(scope, "var msg = " + (json ? "JSON.parse(__oru)" : "new XML(__oru)")
+                    + ";\nfunction $(name) { return channelMap.get(name); }\nfunction doTransform() {\n" + script
                     + "\n}\ndoTransform();\ntypeof msg === 'xml' ? null : String(msg);", "step", 1, null);
             Map<String, Object> result = new HashMap<>();
             result.put("msg", out == null ? null : Context.toString(out));
             return result;
         } finally {
             Context.exit();
+        }
+    }
+
+    @Test
+    public void dynamicMapAndLogicalModelAreResolvedPerMessageAndTraced() throws Exception {
+        FhirFmlTransformStep step = new FhirFmlTransformStep();
+        step.setProfiles(fixture("fml/dynamic"));
+        step.setSourceModel("logical");
+        step.setMapUrl("${fmlMapUrl}");
+        step.setSourceModelUrl("${fmlSourceModelUrl}");
+        step.setValidateOutput(false);
+        step.setTraceMessages(true);
+        step.setSequenceNumber("0");
+        String script = step.getScript(false);
+        Map<String, Object> channelMap = new HashMap<>();
+        for (String event : List.of("AdtA28", "AdtA31")) {
+            String map = "http://example.org/fhir/StructureMap/" + event;
+            String model = "http://example.org/fhir/StructureDefinition/" + event;
+            channelMap.put("fmlMapUrl", map);
+            channelMap.put("fmlSourceModelUrl", model);
+            String input = FhirJson.write(Map.of(event.equals("AdtA28") ? "patientId" : "identifier", event));
+            Map<?, ?> output = (Map<?, ?>) FhirJson.parse(run(script, channelMap, input, true).get("msg").toString());
+            assertEquals(event, output.get("id"));
+            Map<?, ?> trace = (Map<?, ?>) FhirJson.parse(channelMap.get("FML_TRACE_D0_S0").toString());
+            assertEquals(map, trace.get("mapReference"));
+            assertEquals(model, trace.get("sourceModelUrl"));
+            assertEquals(map, ((Map<?, ?>) trace.get("parameters")).get("mapReference"));
+        }
+        assertEquals("${fmlMapUrl}", step.getMapUrl());
+        assertEquals("${fmlSourceModelUrl}", step.getSourceModelUrl());
+        channelMap.remove("fmlSourceModelUrl");
+        try {
+            run(script, channelMap, "{}", true);
+            fail("Expected missing logical model variable");
+        } catch (Exception expected) {
+            assertTrue(expected.toString(), expected.toString().contains("fmlSourceModelUrl"));
+            Map<?, ?> trace = (Map<?, ?>) FhirJson.parse(channelMap.get("FML_TRACE_D0_S0").toString());
+            assertEquals("error", trace.get("status"));
+            assertEquals("configuration", trace.get("phase"));
+        }
+    }
+
+    @Test
+    public void dynamicTesterUsesExplicitVariablesAndReportsResolvedReferences() {
+        Map<String, Object> step = Map.of("profiles", fixture("fml/dynamic"), "sourceModel", "logical",
+                "mapUrl", "${fmlMapUrl}", "sourceModelUrl", "${fmlSourceModelUrl}", "validateOutput", false);
+        for (String event : List.of("AdtA28", "AdtA31")) {
+            String map = "http://example.org/fhir/StructureMap/" + event;
+            String model = "http://example.org/fhir/StructureDefinition/" + event;
+            String request = FhirJson.write(Map.of("step", step, "inputMode", "prepared", "format", "json",
+                    "message", FhirJson.write(Map.of(event.equals("AdtA28") ? "patientId" : "identifier", event)),
+                    "variables", Map.of("fmlMapUrl", map, "fmlSourceModelUrl", model)));
+            Map<?, ?> result = (Map<?, ?>) FhirJson.parse(FmlTester.test(request, (type, message, properties) -> message));
+            assertEquals(result.toString(), List.of(), result.get("errors"));
+            assertEquals(event, ((Map<?, ?>) FhirJson.parse(result.get("output").toString())).get("id"));
+            assertEquals(Map.of("mapUrl", map, "sourceModelUrl", model), result.get("resolvedReferences"));
+        }
+        Map<?, ?> result = (Map<?, ?>) FhirJson.parse(FmlTester.test(FhirJson.write(Map.of("step", step, "message", "{}")),
+                (type, message, properties) -> message));
+        assertTrue(result.toString(), result.get("errors").toString().contains("fmlMapUrl"));
+        assertSame(FhirJson.NULL, result.get("model"));
+    }
+
+    @Test
+    public void referenceResolutionPreservesFixedAndInlineMapsAndRejectsMissingValues() {
+        String inline = "inline: literal ${notAVariable}";
+        Map<String, String> options = Map.of("mapReference", inline, "sourceModel", "fhir", "sourceModelUrl", "${ignored}");
+        assertEquals(options, FmlFacade.resolveReferences(options, Map.of()));
+        assertEquals(PATIENT_MAP, FmlFacade.resolveReferences(Map.of("mapReference", PATIENT_MAP), Map.of()).get("mapReference"));
+        for (Map<String, String> variables : List.of(Map.<String, String>of(), Map.of("map", "  "), Map.of("map", "inline: injected"))) {
+            try {
+                FmlFacade.resolveReferences(Map.of("mapReference", "${map}"), variables);
+                fail("Expected invalid reference variable");
+            } catch (IllegalArgumentException expected) {
+                assertTrue(expected.getMessage(), expected.getMessage().contains("map"));
+            }
         }
     }
 
@@ -333,6 +414,7 @@ public class FhirFmlTransformStepTest {
                 + " version=\"4.7.0\"><name>Patient</name><mapUrl>" + PATIENT_MAP + "</mapUrl>"
                 + "<sourceModel>logical</sourceModel><sourceModelUrl>http://example.org/ORU</sourceModelUrl>"
                 + "<sampleMessage> &lt;patient/&gt;\n</sampleMessage><sampleFormat>xml</sampleFormat>"
+                + "<sampleVariables>{&quot;fmlMapUrl&quot;:&quot;http://example.org/test-map&quot;}</sampleVariables>"
                 + "<validateOutput>false</validateOutput></" + type
                 + "></elements></transformer></sourceConnector></channel>";
         Channel channel = serializer.deserialize(xml, Channel.class);
@@ -345,6 +427,8 @@ public class FhirFmlTransformStepTest {
         assertFalse(step.isValidateOutput());
         assertEquals(" <patient/>\n", step.getSampleMessage());
         assertEquals("xml", step.getSampleFormat());
+        assertEquals("{\"fmlMapUrl\":\"http://example.org/test-map\"}", step.getSampleVariables());
+        assertEquals(step.getSampleVariables(), new FhirFmlTransformStep(step).getSampleVariables());
         assertEquals(step.getSampleMessage(), new FhirFmlTransformStep(step).getSampleMessage());
         String retiredType = "org." + "oie.fhir.fml.FhirFmlTransformStep";
         Channel oldNamespace = serializer.deserialize(xml.replace(type, retiredType), Channel.class);

@@ -42,6 +42,7 @@ public class FhirFmlTransformStep extends Step {
     /** Sample received by this step, used only by its Test tab. */
     private String sampleMessage = "";
     private String sampleFormat = "";
+    private String sampleVariables = "";
     /** Name of a FHIR context of the server; blank: this step's own version, locations and validation. */
     private String context = "";
     private String terminologyServer = "";
@@ -66,6 +67,7 @@ public class FhirFmlTransformStep extends Step {
         contextVariables = props.getContextVariables();
         sampleMessage = props.getSampleMessage();
         sampleFormat = props.getSampleFormat();
+        sampleVariables = props.getSampleVariables();
         context = props.getContext();
         terminologyServer = props.terminologyServer;
         terminologyAuthorization = props.terminologyAuthorization;
@@ -94,7 +96,7 @@ public class FhirFmlTransformStep extends Step {
         sb.append("    if (__received) __context.put('receivedDate', String(new java.text.SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSSXXX\").format(__received.getTime())));\n");
         sb.append("}\n");
         sb.append("var __variables = new java.util.LinkedHashMap();\n");
-        for (String name : contextVariableNames()) {
+        for (String name : runtimeVariableNames()) {
             sb.append("(function (n) {\n    var v = 'function' === typeof $ ? $(n) : undefined;\n")
                     .append("    if (v !== undefined && v !== null) __variables.put(n, String(v));\n})(")
                     .append(FhirJson.write(name)).append(");\n");
@@ -138,6 +140,15 @@ public class FhirFmlTransformStep extends Step {
         return sb.toString();
     }
 
+    private List<String> runtimeVariableNames() {
+        List<String> names = new ArrayList<>(contextVariableNames());
+        for (String reference : List.of(mapReference(), "logical".equals(getSourceModel()) ? getSourceModelUrl() : "")) {
+            String name = FmlFacade.referenceVariable(reference);
+            if (name != null && !names.contains(name)) names.add(name);
+        }
+        return names;
+    }
+
     /** The names of contextVariables: separated by commas, semicolons or spaces. */
     public List<String> contextVariableNames() {
         List<String> names = new ArrayList<>();
@@ -167,6 +178,7 @@ public class FhirFmlTransformStep extends Step {
         step.setContextVariables(string(m, "contextVariables"));
         step.setSampleMessage(string(m, "sampleMessage"));
         step.setSampleFormat(string(m, "sampleFormat"));
+        step.setSampleVariables(string(m, "sampleVariables"));
         step.setContext(string(m, "context"));
         step.setTerminologyServer(string(m, "terminologyServer"));
         step.setTerminologyAuthorization(string(m, "terminologyAuthorization"));
@@ -300,6 +312,11 @@ public class FhirFmlTransformStep extends Step {
     public String getSampleMessage() { return sampleMessage == null ? "" : sampleMessage; }
 
     public void setSampleMessage(String sampleMessage) { this.sampleMessage = sampleMessage; }
+
+    /** JSON defaults for the Test sample only; never used by the deployed transformation. */
+    public String getSampleVariables() { return text(sampleVariables); }
+
+    public void setSampleVariables(String sampleVariables) { this.sampleVariables = sampleVariables; }
 
     public String getSampleFormat() { return text(sampleFormat); }
 

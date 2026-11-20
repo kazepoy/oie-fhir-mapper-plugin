@@ -1,0 +1,7 @@
+map "http://example.org/fhir/StructureMap/AdtA28" = "AdtA28"
+uses "http://example.org/fhir/StructureDefinition/AdtA28" alias Input as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
+
+group AdtA28(source src : Input, target tgt : Patient) {
+  src.patientId as value -> tgt.id = value "identifier";
+}

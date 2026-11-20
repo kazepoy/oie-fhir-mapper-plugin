@@ -162,6 +162,9 @@ if [ "$OIE_SEED_MESSAGES" = true ] && [ -f "$INIT_DIR/examples.json" ]; then
   seed_message 10806 "/csv-patients-collection" "text/csv; charset=UTF-8" "data/samples/restored/business-patients.csv"
   seed_message 10807 "/oru" "text/plain; charset=UTF-8" "data/samples/restored/oru-laboratory.er7"
   seed_message 10808 "/devdays-patient" "text/plain; charset=UTF-8" "data/samples/adt-a28.er7"
+  seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a28.er7"
+  seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a31.er7"
+  seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a08.er7"
 fi
 
 echo "=== Done: $count channel(s) imported and deployed ==="

@@ -53,3 +53,9 @@
 .fhir-fml .fml-property-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }
 .fhir-fml .fml-map-kind { font-size: 13px; font-weight: 600; }
 @container (max-width: 640px) { .fhir-fml .fml-property-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.fhir-fml .fml-test-variables { flex: none; }
+.fhir-fml .fml-test-variables summary, .fhir-fml .fml-resolved-references summary { cursor: pointer; }
+.fhir-fml .fml-test-variables label { display: grid; grid-template-columns: 140px minmax(0, 1fr); align-items: center; gap: 12px; margin-top: 6px; font-size: 13px; }
+.fhir-fml .fml-test-variables input { flex: 1; min-width: 0; }
+.fhir-fml .fml-resolved-references code { overflow-wrap: anywhere; }

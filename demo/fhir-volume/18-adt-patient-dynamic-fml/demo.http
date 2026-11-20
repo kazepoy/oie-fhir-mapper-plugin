@@ -1,0 +1,19 @@
+@baseUrl = http://localhost:10818/adt-dynamic-fml/
+
+### ADT A28 - Patient creation
+POST {{baseUrl}}
+Content-Type: text/plain; charset=UTF-8
+
+< ../../oie-init/data/samples/18-adt-patient-dynamic-fml/adt-a28.er7
+
+### ADT A31 - Patient update
+POST {{baseUrl}}
+Content-Type: text/plain; charset=UTF-8
+
+< ../../oie-init/data/samples/18-adt-patient-dynamic-fml/adt-a31.er7
+
+### ADT A08 - Patient information update
+POST {{baseUrl}}
+Content-Type: text/plain; charset=UTF-8
+
+< ../../oie-init/data/samples/18-adt-patient-dynamic-fml/adt-a08.er7

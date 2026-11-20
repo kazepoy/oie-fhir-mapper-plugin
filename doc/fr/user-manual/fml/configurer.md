@@ -47,3 +47,32 @@ Une étape peut exécuter soit une map chargée depuis les ressources du context
   - cocher ou décocher la case surcharge cette politique pour cette étape uniquement (le bouton **Use context policy** supprime la surcharge) ;
   - décocher la validation lorsque la cible de la FML est un modèle logique métier non FHIR (comme dans le canal **06 JSON Order to Dispatch**).
 - **Trace this step** : lorsqu'elle est cochée (après sauvegarde et redéploiement du canal), chaque exécution de l'étape enregistre un document JSON complet dans la variable `FML_TRACE_D<connectorId>_S<sequence>` de la Channel Map (entrée reçue, instance `fmlSource`, paramètres effectifs, sortie, diagnostics de validation, statut et durée en millisecondes).
+
+## Sélection dynamique de la map et du modèle logique
+
+Les champs **Map from the context** et **Logical model (StructureDefinition)** acceptent
+une URL canonique fixe ou une référence complète à une variable OIE :
+
+| Propriété | Exemple |
+|---|---|
+| Map | `${fmlMapUrl}` |
+| Modèle logique source | `${fmlSourceModelUrl}` |
+
+Dans le filtre source ou un step précédent, renseigner les variables pour
+chaque message, par exemple :
+
+```javascript
+channelMap.put('fmlMapUrl', 'http://example.org/fhir/StructureMap/AdtA28');
+channelMap.put('fmlSourceModelUrl', 'http://example.org/fhir/StructureDefinition/AdtA28');
+```
+
+La résolution utilise la recherche habituelle des variables OIE (`$(nom)`).
+Les noms ne sont pas à ajouter à **Context variables**. Une variable absente
+ou vide arrête le traitement avec une erreur qui indique son nom. Les maps et
+modèles doivent être chargés dans le contexte de l’étape. Il n’y a pas de
+contrôle supplémentaire de correspondance entre la map et le modèle source.
+
+Une map inline reste prioritaire : `${fmlMapUrl}` n’est alors pas utilisée.
+La variable du modèle logique reste applicable. Les variables contiennent des
+URL canoniques, pas du texte FML ni des expressions JavaScript. Les deux URL
+résolues sont visibles dans les traces lorsque **Trace this step** est activé.

@@ -175,6 +175,17 @@
       "input": "data/samples/restored/oru-patient.er7",
       "purpose": "Parallel destinations comparing inline FML and Mapper Transform outputs and timings",
       "resources": "shared/lab-r4"
+    },
+    {
+      "file": "18-adt-patient-dynamic-fml.xml",
+      "id": "27b2a850-f3d4-46bb-b8ba-37f477c78818",
+      "name": "18 ADT to Patient - Dynamic FML",
+      "group": "FML transformer",
+      "port": 10818,
+      "route": "/adt-dynamic-fml",
+      "input": "data/samples/18-adt-patient-dynamic-fml/adt-a28.er7",
+      "purpose": "A28/A31/A08 routing to three map/SD pairs in one dynamic FML destination",
+      "resources": "18-adt-patient-dynamic-fml"
     }
   ]
 }

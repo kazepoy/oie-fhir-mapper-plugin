@@ -19,7 +19,7 @@ import { cachedFhirSettings, fhirContext, loadFhirSettings } from "../host/setti
 export const FML_TYPE = "fr.kazepoy.fhir.fml.FhirFmlTransformStep";
 const FML_API = "/extensions/fhir-fml";
 const MAPPER_API = "/extensions/fhir-mapper";
-import { fmlSample, fmlTestRequest } from "./test-input.js";
+import { fmlSample, fmlTestRequest, fmlReferenceVariables } from "./test-input.js";
 import { formatSample } from "./sample-format.js";
 
 
@@ -143,7 +143,7 @@ function FmlTransformEditor({ element, onChange, platform }) {
   const copyMap = async () => {
     const url = element.mapUrl;
     const context = element.context;
-    if (!url) return;
+    if (!url || fmlReferenceVariables({ mapUrl: url }).length) return;
     st.copying = true;
     st.loadError = "";
     rerender();
@@ -264,7 +264,6 @@ function FmlTransformEditor({ element, onChange, platform }) {
       onChange: (text) => { element.mapSource = text; onChange(); if (!!text.trim() !== inline) rerender(); } }),
     (st.check?.errors || []).map((e, i) => h("div", { key: i, className: "fml-error", style: { marginTop: "4px" } }, tr("fml.line_p0_column_p1_p2", { p0: e.line, p1: e.column, p2: e.message }))));
   const mapOptions = st.maps || [];
-  const knownMap = mapOptions.some((m) => m.url === element.mapUrl);
   const localContext = {
     fhirVersion: element.fhirVersion || "R4", packages: String(element.profiles || "").split(";"),
     validation: element.validateOutput === false || element.validateOutput === "false" ? "off" : "always",
@@ -316,13 +315,13 @@ function FmlTransformEditor({ element, onChange, platform }) {
         h("option", { value: "oie-message" }, tr("fml.generic_oie_message"))),
         tr("fml.the_source_model_is_declared_by"), true),
       (element.sourceModel || "fhir") === "logical" ? field(tr("fml.logical_model_url"), h("div", { className: "fml-row" },
-        h("input", { type: "text", list: "fml-logical-models", placeholder: "http://example.org/fhir/StructureDefinition/MyLogicalModel",
+        h("input", { type: "text", list: "fml-logical-models", "aria-label": tr("fml.logical_model_url"), placeholder: "${fmlSourceModelUrl}",
           value: element.sourceModelUrl ?? "", onChange: e => set("sourceModelUrl", e.target.value) }),
         h("button", { type: "button", className: "btn", disabled: st.loadingModels, onClick: loadLogicalModels },
           st.loadingModels ? tr("common.loading") : tr("fml.load_models")),
         h("datalist", { id: "fml-logical-models" },
           (st.logicalModels || []).map(m => h("option", { key: m.url, value: m.url }, m.title || m.name || m.url)))),
-        tr("fml.the_xml_or_json_is_read"), true) : null,
+        tr("fml.logical_reference_hint"), true) : null,
       (element.sourceModel || "fhir") === "oie-message" ? field(tr("common.context_variables"), text("contextVariables", "site, sendingFacility"),
         tr("fml.variables_of_the_oie_maps_copied"), true) : null
     ]),
@@ -331,14 +330,13 @@ function FmlTransformEditor({ element, onChange, platform }) {
         h("span", { className: "hint" }, tr("fml.saved_in_this_step")),
         h("button", { type: "button", className: "btn btn-sm", onClick: () => { st.tab = "map"; rerender(); } }, tr("fml.edit_map")))
         : field(tr("fml.map_from_the_context"), h("div", { className: "fml-row" },
-          h("select", { value: element.mapUrl || "", disabled: st.loading, "aria-label": tr("fml.map_from_the_context"), onChange: e => set("mapUrl", e.target.value) },
-            h("option", { value: "" }, st.maps ? mapOptions.length ? tr("fml.choose_a_map") : tr("fml.no_map_in_these_locations") : tr("fml.load_the_maps_first")),
-            element.mapUrl && !knownMap ? h("option", { value: element.mapUrl }, element.mapUrl) : null,
-            mapOptions.map(m => h("option", { key: m.url, value: m.url }, m.title || m.name || m.url))),
+          h("input", { type: "text", value: element.mapUrl || "", list: "fml-map-urls", disabled: st.loading,
+            "aria-label": tr("fml.map_from_the_context"), placeholder: "${fmlMapUrl}", onChange: e => set("mapUrl", e.target.value) }),
+          h("datalist", { id: "fml-map-urls" }, mapOptions.map(m => h("option", { key: m.url, value: m.url }, m.title || m.name || m.url))),
           h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !locations.trim(), onClick: () => loadMaps(false) }, st.loading ? tr("common.loading") : tr("fml.load_maps")),
           h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !locations.trim(), onClick: () => loadMaps(true) }, tr("fml.reload")),
-          h("button", { type: "button", className: "btn btn-sm", disabled: st.copying || !element.mapUrl, onClick: copyMap }, st.copying ? tr("fml.copying") : tr("fml.copy_to_inline_map"))),
-          tr("fml.the_map_declares_its_source_and"), true),
+          h("button", { type: "button", className: "btn btn-sm", disabled: st.copying || !element.mapUrl || fmlReferenceVariables({ mapUrl: element.mapUrl }).length > 0, onClick: copyMap }, st.copying ? tr("fml.copying") : tr("fml.copy_to_inline_map"))),
+          tr("fml.map_reference_hint"), true),
       st.loadError ? h("div", { className: "fml-wide fml-error" }, st.loadError) : null,
       Object.keys(st.mapErrors).length ? h("div", { className: "fml-wide fml-error" }, tr("fml.unreadable_files"),
         Object.entries(st.mapErrors).map(([file, message]) => h("div", { key: file }, tr("common.p0_p1", { p0: file, p1: message })))) : null
@@ -391,6 +389,7 @@ function FmlTransformEditor({ element, onChange, platform }) {
     "logical": "fml.the_xml_or_json_is_read",
     "fhir": "fml.the_source_structuredefinition_is_resolved_from"
   }[element.sourceModel || "fhir"];
+  const referenceVariables = fmlReferenceVariables(element);
   const inputControls = h(React.Fragment, null,
     h("div", { className: "fml-sample-controls" },
       h("label", { htmlFor: "fml-sample-format" }, tr("fml.sample_format")),
@@ -418,7 +417,17 @@ function FmlTransformEditor({ element, onChange, platform }) {
         ...(!prepared && inputOptions.length ? [{ title: "fml.parser_settings", lines: inputOptions.map(([key, value]) =>
           [key.replace(/([A-Z])/g, " $1").replace(/^./, c => c.toUpperCase()), typeof value === "object" ? JSON.stringify(value) : String(value)]) }] : [])
       ], note: "fml.formatting_changes_the_display_only_previous" })),
-    !prepared && !supported ? h("div", { className: "fml-error" }, tr("fml.the_transformer_datatype_is_unavailable_or")) : null);
+    !prepared && !supported ? h("div", { className: "fml-error" }, tr("fml.the_transformer_datatype_is_unavailable_or")) : null,
+    referenceVariables.length ? h("details", { className: "fml-test-variables",
+      open: st.testVariablesOpen ?? referenceVariables.some(name => !String(st.sample.variables?.[name] || "").trim()),
+      onToggle: e => { st.testVariablesOpen = e.currentTarget.open; } },
+      h("summary", null, tr("fml.test_variables"), " (", referenceVariables.length, ") ",
+        h(HelpButton, { compact: true, label: "fml.test_variables", sections: [
+          { title: "fml.test_variables", lines: ["fml.test_variables_hint"] }
+        ] })),
+      referenceVariables.map(name => h("label", { key: name }, name,
+        h("input", { type: "text", "aria-label": name, value: st.sample.variables?.[name] || "",
+          onChange: e => { st.sample.variables = { ...st.sample.variables, [name]: e.target.value }; saveSample(); rerender(); } })))) : null);
   const test = h("div", { className: "fml-test" },
     h("div", { className: "fml-test-actions" },
     h("div", { className: "fml-tabs fml-test-tabs", role: "tablist", "aria-label": tr("common.test_contents"), onKeyDown: testKeys }, testTabs.map(t =>
@@ -429,7 +438,12 @@ function FmlTransformEditor({ element, onChange, platform }) {
       h("button", { type: "button", className: "btn btn-primary", disabled: st.testing || !(element.mapUrl || inline) || (!prepared && !supported), onClick: runTest }, st.testing ? tr("common.running") : tr("common.run_test"))),
     h("div", { className: "fml-test-status", role: "status", "aria-live": "polite" },
       result && st.testedInput !== testInput() ? h("div", { className: "fml-issue-warning" }, tr("common.run_again_to_update_the_result")) : null,
-      errors.map((e, i) => h("div", { key: i, className: "fml-error" }, tr("common.p0_p1", { p0: e.phase, p1: e.message })))),
+      errors.map((e, i) => h("div", { key: i, className: "fml-error" }, tr("common.p0_p1", { p0: e.phase, p1: e.message }))),
+      result?.resolvedReferences && referenceVariables.length ? h("details", { className: "fml-resolved-references" },
+        h("summary", null, tr("fml.resolved_references")),
+        Object.entries(result.resolvedReferences).filter(([, value]) => value).map(([key, value]) =>
+          h("div", { key }, h("strong", null, key === "mapUrl" ? tr("common.map") : tr("fml.logical_model_url")), ": ", h("code", null, value)))) : null),
+
     testTabs.map(t => h("div", { key: t.id, id: `fml-test-panel-${t.id}`, role: "tabpanel", "aria-labelledby": `fml-test-tab-${t.id}`,
       hidden: t.id !== st.testTab, tabIndex: 0, className: "fml-test-panel" + (t.id === "result" ? " fml-test-result" : t.id === "validation" ? " fml-test-validation" : "") },
       t.id === "sample" ? h(React.Fragment, null, inputControls, h(CodeBox, { value: displayedSample, language: languageOf(sampleType), height: "100%", label: tr("common.sample_message"),
@@ -498,6 +512,7 @@ export function register(platform) {
       traceMessages: false,
       sampleMessage: "",
       sampleFormat: "",
+      sampleVariables: "",
       contextVariables: "",
       terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10
     }),

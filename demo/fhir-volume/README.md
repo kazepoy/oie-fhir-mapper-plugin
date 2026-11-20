@@ -16,5 +16,6 @@ domain. Channels 01 and 03 use inline maps.
 | [08-oru-patient-structuremap](08-oru-patient-structuremap/README.md) | Published JSON StructureMap for the PID segment of an ORU message. |
 | [shared/lab-r4](shared/lab-r4/README.md) | Laboratory profiles, CodeSystem and ConceptMaps used by 08, 09 and 10. |
 | [11-hl7v2-patient-ig-tgz](11-hl7v2-patient-ig-tgz/README.md) | `.tgz` IG package (`DevDaysIGtutorial-Patient`) used by 11. |
+| [18-adt-patient-dynamic-fml](18-adt-patient-dynamic-fml/README.md) | Three FML maps and three logical PID SDs selected dynamically for A28/A31/A08. |
 
 Channel 02's ConceptMap is served by [term-server](../term-server/README.md).

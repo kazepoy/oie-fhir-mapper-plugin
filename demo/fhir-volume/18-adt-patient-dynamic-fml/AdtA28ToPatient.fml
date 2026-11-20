@@ -1,0 +1,35 @@
+map "http://example.org/fml-dynamic/StructureMap/AdtA28ToPatient" = "AdtA28ToPatient"
+
+uses "http://example.org/fml-dynamic/StructureDefinition/PidA28" alias Input as source
+uses "http://hl7.org/fhir/StructureDefinition/Patient" alias Patient as target
+
+group AdtA28ToPatient(source src : Input, target patient : Patient) {
+  src -> patient.meta as meta, meta.tag as tag,
+    tag.system = 'http://example.org/fml-dynamic/CodeSystem/adt-event', tag.code = 'A28' "event";
+  src -> patient.active = true "active";
+  src.identifier as identifier then {
+    identifier.number as number then {
+      number.value as value -> patient.identifier as target,
+        target.system = 'http://example.org/fml-dynamic/sid/patient', target.value = value "number";
+    } "identifier-number";
+  } "identifiers";
+  src.name as name -> patient.name as target then {
+    name -> target.use = 'official' "use";
+    name.family as family then {
+      family.surname as surname then { surname.value as value -> target.family = value "family"; } "surname";
+    } "family-name";
+    name.given as given then { given.value as value -> target.given = value "given"; } "given-name";
+  } "names";
+  src.birthDate as birthDate then {
+    birthDate.timestamp as timestamp then {
+      timestamp.value as raw where raw.length() >= 8 ->
+        patient.birthDate = (raw.substring(0, 4) & '-' & raw.substring(4, 2) & '-' & raw.substring(6, 2)) "birthDate";
+    } "timestamp";
+  } "date-of-birth";
+  src.sex as sex then {
+    sex.value as value where value = 'F' -> patient.gender = 'female' "female";
+    sex.value as value where value = 'M' -> patient.gender = 'male' "male";
+    sex.value as value where value = 'O' -> patient.gender = 'other' "other";
+    sex.value as value where value = 'U' -> patient.gender = 'unknown' "unknown";
+  } "gender";
+}

@@ -1,0 +1,254 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "PidA08",
+  "url": "http://example.org/fml-dynamic/StructureDefinition/PidA08",
+  "name": "PidA08",
+  "title": "Strict Parser PID for ADT A08",
+  "status": "draft",
+  "description": "PID fields read by the ADT A08 Patient map. XML names and text values match native HAPI Strict Parser output.",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "PID",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/elementdefinition-namespace",
+      "valueUri": "noNamespace"
+    }
+  ],
+  "differential": {
+    "element": [
+      {
+        "id": "PID",
+        "path": "PID",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "PID.identifier",
+        "path": "PID.identifier",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.3"
+          }
+        ]
+      },
+      {
+        "id": "PID.identifier.number",
+        "path": "PID.identifier.number",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "CX.1"
+          }
+        ]
+      },
+      {
+        "id": "PID.identifier.number.value",
+        "path": "PID.identifier.number.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "representation": [
+          "xmlText"
+        ]
+      },
+      {
+        "id": "PID.name",
+        "path": "PID.name",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.5"
+          }
+        ]
+      },
+      {
+        "id": "PID.name.family",
+        "path": "PID.name.family",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XPN.1"
+          }
+        ]
+      },
+      {
+        "id": "PID.name.family.surname",
+        "path": "PID.name.family.surname",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "FN.1"
+          }
+        ]
+      },
+      {
+        "id": "PID.name.family.surname.value",
+        "path": "PID.name.family.surname.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "representation": [
+          "xmlText"
+        ]
+      },
+      {
+        "id": "PID.name.given",
+        "path": "PID.name.given",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "XPN.2"
+          }
+        ]
+      },
+      {
+        "id": "PID.name.given.value",
+        "path": "PID.name.given.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "representation": [
+          "xmlText"
+        ]
+      },
+      {
+        "id": "PID.birthDate",
+        "path": "PID.birthDate",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.7"
+          }
+        ]
+      },
+      {
+        "id": "PID.birthDate.timestamp",
+        "path": "PID.birthDate.timestamp",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "TS.1"
+          }
+        ]
+      },
+      {
+        "id": "PID.birthDate.timestamp.value",
+        "path": "PID.birthDate.timestamp.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "representation": [
+          "xmlText"
+        ]
+      },
+      {
+        "id": "PID.sex",
+        "path": "PID.sex",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "PID.8"
+          }
+        ]
+      },
+      {
+        "id": "PID.sex.value",
+        "path": "PID.sex.value",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "representation": [
+          "xmlText"
+        ]
+      }
+    ]
+  }
+}

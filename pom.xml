@@ -6,7 +6,7 @@
 
   <groupId>fr.kazepoy.fhir</groupId>
   <artifactId>fhir-mapper</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
   <name>FHIR Mapper</name>
   <description>Plugin OIE de mapping de profils FHIR et de transformations FML.</description>
 

@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://example.org/fml-dynamic/CodeSystem/adt-event",
+        "code": "A31"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "http://example.org/fml-dynamic/sid/patient",
+      "value": "180031"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "family": "DURAND",
+      "given": [
+        "LUCAS"
+      ]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1975-06-21"
+}

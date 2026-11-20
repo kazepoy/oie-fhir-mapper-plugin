@@ -51,6 +51,18 @@ public final class FmlTester {
             if (step.mapReference().isBlank()) throw new IllegalArgumentException("Write the map or choose the map to run.");
             Map<String, String> variables = new LinkedHashMap<>();
             for (String name : step.contextVariableNames()) variables.put(name, "");
+            if (request.get("variables") instanceof Map) {
+                for (var entry : ((Map<?, ?>) request.get("variables")).entrySet()) {
+                    if (entry.getValue() != null && entry.getValue() != FhirJson.NULL && !(entry.getValue() instanceof String))
+                        throw new IllegalArgumentException("Test variable " + entry.getKey() + " must be a string.");
+                    variables.put(text(entry.getKey()), entry.getValue() == FhirJson.NULL ? "" : text(entry.getValue()));
+                }
+            }
+            Map<String, String> options = FmlFacade.resolveReferences(step.engineOptions(), variables);
+            Map<String, String> references = new LinkedHashMap<>();
+            references.put("mapUrl", options.get("mapReference").startsWith(FmlFacade.INLINE) ? "" : options.get("mapReference"));
+            references.put("sourceModelUrl", "logical".equals(step.getSourceModel()) ? options.get("sourceModelUrl") : "");
+            out.put("resolvedReferences", references);
             phase = "input";
             String message = text(request.get("message"));
             if (message.isBlank()) throw new IllegalArgumentException("Paste a sample message to test the step.");
@@ -71,7 +83,6 @@ public final class FmlTester {
             } else {
                 throw new IllegalArgumentException("Unsupported input mode " + mode + ".");
             }
-            Map<String, String> options = step.engineOptions();
             String authorization = step.effectiveTerminologyAuthorization();
             if (!authorization.isBlank()) {
                 org.mozilla.javascript.Context cx = new LimitedFactory().enterContext();
@@ -84,7 +95,7 @@ public final class FmlTester {
             }
             out.put("model", FhirJson.parse(FmlBridgeAdapter.source(message, format, context, variables, options)));
             phase = "transform";
-            String output = FmlBridgeAdapter.transform(step.mapReference(), message, format, context, variables, options, null);
+            String output = FmlBridgeAdapter.transform(options.get("mapReference"), message, format, context, variables, options, null);
             out.put("output", output);
             if (step.isValidateOutput()) {
                 phase = "validation";

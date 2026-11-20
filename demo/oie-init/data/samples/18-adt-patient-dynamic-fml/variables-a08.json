@@ -1,0 +1,4 @@
+{
+  "fmlMapUrl": "http://example.org/fml-dynamic/StructureMap/AdtA08ToPatient",
+  "fmlSourceModelUrl": "http://example.org/fml-dynamic/StructureDefinition/PidA08"
+}

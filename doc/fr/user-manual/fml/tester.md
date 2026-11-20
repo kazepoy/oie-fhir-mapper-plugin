@@ -37,3 +37,17 @@ Après avoir cliqué sur **Run test**, ouvrir le sous-onglet **FML source** : il
 
 - **Result** affiche la ressource ou le Bundle produit par la map FML, formaté en JSON.
 - **Validation** affiche le verdict du validateur FHIR Data Type (`Valid.` ou la liste des erreurs et avertissements avec leur sévérité et leur chemin FHIR). Si le test produit des erreurs de validation, l'interface bascule automatiquement sur **Validation** et affiche un compteur sur l'onglet.
+
+## Tester des références dynamiques
+
+Si Properties contient `${fmlMapUrl}` ou `${fmlSourceModelUrl}`, la section
+**Test variables** apparaît dans Sample. Les exemples peuvent enregistrer leurs
+valeurs par défaut avec le sample (`sampleVariables`). La section est repliée
+quand toutes les valeurs sont renseignées ; la déplier pour les modifier. Les
+filtres et steps précédents ne sont pas exécutés. Les modifications faites
+dans Test restent locales au navigateur et ne modifient pas le channel enregistré.
+
+Après **Run test**, ouvrir **Resolved references** pour consulter les URL
+effectivement utilisées. Changer une variable marque le résultat comme
+ancien et nécessite de relancer le test. Une variable manquante est signalée
+avant la lecture du sample.

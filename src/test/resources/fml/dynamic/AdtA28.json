@@ -1,0 +1,40 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "AdtA28",
+  "url": "http://example.org/fhir/StructureDefinition/AdtA28",
+  "name": "AdtA28",
+  "status": "draft",
+  "fhirVersion": "4.0.1",
+  "kind": "logical",
+  "abstract": false,
+  "type": "AdtA28",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Element",
+  "derivation": "specialization",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/tools/StructureDefinition/json-suppress-resourcetype",
+      "valueBoolean": true
+    }
+  ],
+  "differential": {
+    "element": [
+      {
+        "id": "AdtA28",
+        "path": "AdtA28",
+        "min": 0,
+        "max": "1"
+      },
+      {
+        "id": "AdtA28.patientId",
+        "path": "AdtA28.patientId",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
+  }
+}
