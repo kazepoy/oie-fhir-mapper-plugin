@@ -8,3 +8,5 @@
 
 Les procédures propres aux fonctions du plugin sont dans le
 [manuel utilisateur](../../fr/user-manual/README.md).
+
+- [Captures du README et du manuel](Captures.md) : commande et cadrage reproductibles.

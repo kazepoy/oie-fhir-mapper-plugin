@@ -19,6 +19,9 @@
 .fhir-fml.fml-layout > .fml-tabs { flex: none; }
 .fhir-fml.fml-layout > [role=tabpanel] { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; }
 .fhir-fml.fml-testing-layout > [role=tabpanel] { overflow: hidden; }
+.fhir-fml .fml-map { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.fhir-fml .fml-map > .fml-row, .fhir-fml .fml-map > .fml-error { flex: none; }
+.fhir-fml .fml-map-editor { flex: 1; min-height: 0; min-width: 0; }
 .fhir-fml .fml-test { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
 .fhir-fml .fml-test-actions { display: flex; align-items: center; gap: 12px; flex: none; border-bottom: 1px solid var(--border, #cbd5e1); }
 .fhir-fml .fml-test-actions > button { flex: none; margin-bottom: 6px; }

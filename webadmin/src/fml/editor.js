@@ -49,9 +49,10 @@ function FmlMapEditor({ value, onChange, problems, completionPaths }) {
   const latest = React.useRef({ onChange, completionPaths, value });
   latest.current = { onChange, completionPaths, value };
   React.useEffect(() => {
-    const ed = createExpressionEditor({ value, language: "fml", multiline: true, minHeight: "360px", ariaLabel: "FML map",
+    const ed = createExpressionEditor({ value, language: "fml", multiline: true, minHeight: "100%", ariaLabel: "FML map",
       getItems: () => fmlCompletions(editor.current?.getValue() || latest.current.value, latest.current.completionPaths),
       onChange: (text) => latest.current.onChange(text) });
+    ed.el.style.height = "100%";
     editor.current = ed;
     host.current.appendChild(ed.el);
     return () => { editor.current = null; ed.dispose(); };
@@ -247,7 +248,7 @@ function FmlTransformEditor({ element, onChange, platform }) {
     rerender();
   };
   const inline = !!String(element.mapSource || "").trim();
-  const mapPanel = h("div", null,
+  const mapPanel = h("div", { className: "fml-map" },
     h("div", { className: "fml-row", style: { marginBottom: "8px" } },
       h("button", { type: "button", className: "btn btn-sm", disabled: st.checking || !inline, onClick: checkMap }, st.checking ? tr("fml.checking") : tr("common.check")),
       !inline ? h("button", { type: "button", className: "btn btn-sm", onClick: () => { st.check = null; set("mapSource", FML_TEMPLATE); } }, tr("common.start_from_an_example")) : null,

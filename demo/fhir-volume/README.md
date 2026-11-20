@@ -4,7 +4,7 @@
 
 This directory is mounted read-only in OIE at `/fhir-volume`. Numeric prefixes
 match the channels that introduce the resources. Shared files are grouped by
-domain; channels 01 and 03 use inline maps and need no server resource directory.
+domain. Channels 01 and 03 use inline maps.
 
 | Directory | Resources and purpose |
 |---|---|

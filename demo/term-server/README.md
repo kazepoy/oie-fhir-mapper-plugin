@@ -71,23 +71,6 @@ remains exclusively in Hades for both destinations.
 The Test sample contains the XML received by the destination. The expected
 result is the [shared Patient](../oie-init/data/samples/patient.json).
 
-## How the plugin resolves translate
-
-The effective context supplies the configuration: a Settings context can provide
-a URL even when the step has no local value.
-
-1. FML looks for the canonical ConceptMap in its loaded context. If present, the
-   FML engine executes it locally without HTTP.
-2. If absent, the bridge calls HAPI's remote support through
-   `ConceptMap/$translate`, provided a server URL is configured.
-3. With neither a server nor a local ConceptMap, the transformation reports the
-   missing map.
-
-A local ConceptMap with no matching entry does not trigger a second remote
-attempt. FHIR output validation also uses the server as a fallback to local
-support. For single-code R4 FML calls, the bridge sends `code` and `system`
-parameters.
-
 ## HTTP logs
 
 Request logging is enabled through [logback.xml](logback.xml), mounted in the

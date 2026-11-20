@@ -7,7 +7,5 @@ published JSON map selected by its canonical URL. It uses OieMessage and produce
 a Patient conforming to ExampleLabPatient. The local context loads this
 directory and [shared/lab-r4](../shared/lab-r4/README.md).
 
-This example distinguishes a JSON StructureMap from a text FML file. **Copy to
-inline map** renders executable FML with the engine's `///` header. A message
-without a birth date checks the profile constraint. The historical export is
-`oru-r01-to-fhir-patient-fml-ig.xml`.
+**Copy to inline map** loads an editable FML version of the selected map.
+The samples include a message without a birth date to test profile validation.

@@ -43,4 +43,4 @@ Toute étape **FHIR Mapper Transform** ou **FHIR FML Transform** qui sélectionn
 - **Langue du plugin** : en haut à droite de **Settings › FHIR Mapper**, le sélecteur **Language / Langue** propose *Browser language / Langue du navigateur* (défaut, avec repli sur l'anglais), *English* ou *Français*. Le changement s'applique immédiatement à tous les écrans du plugin dans le navigateur courant (`localStorage`).
 - **Thème clair / sombre** : le plugin s'adapte automatiquement au thème de Web Admin (accessible via la palette de commandes ou le bouton de thème de Web Admin).
 
-![Aperçu de l'éditeur en français et thème sombre](images/langue-fr.png)
+![Réglages du plugin en français et thème sombre](images/langue-fr.png)

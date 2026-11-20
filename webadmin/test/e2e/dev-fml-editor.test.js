@@ -66,3 +66,43 @@ test("Copy to inline map loads the selected FML with its imports, then runs the 
     assert.deepEqual(session.pluginErrors(), []);
   } finally { await session.close(); }
 });
+
+test("the FML map fills the available panel and resizes with the window and full screen", async () => {
+  const session = await signIn();
+  const page = session.page;
+  try {
+    await open(page);
+    const editor = page.locator(".fhir-fml");
+    await editor.getByRole("tab", { name: "Map", exact: true }).click();
+    const measure = async () => {
+      await page.waitForFunction(() => {
+        const code = window.monaco?.editor.getEditors().find(e => e.getDomNode()?.closest(".fml-map-editor"));
+        const box = document.querySelector(".fml-map-editor");
+        return box && code && Math.abs(code.getLayoutInfo().height - box.clientHeight) < 4;
+      });
+      return editor.evaluate(el => {
+        const panel = el.querySelector(":scope > [role=tabpanel]").getBoundingClientRect();
+        const box = el.querySelector(".fml-map-editor").getBoundingClientRect();
+        return { height: box.height, bottom: box.bottom, panelBottom: panel.bottom };
+      });
+    };
+    const check = size => {
+      assert.ok(size.height > 100, "The map must have usable editing space");
+      assert.ok(Math.abs(size.bottom - size.panelBottom) < 3, "The map must reach the panel bottom");
+    };
+    const normal = await measure();
+    check(normal);
+    await editor.getByRole("button", { name: /Full screen/ }).click();
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    const tall = await measure();
+    check(tall);
+    await page.setViewportSize({ width: 1000, height: 520 });
+    const short = await measure();
+    check(short);
+    assert.ok(tall.height - short.height > 300, "Map height must follow the viewport height");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.keyboard.press("Escape");
+    check(await measure());
+    assert.deepEqual(session.pluginErrors(), []);
+  } finally { await session.close(); }
+});
