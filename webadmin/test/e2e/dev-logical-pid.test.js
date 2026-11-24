@@ -18,7 +18,7 @@ after(() => client?.close());
 test("Logical PID XML and FML produce the expected FR Core INS Patient without OieMessage", async () => {
   const channel = await client.channel(id);
   const [step] = fmlSteps(channel.sourceConnector.transformer);
-  assert.equal(step.sourceModel, "fhir");
+  assert.equal(step.sourceModel, "logical");
   const result = await client.postTest("/api/extensions/fhir-fml/test", {
     step, inputMode: "prepared", format: "xml", message: step.sampleMessage
   });

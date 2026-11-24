@@ -26,7 +26,7 @@ describe("the step editors in the demo", () => {
 
   test("an expression is edited in the code editor with the mapper's completion, and undone", async () => {
     const { page } = session;
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.locator("table.mapper-tree tbody tr").nth(3).waitFor();
     await mapper.getByRole("button", { name: /Full screen/ }).click();
@@ -115,7 +115,7 @@ describe("the step editors in the demo", () => {
 
   test("the inspector popup shows element definition and closes cleanly", async () => {
     const { page } = session;
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     const inspector = mapper.getByRole("dialog", { name: "Element inspector" });
     await mapper.getByLabel("Search elements").fill("gender");
@@ -128,20 +128,23 @@ describe("the step editors in the demo", () => {
 
   test("the step names a FHIR context of the server, defined in Settings", async () => {
     const { page } = session;
+    await openStep(page, "17 ORU to Patient - FML vs Mapper", "Patient (Mapper)", "Patient (Mapper)");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Properties" }).click();
     assert.equal(await mapper.locator("select[aria-label='FHIR context']").inputValue(), "demo-labo");
-    assert.equal(await mapper.locator("select[aria-label=Validation]").inputValue(), "inherit");
+    assert.equal(await mapper.getByRole("checkbox", { name: "Validation", exact: true }).isChecked(), true);
+    await mapper.getByText("Inherited from the context", { exact: true }).waitFor();
     const settings = await page.evaluate(async () => {
       const { platform } = await import("@oie/web-shell");
       return { panel: platform.settingsPanels().some(p => p.label === "FHIR Mapper"),
         contexts: JSON.parse(await platform.api.get("/extensions/fhir-mapper/settings", {}, { raw: true })).contexts.map(c => c.name) };
     });
-    assert.deepEqual(settings, { panel: true, contexts: ["demo-labo", "fr-core-2.2.0", "eu-laboratory-2.0.0", "external-terminology", "demo-r5"] });
+    assert.deepEqual(settings, { panel: true, contexts: ["patient-r4", "demo-labo", "external-terminology"] });
   });
 
   test("the samples saved with the step run and match their expected results", async () => {
     const { page } = session;
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Test" }).click();
     // The sample is shown in the code editor, in the language of its data type.
@@ -159,7 +162,7 @@ describe("the step editors in the demo", () => {
 
   test("a map written in the step is highlighted and checked", async () => {
     const { page } = session;
-    await openStep(page, "ORU R01 to FHIR Patient (FML inline)", "Patient (FML inline)");
+    await openStep(page, "17 ORU to Patient - FML vs Mapper", "Patient (FML inline)", "Patient (FML inline)");
     const fml = page.locator(".fhir-fml");
     await fml.getByRole("tab", { name: "Map" }).click();
     await fml.locator(".fml-map-editor .monaco-editor").waitFor();
@@ -172,7 +175,7 @@ describe("the step editors in the demo", () => {
 
   test("the keyboard menu duplicates a branch and undo restores it", async () => {
     const { page } = session;
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("button", { name: /Full screen/ }).click();
     await mapper.getByLabel("Search elements").fill("name");
@@ -205,7 +208,7 @@ describe("the step editors in the demo", () => {
     const { page } = session;
     const url = "http://example.org/fhir/oru2fhir/StructureDefinition/";
     for (const kind of ["profile", "context"]) {
-      await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+      await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
       const mapper = page.locator(".fhir-mapper-transform");
       await mapper.getByRole("button", { name: /Full screen/ }).click();
       await mapper.getByRole("button", { name: "FHIR help for Patient", exact: true }).click();
@@ -219,14 +222,16 @@ describe("the step editors in the demo", () => {
       } else {
         await inspector.getByRole("button", { name: "List context extensions" }).click();
         await inspector.getByLabel("Add context extension").selectOption(url + name);
-        await mapper.getByLabel("Search elements").fill("valueString");
+        await inspector.waitFor({ state: "hidden" });
+        await mapper.getByRole("button", { name: "Expand Patient.extension.value[x]", exact: true }).click();
       }
       const row = mapper.locator(`tr[title^='${key}']`).first();
       await row.locator("[role=combobox]").click();
       await row.locator(".mapper-expression-editing .monaco-editor").waitFor();
-      await row.locator(".monaco-editor").click();
-      await page.keyboard.press("ControlOrMeta+A");
-      await page.keyboard.type(`'${value}'`);
+      await page.evaluate(expression => {
+        const editor = window.monaco.editor.getEditors().find(candidate => candidate.getDomNode()?.closest(".mapper-expression-editing"));
+        editor.setValue(expression);
+      }, `'${value}'`);
       await mapper.getByRole("tab", { name: "Test", exact: true }).click();
       const response = page.waitForResponse(response => response.url().endsWith("/extensions/fhir-mapper/test") && response.request().method() === "POST");
       await mapper.getByRole("button", { name: "Run test", exact: true }).click();
@@ -241,7 +246,7 @@ describe("the step editors in the demo", () => {
 
   test("ConceptMap suggestions match the HL7 source system and target binding", async () => {
     const { page } = session;
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByLabel("Search elements").fill("gender");
     await mapper.getByLabel("ConceptMap for Patient.gender", { exact: true }).focus();

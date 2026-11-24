@@ -249,7 +249,7 @@ plugin d'autorisation comme RBAC.
 
 [editor.js](../../../webadmin/src/fml/editor.js), trois onglets principaux :
 
-- **Properties** : organisées en quatre sections (**FHIR context**, **1 Source**, **2 Map**, **3 Destination**) : contexte Settings ou local (version FHIR, packages, serveur de terminologie et politique de validation), modèle source (`FHIR resource / Logical model` ou `Generic OIE message`, voire `Typed HL7 v2 logical model` lorsqu'une étape existante l'utilise), map choisie parmi celles chargées (**Load maps**, **Reload**, **Copy to inline map**), variables de contexte, destination du résultat, validation et trace ;
+- **Properties** : organisées en quatre sections (**FHIR context**, **1 Source**, **2 Map**, **3 Destination**) : contexte Settings ou local (version FHIR, packages, serveur de terminologie et politique de validation), modèle source (**FHIR resource**, **Logical model** ou **Generic OIE message**), map choisie parmi celles chargées (**Load maps**, **Reload**, **Copy to inline map**), variables de contexte, destination du résultat, validation et trace ;
 - **Map** : la map de l'étape dans l'éditeur de code de Web Admin, en langage `fml`.
   La complétion propose mots-clés, transformations, fonctions FHIRPath, aliases
   `uses`, groupes, variables et chemins de profil déjà chargés. **Check** souligne

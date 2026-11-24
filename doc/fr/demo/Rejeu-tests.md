@@ -12,8 +12,8 @@ volontairement invalides comme `invalid-path.step.json`.
 
 ```sh
 node tools/run_tests.mjs --offline demo/oie-init/data/channels \
-  doc/demo/examples/mapping/patient-samples.step.json \
-  doc/demo/examples/mapping/laboratory-samples.steps.json
+  doc/fr/demo/examples/mapping/patient-samples.step.json \
+  doc/fr/demo/examples/mapping/laboratory-samples.steps.json
 ```
 
 Ce mode vérifie le schéma, y compris le JSON imbriqué dans `mappings`,
@@ -28,7 +28,7 @@ l’environnement, puis :
 ```sh
 node tools/run_tests.mjs --url https://localhost:8443/api --user admin \
   --insecure demo/oie-init/data/channels \
-  doc/demo/examples/mapping/laboratory-samples.steps.json
+  doc/fr/demo/examples/mapping/laboratory-samples.steps.json
 ```
 
 `--insecure` accepte le certificat autosigné de la démo. Pour un serveur avec un
@@ -58,6 +58,6 @@ La sortie récapitule les fichiers réussis ; un fichier en échec peut avoir
 exécuté des samples avant son premier échec.
 
 La suite [demo-mapper-api.test.js](../../../webadmin/test/e2e/demo-mapper-api.test.js)
-rejoue également tous ces *samples* en ligne via Node/Playwright et vérifie les
-sorties des canaux déployés (`npm --prefix webadmin run test:e2e`). Voir
+rejoue également les samples Mapper enregistrés dans les canaux de la démo.
+La suite E2E vérifie aussi des sorties HTTP des canaux déployés. Voir
 [Demo.md](Demo.md).

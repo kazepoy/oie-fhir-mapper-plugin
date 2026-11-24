@@ -22,20 +22,20 @@ Dans l'étape **Organization**, ouvrir **Test → Run all** pour rejouer le samp
 
 ## Packages FR Core et EU Laboratory dans la démo
 
-L'image Docker télécharge les archives NPM à version fixe et vérifie leurs empreintes SHA-256. Le contexte `fr-core-2.2.0` charge :
+L'image Docker télécharge les archives NPM à version fixe et vérifie leurs empreintes SHA-256. Le canal **04 HL7v2 PID to FR Core INS** charge ces packages depuis `/fhir-packages` dans la configuration locale de son étape FML :
 
 1. `hl7.fhir.fr.core#2.2.0` ;
 2. `hl7.fhir.uv.extensions.r4#5.2.0` ;
 3. `hl7.terminology.r4#7.1.0` ;
 4. `ans.fr.terminologies#1.7.0`.
 
-Le contexte `eu-laboratory-2.0.0` charge `hl7.fhir.eu.laboratory#2.0.0` ainsi que ses dépendances directes (`eu.base`, `eu.extensions.r4`, `uv.xver-r5.r4`, `terminology.r4` et `uv.extensions.r4`).
+L’image fournit également `hl7.fhir.eu.laboratory#2.0.0` et ses dépendances directes (`eu.base`, `eu.extensions.r4`, `uv.xver-r5.r4`, `terminology.r4` et `uv.extensions.r4`).
 
 Le canal **04 HL7v2 PID to FR Core INS** complète ces packages avec les ressources locales de [`demo/fhir-volume/04-hl7v2-pid-fr-core-ins`](../../../demo/fhir-volume/04-hl7v2-pid-fr-core-ins/) (modèle logique `PID`, map FML et terminologie INSEE).
 
 ## Ressource FHIR entrante et modèles logiques JSON (canaux 05 et 06)
 
-- **Canal 05 (`10802/fhir-patient/`)** : reçoit un `Patient` FHIR R4 JSON, exécute la map de [`05-fhir-patient-normalization`](../../../demo/fhir-volume/05-fhir-patient-normalization/README.md) en mode **FHIR resource / Logical model** (`sourceModel=fhir`), met le nom de famille en majuscules, conserve l'identifiant INS-NIR et force `active: true`.
+- **Canal 05 (`10802/fhir-patient/`)** : reçoit un `Patient` FHIR R4 JSON, exécute la map de [`05-fhir-patient-normalization`](../../../demo/fhir-volume/05-fhir-patient-normalization/README.md) en mode **FHIR resource** (`sourceModel=fhir`), met le nom de famille en majuscules, conserve l’identifiant d’entrée et force `active: true`.
 - **Canal 06 (`10803/commande-json/`)** : transforme un JSON métier `Commande` en `BonPreparation` à l'aide de deux `StructureDefinition` logiques ([`06-json-order-to-dispatch`](../../../demo/fhir-volume/06-json-order-to-dispatch/README.md)), avec la validation FHIR de sortie désactivée.
 
 ## FML R5, StructureMap JSON et terminologie externe (canaux 07, 08 et 14)

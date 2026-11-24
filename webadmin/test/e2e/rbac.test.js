@@ -14,7 +14,7 @@ test("a temporary restricted role can edit its channel but cannot test or save s
       const api = platform.api;
       const fixture = window.mapperRbacFixture = {};
       const channels = api.asList(await api.channels.list(), "channel");
-      const allowed = channels.filter(channel => ["ORU R01 to FHIR Patient", "ORU R01 to FHIR Patient (FML inline)"].includes(channel.name));
+      const allowed = channels.filter(channel => ["10 ORU to Lab Bundle - Mapper", "17 ORU to Patient - FML vs Mapper"].includes(channel.name));
       if (allowed.length !== 2) throw new Error("The demo Patient channel is required");
       const permissions = ["viewDashboard", "viewChannels", "viewChannelGroups", "manageChannels", "viewCodeTemplates",
         "viewGlobalScripts", "viewTags", "viewResources", "viewServerSettings", "View Settings", "Edit FHIR mappings", "Edit FHIR FML transforms"];
@@ -30,19 +30,19 @@ test("a temporary restricted role can edit its channel but cannot test or save s
     }, { username, password });
     restricted = await signIn({ user: username, password, locale: "fr-FR" });
     const { page } = restricted;
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Mappeur", exact: true }).waitFor();
     await mapper.getByRole("tab", { name: "Test", exact: true }).click();
     const mapperDenied = page.waitForResponse(response => response.url().endsWith("/fhir-mapper/test"));
-    await mapper.getByRole("button", { name: "Exécuter", exact: true }).click();
+    await mapper.getByRole("button", { name: "Exécuter le test", exact: true }).click();
     assert.equal((await mapperDenied).status(), 403);
     await mapper.getByText(/permission « Test FHIR mapper steps »/).waitFor();
     await mapper.getByLabel("Périmètre de l’aperçu", { exact: true }).selectOption("transformer");
     const transformerDenied = page.waitForResponse(response => response.url().endsWith("/fhir-mapper/test"));
-    await mapper.getByRole("button", { name: "Exécuter", exact: true }).click();
+    await mapper.getByRole("button", { name: "Exécuter le test", exact: true }).click();
     assert.equal((await transformerDenied).status(), 403);
-    await openStep(page, "ORU R01 to FHIR Patient (FML inline)", "Patient (FML inline)");
+    await openStep(page, "17 ORU to Patient - FML vs Mapper", "Patient (FML inline)", "Patient (FML inline)");
     const fml = page.locator(".fhir-fml");
     await fml.getByRole("tab", { name: "Test", exact: true }).click();
     const fmlDenied = page.waitForResponse(response => response.url().endsWith("/fhir-fml/test"));
@@ -51,8 +51,8 @@ test("a temporary restricted role can edit its channel but cannot test or save s
     await fml.getByText(/permission « Test FHIR FML transforms »/).waitFor();
     await page.goto(DEMO_URL);
     await page.locator("[data-nav-item]").filter({ hasText: /^Channels$/ }).first().click();
-    await page.getByText("ORU R01 to FHIR Patient", { exact: true }).waitFor();
-    assert.equal(await page.getByText("SQL XML to FHIR Patient", { exact: true }).count(), 0);
+    await page.getByText("10 ORU to Lab Bundle - Mapper", { exact: true }).waitFor();
+    assert.equal(await page.getByText("13 SQL XML to Patient - Mapper", { exact: true }).count(), 0);
     await page.locator("[data-nav-item]").filter({ hasText: /^Settings$/ }).first().click();
     await page.getByText("FHIR Mapper", { exact: true }).click();
     const settings = page.locator(".fhir-mapper-settings");

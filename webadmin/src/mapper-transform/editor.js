@@ -208,6 +208,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
       expanded: new Set(),
       rootIndex: null,
       loadedProfileUrl: element.profileUrl || "",
+      loadFailed: false,
       loadSeq: 0,
       loading: false,
       error: "",
@@ -228,6 +229,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
     };
   }
   const st = state.current;
+  const profileDraft = st.profileDraft ?? element.profileUrl ?? "";
   React.useEffect(() => {
     let active = true;
     mapperFunctions()
@@ -328,8 +330,9 @@ export function MapperTransformEditor({ element, onChange, platform }) {
     }));
   };
 
+  const blocked = st.loading || st.loadFailed || st.unresolved.length > 0;
   const save = () => {
-    if (!tree) return;
+    if (!tree || st.loading || st.loadFailed || st.unresolved.length) return;
     try {
       element.mappings = compiled(st.rootIndex, ctx);
       st.error = "";
@@ -352,7 +355,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
     try {
       if (!tree) throw new Error(tr("mapper.load_a_profile_before_importing_a"));
       const file = await platform.ui.pickFile(".csv,.md");
-      if (!file) return;
+      if (!file || state.current !== st || st.loading || st.loadFailed || st.unresolved.length) return;
       const edits = importMappingTable(file.content, file.name.toLowerCase().endsWith(".csv") ? "csv" : "markdown",
         makeTree(st.rootIndex, { ...ctx, showAll: true }), element);
       for (const edit of edits) {
@@ -375,7 +378,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
     } catch (error) { st.notice = errorText(error); rerender(); }
   };
   const travel = (from, to) => {
-    if (!from.length || !tree) return;
+    if (!from.length || !tree || blocked) return;
     to.push(st.current || snapshot(st));
     st.current = from.pop();
     restore(st, st.current);
@@ -436,26 +439,17 @@ export function MapperTransformEditor({ element, onChange, platform }) {
   // Loads the profile, then every type on the way to a saved mapping. Mappings of elements another
   // profile does not have are dropped (and listed); for the saved profile, a mapping that cannot be
   // found (a type that failed to load) blocks editing, so that saving cannot lose it.
-  const load = async (url) => {
+  const load = async (url, refresh = false) => {
     const reqId = (st.loadSeq = (st.loadSeq || 0) + 1);
     st.loading = true;
     st.error = "";
     st.notice = "";
-    st.unresolved = [];
+    st.versionNotice = "";
     rerender();
     try {
-      const index = await fetchElements(platform, version, profiles, url);
+      const index = await fetchElements(platform, version, profiles, url, refresh);
       if (state.current !== st || st.loadSeq !== reqId) return;
-      const sameProfile = (st.loadedProfileUrl ?? element.profileUrl) === url && element.resourceType === index.sd.type;
-      st.rootIndex = index;
-      st.loadedProfileUrl = url;
-      if (element.action && index.sd.type === "Bundle") {
-        element.action = "createBundle";
-        element.bundleTargets = "[]";
-        const fixedType = index.byId.get("Bundle.type")?.fixedCode;
-        if (fixedType) element.bundleType = fixedType;
-      }
-      st.expanded.add(index.sd.type);
+      const sameProfile = st.loadedProfileUrl === url && element.resourceType === index.sd.type;
       const local = { version, profiles, instances: st.instances, showAll: true };
       const unresolved = await resolveMappedTree({
         index,
@@ -466,12 +460,22 @@ export function MapperTransformEditor({ element, onChange, platform }) {
         isStale: () => state.current !== st || st.loadSeq !== reqId
       });
       if (!unresolved) return;
+      st.rootIndex = index;
+      st.loadedProfileUrl = url;
+      st.loadFailed = false;
+      st.unresolved = sameProfile ? unresolved : [];
+      st.expanded.add(index.sd.type);
+      if (element.action && index.sd.type === "Bundle") {
+        element.action = "createBundle";
+        element.bundleTargets = "[]";
+        const fixedType = index.byId.get("Bundle.type")?.fixedCode;
+        if (fixedType) element.bundleType = fixedType;
+      }
       const sdVersion = index.sd.version || "";
       if (sameProfile && element.profileVersion && sdVersion && element.profileVersion !== sdVersion) {
         st.versionNotice = tr("mapper.the_profile_is_now_version_p0", { p0: sdVersion, p1: element.profileVersion });
       }
       if (sameProfile) {
-        st.unresolved = unresolved;
         const before = parseMappings(element.mappings).filter((e) => "fixed" in e).length;
         const now = compiled(index, local);
         if (!unresolved.length && JSON.parse(now).filter((e) => "fixed" in e).length > before) {
@@ -492,6 +496,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
       }
     } catch (e) {
       if (state.current !== st || st.loadSeq !== reqId) return;
+      st.loadFailed = true;
       st.error = errorText(e);
     } finally {
       if (state.current === st && st.loadSeq === reqId) {
@@ -899,7 +904,6 @@ export function MapperTransformEditor({ element, onChange, platform }) {
       levels.map((depth) => h("i", { key: depth, style: { left: `${depth * 20 + 11}px` } })),
       levels.length ? h("b", { style: { left: `${(auxiliary ? node.depth + 1 : node.depth) * 20 - 9}px` } }) : null);
   };
-  const blocked = st.loading || st.unresolved.length > 0;
   const addNode = (child, list) => {
     if (!visible(child)) return;
     rows.push(row(child, list));
@@ -1303,7 +1307,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
           else element.bundleTargets = "[]";
           onChange();
           if (element.action === "createBundle" && element.resourceType !== "Bundle") {
-            element.profileUrl = "Bundle";
+            st.profileDraft = "Bundle";
             load("Bundle");
           } else rerender();
         }
@@ -1323,18 +1327,17 @@ export function MapperTransformEditor({ element, onChange, platform }) {
               type: "text",
               list: "fhir-mapper-transform-profiles",
               placeholder: tr("mapper.canonical_url_of_the_profile_or"),
-              value: element.profileUrl ?? "",
+              value: profileDraft,
               onFocus: () => {
                 if (st.profileList === null && profiles) loadProfileList();
               },
               onChange: (e) => {
-                element.profileUrl = e.target.value;
-                onChange();
+                st.profileDraft = e.target.value;
                 rerender();
               }
             }),
             h("datalist", { id: "fhir-mapper-transform-profiles" }, profileOptions),
-            h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !element.profileUrl, onClick: () => load(element.profileUrl.trim()) }, st.loading ? tr("common.loading") : tr("mapper.load"))
+            h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !profileDraft.trim(), onClick: () => load(profileDraft.trim(), true) }, st.loading ? tr("common.loading") : tr("mapper.load"))
           ),
           tr("mapper.loading_another_profile_keeps_the_mappings")
         )
@@ -1452,7 +1455,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
         h("div", { className: "mapper-tools-group" },
           h("span", { className: "mapper-tools-group-label" }, tr("mapper.value_tables")),
           h("div", { className: "mapper-actions" },
-            h("button", { type: "button", className: "btn btn-sm", disabled: !tree, onClick: importTable }, tr("mapper.import_value_table")),
+            h("button", { type: "button", className: "btn btn-sm", disabled: !tree || blocked, onClick: importTable }, tr("mapper.import_value_table")),
             h("button", { type: "button", className: "btn btn-sm", onClick: () => exportTable("csv") }, tr("mapper.export_csv_table")),
             h("button", { type: "button", className: "btn btn-sm", onClick: () => exportTable("markdown") }, tr("mapper.export_markdown_table")))),
         h("div", { className: "mapper-tools-group" },
@@ -1506,7 +1509,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
           )
         )
       : null,
-    st.unresolved.length
+    !st.loadFailed && st.unresolved.length
       ? h(
           "div",
           { className: "hint", style: { color: "var(--warn, #b45309)", marginTop: "6px" } },

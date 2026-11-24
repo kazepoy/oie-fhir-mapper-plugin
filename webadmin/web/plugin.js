@@ -1,4 +1,4 @@
-// OIE FHIR Mapper 0.6.2 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
+// OIE FHIR Mapper 0.6.3 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
 
 // src/i18n/locales/en.js
 var en_default = {
@@ -3105,22 +3105,32 @@ function fetchSd(platform2, version, profiles, url) {
   if (!sdPromises.has(key)) {
     const promise = platform2.api.get(`${MAPPER_API2}/structure`, { url, fhirVersion: version, profiles }, { raw: true }).then((text) => {
       const index = indexSd(JSON.parse(text));
-      sdLoaded.set(key, index);
+      if (sdPromises.get(key) === promise) sdLoaded.set(key, index);
       return index;
     }).catch((e) => {
-      sdPromises.delete(key);
+      if (sdPromises.get(key) === promise) sdPromises.delete(key);
       throw e;
     });
     sdPromises.set(key, promise);
   }
   return sdPromises.get(key);
 }
-function fetchElements(platform2, version, profiles, url) {
+function fetchElements(platform2, version, profiles, url, refresh = false) {
+  if (refresh) {
+    const prefix = sdKey(version, profiles, "");
+    for (const key2 of sdPromises.keys()) {
+      if (key2.startsWith(prefix)) {
+        sdPromises.delete(key2);
+        sdLoaded.delete(key2);
+      }
+    }
+  }
   const key = sdKey(version, profiles, url);
   if (sdPromises.has(key)) return sdPromises.get(key);
-  const promise = platform2.api.get(`${MAPPER_API2}/catalog/elements`, { url, fhirVersion: version, profiles }, { raw: true }).then((text) => {
+  const promise = platform2.api.get(`${MAPPER_API2}/catalog/elements`, { url, fhirVersion: version, profiles, ...refresh ? { refresh: true } : {} }, { raw: true }).then((text) => {
     const answer = JSON.parse(text);
     const index = indexSd(answer.root);
+    if (sdPromises.get(key) !== promise) return index;
     sdLoaded.set(key, index);
     for (const [typeUrl, sd] of Object.entries(answer.types || {})) {
       const typeKey = sdKey(version, profiles, typeUrl);
@@ -3130,7 +3140,8 @@ function fetchElements(platform2, version, profiles, url) {
       sdPromises.set(typeKey, Promise.resolve(typeIndex));
     }
     return index;
-  }).catch(() => {
+  }).catch((error) => {
+    if (sdPromises.get(key) !== promise) throw error;
     sdPromises.delete(key);
     return fetchSd(platform2, version, profiles, url);
   });
@@ -3616,6 +3627,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       expanded: /* @__PURE__ */ new Set(),
       rootIndex: null,
       loadedProfileUrl: element.profileUrl || "",
+      loadFailed: false,
       loadSeq: 0,
       loading: false,
       error: "",
@@ -3636,6 +3648,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
     };
   }
   const st = state.current;
+  const profileDraft = st.profileDraft ?? element.profileUrl ?? "";
   React.useEffect(() => {
     let active = true;
     mapperFunctions().then((list) => {
@@ -3759,8 +3772,9 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       return { ...rule, ...st.notes.get(key) ? { note: st.notes.get(key) } : {}, ...st.disabled.has(key) ? { disabled: true } : {} };
     }));
   };
+  const blocked = st.loading || st.loadFailed || st.unresolved.length > 0;
   const save = () => {
-    if (!tree) return;
+    if (!tree || st.loading || st.loadFailed || st.unresolved.length) return;
     try {
       element.mappings = compiled(st.rootIndex, ctx);
       st.error = "";
@@ -3785,7 +3799,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
     try {
       if (!tree) throw new Error(t("mapper.load_a_profile_before_importing_a"));
       const file = await platform2.ui.pickFile(".csv,.md");
-      if (!file) return;
+      if (!file || state.current !== st || st.loading || st.loadFailed || st.unresolved.length) return;
       const edits = importMappingTable(
         file.content,
         file.name.toLowerCase().endsWith(".csv") ? "csv" : "markdown",
@@ -3822,7 +3836,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
     }
   };
   const travel = (from, to) => {
-    if (!from.length || !tree) return;
+    if (!from.length || !tree || blocked) return;
     to.push(st.current || snapshot(st));
     st.current = from.pop();
     restore(st, st.current);
@@ -3881,26 +3895,17 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       }
     };
   }, [st.inspectorOpen]);
-  const load = async (url) => {
+  const load = async (url, refresh = false) => {
     const reqId = st.loadSeq = (st.loadSeq || 0) + 1;
     st.loading = true;
     st.error = "";
     st.notice = "";
-    st.unresolved = [];
+    st.versionNotice = "";
     rerender();
     try {
-      const index = await fetchElements(platform2, version, profiles, url);
+      const index = await fetchElements(platform2, version, profiles, url, refresh);
       if (state.current !== st || st.loadSeq !== reqId) return;
-      const sameProfile = (st.loadedProfileUrl ?? element.profileUrl) === url && element.resourceType === index.sd.type;
-      st.rootIndex = index;
-      st.loadedProfileUrl = url;
-      if (element.action && index.sd.type === "Bundle") {
-        element.action = "createBundle";
-        element.bundleTargets = "[]";
-        const fixedType = index.byId.get("Bundle.type")?.fixedCode;
-        if (fixedType) element.bundleType = fixedType;
-      }
-      st.expanded.add(index.sd.type);
+      const sameProfile = st.loadedProfileUrl === url && element.resourceType === index.sd.type;
       const local = { version, profiles, instances: st.instances, showAll: true };
       const unresolved = await resolveMappedTree({
         index,
@@ -3911,12 +3916,22 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
         isStale: () => state.current !== st || st.loadSeq !== reqId
       });
       if (!unresolved) return;
+      st.rootIndex = index;
+      st.loadedProfileUrl = url;
+      st.loadFailed = false;
+      st.unresolved = sameProfile ? unresolved : [];
+      st.expanded.add(index.sd.type);
+      if (element.action && index.sd.type === "Bundle") {
+        element.action = "createBundle";
+        element.bundleTargets = "[]";
+        const fixedType = index.byId.get("Bundle.type")?.fixedCode;
+        if (fixedType) element.bundleType = fixedType;
+      }
       const sdVersion = index.sd.version || "";
       if (sameProfile && element.profileVersion && sdVersion && element.profileVersion !== sdVersion) {
         st.versionNotice = t("mapper.the_profile_is_now_version_p0", { p0: sdVersion, p1: element.profileVersion });
       }
       if (sameProfile) {
-        st.unresolved = unresolved;
         const before = parseMappings(element.mappings).filter((e) => "fixed" in e).length;
         const now = compiled(index, local);
         if (!unresolved.length && JSON.parse(now).filter((e) => "fixed" in e).length > before) {
@@ -3937,6 +3952,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       }
     } catch (e) {
       if (state.current !== st || st.loadSeq !== reqId) return;
+      st.loadFailed = true;
       st.error = errorText2(e);
     } finally {
       if (state.current === st && st.loadSeq === reqId) {
@@ -4335,7 +4351,6 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       levels.length ? h("b", { style: { left: `${(auxiliary ? node.depth + 1 : node.depth) * 20 - 9}px` } }) : null
     );
   };
-  const blocked = st.loading || st.unresolved.length > 0;
   const addNode = (child, list) => {
     if (!visible(child)) return;
     rows.push(row(child, list));
@@ -4842,7 +4857,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
               else element.bundleTargets = "[]";
               onChange();
               if (element.action === "createBundle" && element.resourceType !== "Bundle") {
-                element.profileUrl = "Bundle";
+                st.profileDraft = "Bundle";
                 load("Bundle");
               } else rerender();
             }
@@ -4865,18 +4880,17 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
               type: "text",
               list: "fhir-mapper-transform-profiles",
               placeholder: t("mapper.canonical_url_of_the_profile_or"),
-              value: element.profileUrl ?? "",
+              value: profileDraft,
               onFocus: () => {
                 if (st.profileList === null && profiles) loadProfileList();
               },
               onChange: (e) => {
-                element.profileUrl = e.target.value;
-                onChange();
+                st.profileDraft = e.target.value;
                 rerender();
               }
             }),
             h("datalist", { id: "fhir-mapper-transform-profiles" }, profileOptions),
-            h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !element.profileUrl, onClick: () => load(element.profileUrl.trim()) }, st.loading ? t("common.loading") : t("mapper.load"))
+            h("button", { type: "button", className: "btn btn-sm", disabled: st.loading || !profileDraft.trim(), onClick: () => load(profileDraft.trim(), true) }, st.loading ? t("common.loading") : t("mapper.load"))
           ),
           t("mapper.loading_another_profile_keeps_the_mappings")
         )
@@ -5089,7 +5103,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
           h(
             "div",
             { className: "mapper-actions" },
-            h("button", { type: "button", className: "btn btn-sm", disabled: !tree, onClick: importTable }, t("mapper.import_value_table")),
+            h("button", { type: "button", className: "btn btn-sm", disabled: !tree || blocked, onClick: importTable }, t("mapper.import_value_table")),
             h("button", { type: "button", className: "btn btn-sm", onClick: () => exportTable("csv") }, t("mapper.export_csv_table")),
             h("button", { type: "button", className: "btn btn-sm", onClick: () => exportTable("markdown") }, t("mapper.export_markdown_table"))
           )
@@ -5177,7 +5191,7 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
         t("mapper.checked")
       )
     ) : null,
-    st.unresolved.length ? h(
+    !st.loadFailed && st.unresolved.length ? h(
       "div",
       { className: "hint", style: { color: "var(--warn, #b45309)", marginTop: "6px" } },
       t("mapper.cannot_find_these_mapped_elements_in", { p0: st.unresolved.join(", ") }),

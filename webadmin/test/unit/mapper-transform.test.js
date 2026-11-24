@@ -652,3 +652,50 @@ test("resolveMappedTree fetches missing types in parallel waves and expands reso
     for (const url of defs.keys()) sdLoaded.delete(sdKey(version, profiles, url));
   }
 });
+
+test("a failed profile dependency blocks mapping edits and preserves the rules until Load succeeds", async () => {
+  const profiles = "unit-load-retry";
+  const oldIndex = patient;
+  const mappings = JSON.stringify([{ key: "Patient.name.family", expression: "msg.family", path: [["name", 0], ["family"]] }]);
+  const element = { action: "resource", resourceType: "Patient", profileUrl: patient.sd.url, profileVersion: "1.0.0", profiles, mappings, bundleTargets: "[]" };
+  const state = { values: new Map([["Patient.name.family", "msg.family"]]), iterations: new Map(), conditions: new Map(), translations: new Map(),
+    notes: new Map(), disabled: new Set(), instances: new Map(), rootIndex: oldIndex, sourcePaths: [], showAll: false, filter: "all",
+    loadedProfileUrl: patient.sd.url, unresolved: [], sample: { dataType: "JSON", message: "{}" }, expanded: new Set(["Patient", "Patient.name"]),
+    tests: new Map(), traceOptions: {}, loading: false, tab: "properties", jsonDraft: "", undo: [], redo: [] };
+  let failing = true;
+  let changes = 0;
+  const requests = [];
+  const platform = { api: { get: async (route, query) => {
+    requests.push([route, query]);
+    if (route.endsWith("/catalog/elements")) return JSON.stringify({ root: { ...patient.sd, version: "2.0.0" }, types: {} });
+    if (failing) throw new Error("HumanName unavailable");
+    return JSON.stringify(humanName.sd);
+  } } };
+  const all = node => Array.isArray(node) ? node.flatMap(all) : node && typeof node === "object" ? [node, ...all(node.children || [])] : [];
+  const button = label => {
+    let firstRef = true;
+    setReact({ createElement: (tag, props, ...children) => ({ tag, props: props || {}, children }),
+      useReducer: () => [0, () => {}], useId: () => "m",
+      useRef: value => { const current = firstRef ? state : value; firstRef = false; return { current }; }, useEffect: () => {} });
+    const view = MapperTransformEditor({ element, platform, onChange: () => { changes++; } });
+    return all(view).find(node => node.tag === "button" && node.children.includes(label));
+  };
+
+  await button("Load").props.onClick();
+  assert.equal(state.rootIndex, oldIndex);
+  assert.match(state.error, /HumanName unavailable/);
+  assert.equal(element.mappings, mappings);
+  assert.equal(changes, 0);
+  state.tab = "tools";
+  assert.equal(button("Import value table").props.disabled, true);
+
+  failing = false;
+  state.tab = "properties";
+  await button("Load").props.onClick();
+  assert.equal(state.rootIndex.sd.version, "2.0.0");
+  assert.equal(state.loadFailed, false);
+  assert.equal(element.mappings, mappings);
+  assert.equal(requests.filter(([route, query]) => route.endsWith("/catalog/elements") && query.refresh).length, 2);
+  state.tab = "tools";
+  assert.equal(button("Import value table").props.disabled, false);
+});

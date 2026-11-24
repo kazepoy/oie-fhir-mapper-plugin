@@ -17,3 +17,8 @@ curl --fail --header 'Content-Type: text/plain; charset=UTF-8' \
   --data-binary @demo/oie-init/data/samples/adt-a28.er7 \
   http://localhost:10808/devdays-patient/
 ```
+
+The inline map builds a base FHIR Patient and sets `meta.profile` to
+`DevDaysIGtutorial-Patient` for validation against the package. The package
+snapshot has incorrect base cardinalities for some elements and would otherwise
+serialize single fields such as `meta` as arrays.

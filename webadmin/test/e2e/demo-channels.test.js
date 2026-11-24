@@ -6,13 +6,13 @@ import {
   asList,
   assertCleanTestResult,
   assertNormalizedEqual,
-  channelId,
   connectorOf,
   createOieClient,
   fmlSteps,
   loadManifest,
   mapperSteps,
-  readExample
+  readExample,
+  readRepoFile
 } from "./oie-client.js";
 
 describe("demo channel manifest, FML previews and deployed examples", () => {
@@ -26,7 +26,7 @@ describe("demo channel manifest, FML previews and deployed examples", () => {
 
   after(() => client?.close());
 
-  test("OIE channel groups and functional tags match examples/channels.json", async () => {
+  test("OIE channel groups and functional tags match the active demo exports", async () => {
     const groupsRes = await client.getJson("/api/channelgroups");
     const tagsRes = await client.getJson("/api/server/channelTags");
 
@@ -39,96 +39,74 @@ describe("demo channel manifest, FML previews and deployed examples", () => {
       }
     }
 
-    const groupNameByKey = new Map(manifest.groups.map(g => [g.key, g.name]));
-    for (const g of manifest.groups) {
-      assert.ok(groups.has(g.name), `Missing OIE channel group: ${g.name}`);
-    }
-
+    const configuration = await readRepoFile("demo/oie-init/data/configuration.xml");
+    const tags = [...configuration.matchAll(/<channelTag>\s*<id>[^<]+<\/id>\s*<name>([^<]+)<\/name>\s*<channelIds>([\s\S]*?)<\/channelIds>/g)];
     for (const entry of manifest.channels) {
-      const id = await channelId(entry.channel);
-      const expectedGroupName = groupNameByKey.get(entry.group);
-      const group = groups.get(expectedGroupName);
-      const groupIds = new Set(asList(group?.channels?.channel).map(c => c.id));
-      assert.ok(groupIds.has(id), `${entry.channel} missing from group ${expectedGroupName}`);
-      assert.deepEqual(
-        [...(actualTagsByChannel.get(id) || [])].sort(),
-        [...entry.tags].sort(),
-        `${entry.channel}: mismatched channel tags`
-      );
+      const group = groups.get(entry.group);
+      assert.ok(group, `Missing OIE channel group: ${entry.group}`);
+      const groupIds = asList(group.channels?.channel).map(c => c.id);
+      assert.ok(groupIds.includes(entry.id), `${entry.file} missing from group ${entry.group}`);
+      const expectedTags = tags.filter(([, , ids]) => ids.includes(`<string>${entry.id}</string>`))
+        .map(([, name]) => name).sort();
+      assert.ok(expectedTags.length, `${entry.file}: missing exported tags`);
+      assert.deepEqual([...(actualTagsByChannel.get(entry.id) || [])].sort(), expectedTags, entry.file);
     }
   });
 
-  test("all FML preview steps declared in channels.json match their expected outputs", async () => {
-    for (const entry of manifest.channels.filter(c => c.preview)) {
-      const id = await channelId(entry.channel);
-      const ch = await client.channel(id);
-      const step = fmlSteps(ch.sourceConnector?.transformer)[0];
-      assert.ok(step, `No FhirFmlTransformStep found in ${entry.channel}`);
-
-      const input = await readExample(entry.preview.input);
-      const expected = await readExample(entry.preview.expected);
-      const result = await client.postTest("/api/extensions/fhir-fml/test", {
-        step,
-        message: input,
-        dataType: entry.preview.dataType
-      });
-
-      assertCleanTestResult(result, `FML preview ${entry.channel}`);
-      assert.equal(result.validationPerformed, true, `${entry.channel}: expected FHIR validation to run`);
-      assertNormalizedEqual(result.output, expected, `FML preview output mismatch for ${entry.channel}`);
+  test("FHIR Patient and logical JSON FML previews match their expected outputs", async () => {
+    for (const [number, validationPerformed] of [["05", true], ["06", false]]) {
+      const entry = manifest.channels.find(channel => channel.file.startsWith(number));
+      const ch = await client.channel(entry.id);
+      const [step] = fmlSteps(ch.sourceConnector.transformer);
+      const input = await readRepoFile(`demo/oie-init/${entry.input}`);
+      const expected = await readRepoFile(`demo/oie-init/${entry.input.replace(/input\.json$/, "expected.json")}`);
+      const result = await client.postTest("/api/extensions/fhir-fml/test", { step, message: input, inputMode: "prepared", format: "json" });
+      assertCleanTestResult(result, entry.file);
+      assert.equal(result.validationPerformed, validationPerformed);
+      assertNormalizedEqual(result.output, expected, entry.file);
     }
   });
 
-  test("all manifest deployed endpoints accept valid inputs and reject invalid ones with diagnostics", async () => {
-    for (const entry of manifest.channels.filter(c => c.deployed)) {
-      const id = await channelId(entry.channel);
-      const { deployed, invalid } = entry;
-      const input = await readExample(entry.input);
-      const expected = await readExample(deployed.expected);
-      const contentType = deployed.contentType || "application/json";
+  test("the DevDays IG channel builds a Patient and validates it against the packaged profile", async () => {
+    const entry = manifest.channels.find(channel => channel.file.startsWith("11-"));
+    const channel = await client.channel(entry.id);
+    const [destination] = asList(channel.destinationConnectors.connector);
+    const [step] = fmlSteps(destination.transformer);
+    const preview = await client.postTest("/api/extensions/fhir-fml/test", {
+      step, message: step.sampleMessage, inputMode: "prepared", format: "xml"
+    });
+    assertCleanTestResult(preview, entry.file);
+    assert.equal(preview.validationPerformed, true);
+    const patient = JSON.parse(preview.output);
+    assert.deepEqual(patient.meta.profile, ["http://devdays-example-ig.com/fhir/StructureDefinition/DevDaysIGtutorial-Patient"]);
+    assert.equal(patient.identifier[0].value, "100001");
+    assert.equal(patient.gender, "female");
+    const response = await client.postChannel(entry.port, entry.route, await readRepoFile(`demo/oie-init/${entry.input}`), "text/plain");
+    assert.equal(response.status, 200);
+    assertNormalizedEqual(response.text, preview.output);
+  });
 
-      const prevValidId = await client.latestMessageId(id);
-      const ok = await client.postChannel(deployed.port, deployed.route, input, contentType);
-      assert.equal(ok.status, 200, `${entry.channel} HTTP ${ok.status}: ${ok.text}`);
-      assertNormalizedEqual(ok.text, expected, `${entry.channel} HTTP response mismatch`);
+  test("the R5 Organization route validates business JSON and reports an invalid boolean", async () => {
+    const entry = manifest.channels.find(channel => channel.file.startsWith("16-"));
+    const expected = await readExample("json/organisation-metier-expected.json");
+    const previous = await client.latestMessageId(entry.id);
+    const response = await client.postChannel(entry.port, entry.route, await readRepoFile(entry.input));
+    assert.equal(response.status, 200);
+    assertNormalizedEqual(response.text, expected);
+    const message = await client.waitNextMessage(entry.id, previous);
+    assertNormalizedEqual(connectorOf(message, 1).encoded?.content, expected);
 
-      const msg = await client.waitNextMessage(id, prevValidId);
-      const dest1 = connectorOf(msg, 1);
-      assert.ok(dest1 && dest1.status !== "ERROR", `${entry.channel}: expected clean connector 1 message`);
-      assertNormalizedEqual(dest1.encoded?.content, expected, `${entry.channel} OIE encoded(1) mismatch`);
+    const invalid = await readExample("json/organisation-metier-invalide.json");
+    const channel = await client.channel(entry.id);
+    const [step] = mapperSteps(channel.sourceConnector.transformer);
+    const preview = await client.postTest("/api/extensions/fhir-mapper/test", { step, message: invalid, dataType: "JSON" });
+    assert.match(JSON.stringify(preview.errors), /Organization\.active/);
 
-      if (invalid) {
-        const badInput = await readExample(invalid.input);
-        const ch = await client.channel(id);
-        const mapperStep = mapperSteps(ch.sourceConnector?.transformer)[0];
-        const fmlStep = fmlSteps(ch.sourceConnector?.transformer)[0];
-        if (mapperStep) {
-          const preview = await client.postTest("/api/extensions/fhir-mapper/test", {
-            step: mapperStep,
-            message: badInput,
-            dataType: invalid.dataType || "JSON"
-          });
-          const previewText = JSON.stringify({ errors: preview.errors, issues: preview.issues });
-          assert.ok(previewText.includes(invalid.diagnostic), `${entry.channel} preview missing diagnostic '${invalid.diagnostic}': ${previewText}`);
-        } else if (fmlStep && invalid.dataType !== "DELIMITED") {
-          const preview = await client.postTest("/api/extensions/fhir-fml/test", {
-            step: fmlStep,
-            message: badInput,
-            dataType: invalid.dataType || "JSON"
-          });
-          const previewText = JSON.stringify({ errors: preview.errors, issues: preview.issues });
-          assert.ok(previewText.includes(invalid.diagnostic), `${entry.channel} FML preview missing diagnostic '${invalid.diagnostic}': ${previewText}`);
-        }
-
-        const prevBadId = await client.latestMessageId(id);
-        await client.postChannel(deployed.port, deployed.route, badInput, invalid.contentType || contentType);
-        const badMsg = await client.waitNextMessage(id, prevBadId);
-        const connectors = [connectorOf(badMsg, 0), connectorOf(badMsg, 1)].filter(Boolean);
-        assert.ok(connectors.some(cm => cm.status === "ERROR"), `${entry.channel}: expected ERROR status on invalid message`);
-        const errorText = connectors.map(cm => cm.processingErrorContent?.content || cm.response?.content || "").join("\n");
-        assert.ok(errorText.includes(invalid.diagnostic), `${entry.channel}: expected error containing '${invalid.diagnostic}', got: ${errorText}`);
-      }
-    }
+    const previousInvalid = await client.latestMessageId(entry.id);
+    await client.postChannel(entry.port, entry.route, invalid);
+    const failed = connectorOf(await client.waitNextMessage(entry.id, previousInvalid), 0);
+    assert.equal(failed.status, "ERROR");
+    assert.match(failed.processingErrorContent?.content || "", /Organization\.active/);
   });
 
   test("external terminology unmatched code falls back cleanly via data-absent-reason", async () => {

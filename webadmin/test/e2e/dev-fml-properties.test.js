@@ -47,7 +47,6 @@ test("Properties orders the flow and switches between shared and local contexts 
     assert.equal(await validation.isChecked(), false);
     await context.selectOption("");
     assert.equal(await editor.getByRole("combobox", { name: "FHIR version", exact: true }).inputValue(), "R5");
-    await editor.getByText("Terminology server options", { exact: true }).click();
     assert.equal(await terminology.inputValue(), "http://local-tx/fhir");
     assert.equal(await editor.getByRole("textbox", { name: "Packages", exact: true }).inputValue(), "/local/one\n/local/two");
     assert.equal(await editor.getByRole("combobox", { name: "Validation of results", exact: true }).inputValue(), "off");

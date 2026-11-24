@@ -13,6 +13,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const EXAMPLES_DIR = join(ROOT, "examples");
 const CHANNELS_DIR = join(ROOT, "demo/oie-init/data/channels");
 const GROUPS_DIR = join(ROOT, "demo/oie-init/data/groups");
+const manifest = JSON.parse(readFileSync(join(ROOT, "demo/oie-init/examples.json"), "utf8"));
 
 function findAllBlocks(xml, tagName) {
   const escaped = tagName.replaceAll(".", "\\.");
@@ -22,16 +23,22 @@ function findAllBlocks(xml, tagName) {
 
 test("demo exports have unique ports, inbound templates, and valid step material", () => {
   const files = readdirSync(CHANNELS_DIR).filter((f) => f.endsWith(".xml")).sort();
-  assert.ok(files.length >= 11);
+  assert.deepEqual(manifest.channels.map(channel => channel.file).sort(), files);
 
   const ports = new Set();
   for (const file of files) {
     const xml = readFileSync(join(CHANNELS_DIR, file), "utf8");
     const [root, allEntries] = steps(xml, { includeFml: true });
+    const entry = manifest.channels.find(channel => channel.file === file);
+    assert.equal(entry.id, root.findtext("id"), file);
+    assert.equal(entry.route, root.findtext("sourceConnector/properties/contextPath"), file);
+    const input = entry.input.startsWith("examples/") ? join(ROOT, entry.input) : join(ROOT, "demo/oie-init", entry.input);
+    assert.ok(existsSync(input), `${file}: missing input fixture ${entry.input}`);
     assert.ok(root.findtext("sourceConnector/transformer/inboundTemplate"), file);
 
     const port = findPathText(xml, "sourceConnector/properties/listenerConnectorProperties/port");
     if (port) {
+      assert.equal(entry.port, Number(port), file);
       assert.ok(!ports.has(port), `Duplicate port ${port} in ${file}`);
       ports.add(port);
     }
@@ -60,6 +67,7 @@ test("native groups cover all demo channels without duplicates", () => {
     for (const ch of findAllBlocks(channelsContainer, "channel")) {
       const id = findPathText(ch, "id");
       assert.ok(!members.has(id), `Channel ${id} belongs to multiple groups`);
+      assert.equal(manifest.channels.find(channel => channel.id === id)?.group, findPathText(groupBlock, "name"));
       members.add(id);
     }
   }

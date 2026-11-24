@@ -348,7 +348,7 @@ OIE, si configurée, reste indépendante et peut entraîner une seconde validati
 Les profils, ConceptMaps et packages doivent être accessibles sur le serveur
 via `profiles`. Le format actuel ne contient ni manifeste de dépendances ni
 verrouillage des versions des packages. Conserver les fichiers de référence
-avec le déploiement ; l'IG de démonstration est dans `demo/fhir-volume/ig`.
+avec le déploiement ; les profils de laboratoire de la démo sont dans [shared/lab-r4](../../../demo/fhir-volume/shared/lab-r4).
 
 ## 8. Diagnostics, tests d'API et traces
 
@@ -482,7 +482,7 @@ réussi ne suffit donc pas à certifier un mapping exécutable ou un résultat F
 Depuis la racine du dépôt, Node.js 22 ou ultérieur :
 
 ```sh
-node tools/check_mapping.mjs doc/demo/examples/mapping/patient.step.json doc/demo/examples/mapping/laboratory.steps.json
+node tools/check_mapping.mjs doc/fr/demo/examples/mapping/patient.step.json doc/fr/demo/examples/mapping/laboratory.steps.json
 node --test tools/tests/*.test.mjs
 mvn -Dtest=MappingSpecificationTest test
 ```
@@ -497,5 +497,5 @@ lecture et tests ; ce n'est pas un nouvel import de channel ni le corps de `/tes
 | [Chemin invalide](../../fr/demo/examples/mapping/invalid-path.step.json) | Échec du contrôle de structure et de compilation : segment à trois composants dans `Patient.active`. |
 | [Référence non résolue](../../fr/demo/examples/mapping/unresolved-reference.steps.json) | Structure acceptée ; échec à la finalisation sur `missing-patient[0]`, même sans validation FHIR. Aucune variable `result` publiée. |
 
-Les tests de schéma contrôlent aussi les étapes des six exports XML de la démo.
-Le [rejeu HTTP](../../fr/demo/Demo.md#rejouer-les-exemples) complète ces contrôles dans OIE.
+Les tests de schéma contrôlent aussi les étapes Mapper et FML des exports XML de la démo.
+Le [rejeu HTTP](../../fr/demo/Demo.md#rejouer-et-vérifier-les-exemples) complète ces contrôles dans OIE.

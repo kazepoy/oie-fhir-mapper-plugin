@@ -8,7 +8,7 @@ test("a transformer preview assembles two Bundles and exposes every step and pub
   const session = await signIn();
   const { page } = session;
   try {
-    await openStep(page, "ORU R01 to Two Lab Bundles", "Observation");
+    await openStep(page, "12 ORU to Two Lab Bundles - Mapper", "Observation");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Test", exact: true }).click();
     await mapper.locator(".fm-code-box[data-language=hl7v2] .monaco-editor").waitFor();
@@ -18,7 +18,7 @@ test("a transformer preview assembles two Bundles and exposes every step and pub
     }, await readFile("../examples/hl7v2/oru-r01-labo.er7", "utf8"));
     await mapper.getByLabel("Preview scope", { exact: true }).selectOption("transformer");
     const response = page.waitForResponse(response => response.url().endsWith("/fhir-mapper/test"));
-    await mapper.getByRole("button", { name: "Run", exact: true }).click();
+    await mapper.getByRole("button", { name: "Run test", exact: true }).click();
     const result = await (await response).json();
     assert.deepEqual(result.errors, []);
     const transaction = JSON.parse(result.output), document = JSON.parse(result.variables.bundleDocument);
@@ -26,8 +26,8 @@ test("a transformer preview assembles two Bundles and exposes every step and pub
     assert.equal(document.entry.length, 14);
     const shared = new Map(document.entry.map(entry => [entry.fullUrl, entry.resource]));
     for (const entry of transaction.entry) assert.deepEqual(shared.get(entry.fullUrl), entry.resource);
-    await mapper.getByText("Produced resources by step", { exact: true }).waitFor();
-    await mapper.getByText("Published channel variables", { exact: true }).waitFor();
+    await mapper.getByText("Produced resources by step", { exact: true }).click();
+    await mapper.getByText("Published channel variables", { exact: true }).click();
     assert.equal(result.steps.length, 10);
     await mapper.locator("details details > summary").filter({ hasText: "Observation" }).first().click();
     const publishedVariable = mapper.locator("details details > summary").filter({ hasText: "bundleDocument" }).first();
@@ -43,7 +43,7 @@ test("value tables import atomically, undo in one operation and export with thei
   const { page } = session;
   try {
     // Exercise the host's standard download fallback in an automated browser.
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     await page.evaluate(() => { window.showSaveFilePicker = undefined; });
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Import / Export", exact: true }).click();
@@ -72,9 +72,9 @@ test("value tables import atomically, undo in one operation and export with thei
     await importFile('key,expression,note\nPatient.active,false,rejected\nPatient.missing,true,bad\n');
     await mapper.getByText("Invalid or duplicate value target: Patient.missing", { exact: true }).waitFor();
     assert.equal(await downloadText("Export CSV table"), changed);
-    await mapper.getByRole("tab", { name: "Import / Export", exact: true }).click();
+    await mapper.getByRole("tab", { name: "Mapper", exact: true }).click();
     await mapper.getByRole("button", { name: "↶ Undo", exact: true }).click();
-    await mapper.getByRole("tab", { name: "Properties", exact: true }).click();
+    await mapper.getByRole("tab", { name: "Import / Export", exact: true }).click();
     assert.equal(await downloadText("Export CSV table"), before);
     assert.deepEqual(session.pluginErrors(), []);
   } finally { await session.close(); }

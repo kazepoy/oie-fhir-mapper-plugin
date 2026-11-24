@@ -67,7 +67,8 @@ public interface FhirMapperServletInterface extends BaseServletInterface {
     @Path("/catalog/elements")
     @Produces(MediaType.APPLICATION_JSON)
     @MirthOperation(name = "getFhirElements", display = "Get the elements of a FHIR profile and its types", permission = PERMISSION_EDIT)
-    String getElements(@QueryParam("url") String url, @QueryParam("fhirVersion") String fhirVersion, @QueryParam("profiles") String profiles) throws ClientException;
+    String getElements(@QueryParam("url") String url, @QueryParam("fhirVersion") String fhirVersion, @QueryParam("profiles") String profiles,
+            @QueryParam("refresh") boolean refresh) throws ClientException;
 
     /** The codes of a ValueSet: {"valueSet", "total", "codes": [{system, code, display}]}, 200 at most. */
     @GET

@@ -262,7 +262,7 @@ Les contrôles locaux signalent la configuration incohérente et les éléments 
 | `structure` | Charger une StructureDefinition et son snapshot. |
 | `conceptMaps` | Lister les ConceptMaps disponibles. |
 | `catalog` | Lister les ressources de conformité des packages (`kind` : un type de ressource, `profile`, `extension`, `logical`, ou vide). |
-| `catalog/elements` | Un profil et tous les types qu'il utilise, réduits aux champs de l'arbre : `{root, types, errors}`. L'éditeur ouvre l'arbre avec cette seule requête. |
+| `catalog/elements` | Un profil et tous les types qu'il utilise, réduits aux champs de l'arbre : `{root, types, errors}`. L’éditeur peut charger séparément les types manquants. `refresh=true` renouvelle le cache serveur de la version FHIR et des packages demandés. |
 | `catalog/expand` | Les codes d'un ValueSet (`valueSet`, `filter`), 200 au plus. |
 | `settings` | Lire (GET) ou remplacer (POST) les contextes FHIR du serveur. |
 | `translate` | Tester une traduction. |

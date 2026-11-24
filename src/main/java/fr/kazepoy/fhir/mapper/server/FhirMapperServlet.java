@@ -70,9 +70,9 @@ public class FhirMapperServlet extends MirthServlet implements FhirMapperServlet
     }
 
     @Override
-    public String getElements(String url, String fhirVersion, String profiles) throws ClientException {
+    public String getElements(String url, String fhirVersion, String profiles, boolean refresh) throws ClientException {
         if (url == null || url.trim().isEmpty()) throw new ClientException("The url of the StructureDefinition is missing.");
-        try { return FhirFacade.elements(url, fhirVersion, profiles); }
+        try { return FhirFacade.elements(url, fhirVersion, profiles, refresh); }
         catch (Exception e) { throw new ClientException(e.getMessage(), e); }
     }
 

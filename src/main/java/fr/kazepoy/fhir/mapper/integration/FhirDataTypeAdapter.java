@@ -48,8 +48,8 @@ public final class FhirDataTypeAdapter {
         return (String) call("catalog", new Class<?>[] { String.class, Map.class }, kind, options(version, profiles));
     }
 
-    public static String elements(String url, String version, String profiles) throws Exception {
-        return (String) call("elements", new Class<?>[] { String.class, Map.class }, url, options(version, profiles));
+    public static String elements(String url, String version, String profiles, boolean refresh) throws Exception {
+        return (String) call("elements", new Class<?>[] { String.class, Map.class, boolean.class }, url, options(version, profiles), refresh);
     }
 
     public static String expand(String valueSet, String filter, String version, String profiles) throws Exception {

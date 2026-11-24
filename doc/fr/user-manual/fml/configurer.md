@@ -8,7 +8,7 @@ L'onglet **Properties** d'une étape **FHIR FML Transform** suit l'ordre d'exéc
 
 ## 1. Contexte FHIR (`FHIR context`)
 
-- **Contexte partagé (*Settings*)** : en sélectionnant un contexte défini dans [Settings › FHIR Mapper](../settings/README.md) (ex. `patient-r4`, `demo-labo`, `fr-core-2.2.0`), l'étape hérite de sa version FHIR, de ses packages, de son serveur de terminologie et de sa politique de validation par défaut. Cliquer sur **Context details** permet d'afficher ces paramètres en lecture seule.
+- **Contexte partagé (*Settings*)** : en sélectionnant un contexte défini dans [Settings › FHIR Mapper](../settings/README.md) (ex. `patient-r4`, `demo-labo`, `external-terminology`), l'étape hérite de sa version FHIR, de ses packages, de son serveur de terminologie et de sa politique de validation par défaut. Cliquer sur **Context details** permet d'afficher ces paramètres en lecture seule.
 - **Contexte local (`Local context (this step)`)** : permet de définir directement dans l'étape :
   - **FHIR version** (`R4`, `R4B` ou `R5`) ;
   - **Validation of results** (`always` ou `off`) ;

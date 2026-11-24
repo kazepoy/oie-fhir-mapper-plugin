@@ -1,24 +1,19 @@
-### Historical oru2fhir demo — ready-to-run requests (VS Code REST Client;
-### IntelliJ's HTTP client also supports this format).
-### OIE's HTTPS API uses a self-signed certificate: in VS Code, set
-### "http.proxyStrictSSL": false (or accept the certificate) for @oie requests.
+### Requests for the Docker demo (VS Code REST Client or IntelliJ HTTP Client).
+### OIE's HTTPS API uses a self-signed certificate.
 
-@oru = http://localhost:10801/oru/
-@patient = http://localhost:10802/patient/
-@strictPatient = http://localhost:10808/patient/
-@fmlTypedBundle = http://localhost:10807/bundle/
-@fmlInlinePatient = http://localhost:10809/patient/
-@labo = http://localhost:10803/labo/
-@sqlPatient = http://localhost:10804/sql-patient/
-@csvPatients = http://localhost:10805/csv-patients/
+@oru = http://localhost:10807/oru/
+@patient = http://localhost:10817/patient-compare/
+@labo = http://localhost:10811/labo/
+@sqlPatient = http://localhost:10812/sql-patient/
 @csvCollection = http://localhost:10806/csv-patients-collection/
 @organizationR5 = http://localhost:10810/organization-r5/
-@frCorePatient = http://localhost:10811/patient-fr-core/
-@fhirSummary = http://localhost:10812/patient-summary/
+@frCorePatient = http://localhost:10801/pid-fr-core-ins/
+@fhirPatient = http://localhost:10802/fhir-patient/
+@dynamicAdt = http://localhost:10818/adt-dynamic-fml/
 @oie = https://localhost:8443/api
 @auth = Basic admin:admin
 @channel = 5d0f6c2a-8b3e-4f1a-9c7d-2e6b1a0f3c48
-@ig = /fhir-volume/ig
+@ig = /fhir-volume/shared/lab-r4
 @base = http://example.org/fhir/oru2fhir
 
 ### Business JSON → Organization R5 (markdown description)
@@ -33,29 +28,23 @@ Content-Type: application/json; charset=UTF-8
 
 < ./json/organisation-metier-invalide.json
 
-### Business JSON → FR Core 2.2.0 Patient, local identifier and birthplace
+### HL7 v2 PID → FR Core INS Patient
 POST {{frCorePatient}}
+Content-Type: text/plain; charset=UTF-8
+
+< ../demo/oie-init/data/samples/04-hl7v2-pid-fr-core-ins/input.er7
+
+### FHIR Patient → FML normalization
+POST {{fhirPatient}}
 Content-Type: application/json; charset=UTF-8
 
-< ./json/patient-metier-fr-core.json
+< ../demo/oie-init/data/samples/05-fhir-patient-normalization/input.json
 
-### Expected error: official is excluded for PI identifier use
-POST {{frCorePatient}}
-Content-Type: application/json; charset=UTF-8
+### ADT A31 selects its FML map and logical model
+POST {{dynamicAdt}}
+Content-Type: text/plain; charset=UTF-8
 
-< ./json/patient-metier-fr-core-invalide.json
-
-### FHIR Patient → FML projection, preserving active:false and omitting telecom
-POST {{fhirSummary}}
-Content-Type: application/json; charset=UTF-8
-
-< ./json/patient-fhir-source.json
-
-### Expected error: unknown gender is not a permitted FHIR code
-POST {{fhirSummary}}
-Content-Type: application/json; charset=UTF-8
-
-< ./json/patient-fhir-source-invalide.json
+< ../demo/oie-init/data/samples/18-adt-patient-dynamic-fml/adt-a31.er7
 
 ### 1. Complete example: the response is a transaction Bundle (12 entries)
 # charset=UTF-8: without it, the HTTP listener reads ISO-8859-1 and corrupts accents.
@@ -104,14 +93,7 @@ Content-Type: application/xml; charset=UTF-8
 
 < ./xml/patient-result-sql.xml
 
-### CSV with 10 patients: source cleanup, FHIR mapping in the destination
-# One message per row in the dashboard; the HTTP response contains the last Patient.
-POST {{csvPatients}}
-Content-Type: text/csv; charset=UTF-8
-
-< ./csv/patients-metier-10.csv
-
-### The same complete CSV to a collection of ten Patients (one OIE message)
+### CSV cleanup and mapping to a collection of ten Patients
 POST {{csvCollection}}
 Content-Type: text/csv; charset=UTF-8
 
@@ -155,33 +137,16 @@ GET {{oie}}/extensions/fhir-mapper/translate?server=n/a&profiles={{ig}}&conceptM
 Authorization: {{auth}}
 X-Requested-With: OpenAPI
 
-### 9. A single Patient conforming to ExampleLabPatient
+### 9. Compare the Patient produced by FML and Mapper Transform
 POST {{patient}}
 Content-Type: text/plain; charset=UTF-8
 
-< ./hl7v2/oru-r01-minimal.er7
+< ../demo/oie-init/data/samples/restored/oru-patient.er7
 
-### 9a. The same Patient, ORU read by the HL7 v2 Strict Parser (HAPI XML, typed groups and components)
-POST {{strictPatient}}
-Content-Type: text/plain; charset=UTF-8
-
-< ./hl7v2/oru-r01-minimal.er7
-### 9b. Patient + Observation Bundle using typed FML maps ORUR01toBundle and PIDtoPatient
-POST {{fmlTypedBundle}}
-Content-Type: text/plain; charset=UTF-8
-
-< ./hl7v2/oru-r01-minimal.er7
-
-### 9c. The same Patient using the step's inline map (mapSource), without a map file
-POST {{fmlInlinePatient}}
-Content-Type: text/plain; charset=UTF-8
-
-< ./hl7v2/oru-r01-minimal.er7
-
-### 9d. The OIE logical model (OieMessage) received by the map for this message
+### 10. The OIE logical model (OieMessage) received by the map for this message
 POST {{oie}}/extensions/fhir-fml/source
 Authorization: {{auth}}
 X-Requested-With: OpenAPI
 Content-Type: text/plain
 
-{"message": "MSH|^~\\&|LAB|EXAMPLE-LAB|OIE|EXAMPLE-HOSP|20260114171908||ORU^R01^ORU_R01|MSG-0002|P|2.5.1\rPID|1||100001^^^EXAMPLE^PI||MARTIN^CLAIRE^ANNE^^Mme^^L||19800215|F", "dataType": "HL7V2", "profiles": "/fhir-volume/ig;/fhir-volume/fml"}
+{"message": "MSH|^~\\&|LAB|EXAMPLE-LAB|OIE|EXAMPLE-HOSP|20260114171908||ORU^R01^ORU_R01|MSG-0002|P|2.5.1\rPID|1||100001^^^EXAMPLE^PI||MARTIN^CLAIRE^ANNE^^Mme^^L||19800215|F", "dataType": "HL7V2"}

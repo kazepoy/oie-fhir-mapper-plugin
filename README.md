@@ -24,7 +24,7 @@ Administration: <https://localhost:8443/oie-webadmin/> (`admin` /
 `admin`). See the [demo guide](doc/fr/demo/Demo.md) (in French).
 
 The demo uses `demo/fhir-volume` for FHIR resources,
-`demo/oie-init/data` for its configuration, groups, tags and 17 channels, and
+`demo/oie-init/data` for its configuration, groups, tags and 18 channels, and
 `demo/term-server` for remote terminology.
 
 ## FHIR Mapper Transform

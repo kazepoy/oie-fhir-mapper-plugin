@@ -182,9 +182,7 @@ logique spécifique. Mais son format seul ne fournit ni ses types métier ni ses
 cardinalités. Un même contrat peut servir de base aux deux représentations si
 leurs lecteurs les associent correctement au modèle.
 
-**FHIR resource / Logical model lit le XML ou le JSON selon la SD déclarée dans la FML.**
-Le mode interne `logical` réalise cette lecture ; le choix utilisateur commun
-`fhir` le sélectionne automatiquement pour une SD logique. L’[exemple commande JSON](../../../demo/fhir-volume/06-json-order-to-dispatch/README.md)
+**Logical model lit le XML ou le JSON selon la StructureDefinition sélectionnée dans les propriétés de l’étape.** L’[exemple commande JSON](../../../demo/fhir-volume/06-json-order-to-dispatch/README.md)
 transforme deux modèles logiques métier non FHIR, sans champ `resourceType`.
 L’[exemple Normalize Patient identity](../../../demo/fhir-volume/05-fhir-patient-normalization/README.md)
 utilise quant à lui le mode `fhir` et les modèles FHIR existants.

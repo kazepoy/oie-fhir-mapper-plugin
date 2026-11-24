@@ -17,9 +17,9 @@ Le champ **Action** détermine le rôle de l'étape dans le transformeur :
 
 ## 2. Configurer le contexte FHIR et charger le profil cible
 
-1. Dans **FHIR context**, sélectionner un contexte partagé défini dans [Settings › FHIR Mapper](../settings/README.md) (ex. `demo-labo`, `fr-core-2.2.0`), ou laisser **No context (configure on this step)** pour renseigner localement **FHIR Version**, **Profile Packages** (chemins serveur séparés par `;`) et **Terminology Server**.
+1. Dans **FHIR context**, sélectionner un contexte partagé défini dans [Settings › FHIR Mapper](../settings/README.md) (ex. `demo-labo`, `external-terminology`), ou laisser **No context (configure on this step)** pour renseigner localement **FHIR Version**, **Profile Packages** (chemins serveur séparés par `;`) et **Terminology Server**.
 2. Dans **Target Profile**, saisir l'URL canonique du profil (ou le nom d'une ressource de base comme `Patient`), ou cliquer sur **List profiles** pour choisir un profil parmi ceux trouvés dans les packages du contexte.
-3. Cliquer sur **Load** : le serveur calcule le snapshot du profil et construit l'arbre dans l'onglet **Mapper**.
+3. Cliquer sur **Load** : le serveur relit le profil et ses types pour construire l’arbre dans l’onglet **Mapper**. Si un type nécessaire à une règle ne se charge pas, les règles existantes sont conservées et l’édition du mapping reste bloquée. Cliquer de nouveau sur **Load** pour réessayer.
 
 > [!TIP]
 > Changer de profil sur une étape déjà mappée conserve toutes les règles dont les chemins existent dans le nouveau profil et signale les éventuels éléments absents.

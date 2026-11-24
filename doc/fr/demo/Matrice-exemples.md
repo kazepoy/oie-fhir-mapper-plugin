@@ -2,7 +2,7 @@
 
 [Démonstration](README.md) · [Guide de la démo](Demo.md) · [Catalogue JSON](../../../demo/oie-init/examples.json)
 
-La démonstration active déploie **dix-huit canaux** (`01` à `19`, sans `15`) répartis en trois groupes natifs OIE : **FML OieMessage** (6 canaux), **FML logical** (4 canaux) et **Mapper transformer** (8 canaux). Chaque étape contient un sample préchargé testable directement dans l'onglet **Test**.
+La démonstration active déploie **dix-huit canaux** (`01` à `19`, sans `15`) répartis en trois groupes natifs OIE : **FML OieMessage** (6 canaux), **FML logical** (4 canaux) et **Mapper transformer** (8 canaux). Chaque canal fournit des données d’exemple. L’onglet **Test** utilise un sample enregistré ou le template entrant du transformeur.
 
 ## Groupe `FML OieMessage`
 

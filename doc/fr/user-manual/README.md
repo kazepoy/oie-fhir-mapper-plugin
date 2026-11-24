@@ -45,4 +45,4 @@ Pour les spécifications détaillées du moteur et des formats :
 - [Référence de l'éditeur FHIR Mapper Transform](../reference/Mappeur-graphique.md)
 - [Référence de l'étape FHIR FML Transform](../reference/Transformation-FML.md)
 - [Format des traces d'exécution](../reference/Trace.md)
-- [Guide de la démonstration Docker (17 canaux)](../demo/Demo.md)
+- [Guide de la démonstration Docker (18 canaux)](../demo/Demo.md)

@@ -2,6 +2,7 @@
 package fr.kazepoy.fhir.mapper.fhir;
 
 import static org.junit.Assert.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,28 @@ public class FhirFacadeTest {
         assertEquals("4", codes.get("total").toString());
         Map<?, ?> filtered = (Map<?, ?>) FhirFacade.parse(FhirFacade.expand("http://hl7.org/fhir/ValueSet/administrative-gender", "fem", "R4", profiles));
         assertEquals("female", ((Map<?, ?>) ((List<?>) filtered.get("codes")).get(0)).get("code"));
+    }
+
+    @Test
+    public void refreshesTheProfileAndItsCachedStructureAtTheSameLocation() throws Exception {
+        Path profile = Files.createTempFile("fhir-mapper-profile-", ".json");
+        try {
+            String original = Files.readString(Path.of(fixture("profiles/patient-with-birthdate.json")));
+            Files.writeString(profile, original.replace("\"resourceType\": \"StructureDefinition\",", "\"resourceType\": \"StructureDefinition\", \"version\": \"1\","));
+            String location = profile.toString();
+            String first = FhirFacade.elements(PROFILE, "R4", location);
+            String firstStructure = FhirFacade.structureDefinition(PROFILE, "R4", location);
+            Files.writeString(profile, Files.readString(profile).replace("\"version\": \"1\"", "\"version\": \"2\""));
+
+            assertEquals(first, FhirFacade.elements(PROFILE, "R4", location));
+            assertEquals(firstStructure, FhirFacade.structureDefinition(PROFILE, "R4", location));
+            Map<?, ?> fresh = (Map<?, ?>) FhirFacade.parse(FhirFacade.elements(PROFILE, "R4", location, true));
+            assertEquals("2", ((Map<?, ?>) fresh.get("root")).get("version"));
+            Map<?, ?> structure = (Map<?, ?>) FhirFacade.parse(FhirFacade.structureDefinition(PROFILE, "R4", location));
+            assertEquals("2", structure.get("version"));
+        } finally {
+            Files.deleteIfExists(profile);
+        }
     }
 
     @Test

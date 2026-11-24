@@ -100,7 +100,7 @@ public final class FhirCatalogBridge {
         }
     }
 
-    public void clearCaches() { conceptMaps.clear(); answers.clear(); baseDefinitions.clear(); }
+    public void clearCaches() { conceptMaps.clear(); caches.clear(); }
 
     @FunctionalInterface
     private interface CatalogWork<T> { T call(Catalog catalog) throws Exception; }
@@ -113,13 +113,17 @@ public final class FhirCatalogBridge {
         });
     }
 
-    private Map<String, Map<String, JsonNode>> baseDefinitionsFor(Map<String, String> options) {
-        String key = options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
-        return baseDefinitions.computeIfAbsent(key, k -> new ConcurrentHashMap<>());
+    private CatalogCache cacheFor(Map<String, String> options) {
+        return caches.computeIfAbsent(cacheKey(options), key -> new CatalogCache());
+    }
+
+    private static String cacheKey(Map<String, String> options) {
+        return options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
     }
 
     public String listProfiles(Map<String, String> options) throws Exception {
-        String key = "profiles|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
+        Map<String, String> answers = cacheFor(options).answers;
+        String key = "profiles";
         String cachedAnswer = answers.get(key);
         if (cachedAnswer != null) return cachedAnswer;
         String answer = withCatalog(options, cached -> {
@@ -148,12 +152,14 @@ public final class FhirCatalogBridge {
     }
 
     public String structureDefinition(String url, Map<String, String> options) throws Exception {
-        String key = "sd|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "") + "|" + url;
+        CatalogCache cache = cacheFor(options);
+        Map<String, String> answers = cache.answers;
+        String key = "sd|" + url;
         String cachedAnswer = answers.get(key);
         if (cachedAnswer != null) return cachedAnswer;
         String answer = withCatalog(options, cached -> {
             ObjectMapper mapper = exactMapper();
-            return mapper.writeValueAsString(snapshotNode(cached, mapper, baseDefinitionsFor(options), url));
+            return mapper.writeValueAsString(snapshotNode(cached, mapper, cache.baseDefinitions, url));
         });
         answers.put(key, answer);
         return answer;
@@ -182,10 +188,12 @@ public final class FhirCatalogBridge {
 
     private static final Set<String> CATALOG_TYPES = Set.of("StructureDefinition", "ValueSet", "CodeSystem", "ConceptMap", "StructureMap");
     private static final Set<String> NOT_EXPANDED = Set.of("Resource", "DomainResource", "BackboneElement", "Element");
-    /** Answers that are costly to build and do not change until the caches are cleared. */
-    private final Map<String, String> answers = new ConcurrentHashMap<>();
-    /** Base element definitions per "version|profiles" and FHIR base type, reused across snapshots. */
-    private final Map<String, Map<String, Map<String, JsonNode>>> baseDefinitions = new ConcurrentHashMap<>();
+    private static final class CatalogCache {
+        final Map<String, String> answers = new ConcurrentHashMap<>();
+        final Map<String, Map<String, JsonNode>> baseDefinitions = new ConcurrentHashMap<>();
+    }
+
+    private final Map<String, CatalogCache> caches = new ConcurrentHashMap<>();
 
     /**
      * The conformance resources of the profile locations: [{resourceType, url, name, title, version}],
@@ -194,7 +202,8 @@ public final class FhirCatalogBridge {
      */
     public String catalog(String kind, Map<String, String> options) throws Exception {
         String wanted = text(kind);
-        String key = "catalog|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
+        Map<String, String> answers = cacheFor(options).answers;
+        String key = "catalog";
         String all = answers.get(key);
         if (all == null) {
             all = withEngineClassLoader(() -> {
@@ -281,13 +290,16 @@ public final class FhirCatalogBridge {
      * tree needs: {"root": sd, "types": {url: sd}, "errors": {url: message}}. One call instead of
      * one per type.
      */
-    public String elements(String url, Map<String, String> options) throws Exception {
-        String key = "elements|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "") + "|" + url;
+    public String elements(String url, Map<String, String> options, boolean refresh) throws Exception {
+        if (refresh) caches.remove(cacheKey(options));
+        CatalogCache cache = cacheFor(options);
+        Map<String, String> answers = cache.answers;
+        String key = "elements|" + url;
         String cachedAnswer = answers.get(key);
         if (cachedAnswer != null) return cachedAnswer;
         String answer = withCatalog(options, cached -> {
             ObjectMapper mapper = exactMapper();
-            Map<String, Map<String, JsonNode>> definitions = baseDefinitionsFor(options);
+            Map<String, Map<String, JsonNode>> definitions = cache.baseDefinitions;
             ObjectNode result = mapper.createObjectNode();
             JsonNode root = prune(mapper, snapshotNode(cached, mapper, definitions, url));
             result.set("root", root);

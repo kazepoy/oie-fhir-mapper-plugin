@@ -9,7 +9,7 @@ const cases = [
   { file: "05-fhir-patient-normalization.xml", channel: "05 FHIR Patient - Normalize Identity", step: "Normalize Patient identity", dir: "05-fhir-patient-normalization",
     port: 10802, route: "/fhir-patient", model: "fhir", validation: true },
   { file: "06-json-order-to-dispatch.xml", channel: "06 JSON Order to Dispatch", step: "Order to dispatch document", dir: "06-json-order-to-dispatch",
-    port: 10803, route: "/commande-json", model: "fhir", validation: false }
+    port: 10803, route: "/commande-json", model: "logical", validation: false }
 ];
 const fixture = path => readRepoFile(`demo/oie-init/data/${path}`);
 let client;
@@ -53,7 +53,10 @@ for (const spec of cases) {
       assert.equal(await editor.getByRole("combobox", { name: "Sample format" }).inputValue(), "json");
       await editor.getByRole("button", { name: "How is the sample interpreted?" }).click();
       const help = session.page.getByRole("dialog", { name: "How is the sample interpreted?" });
-      await help.getByText("The source StructureDefinition is resolved from the FML map. XML and JSON are read directly, without OieMessage.").waitFor();
+      const explanation = spec.model === "logical"
+        ? "The XML or JSON is read directly using the logical StructureDefinition selected in Properties."
+        : "The source StructureDefinition is resolved from the FML map. XML and JSON are read directly, without OieMessage.";
+      await help.getByText(explanation).waitFor();
       await editor.getByRole("tab", { name: "Sample", exact: true }).click();
       await help.waitFor({ state: "detached" });
       const reply = session.page.waitForResponse(r => r.url().endsWith("/fhir-fml/test"));

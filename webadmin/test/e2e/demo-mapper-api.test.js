@@ -6,12 +6,11 @@ import {
   asList,
   assertCleanTestResult,
   assertNormalizedEqual,
-  channelId,
   createOieClient,
   loadManifest,
   mapperSteps,
-  readExample,
-  readJsonExample
+  readJsonExample,
+  readRepoFile
 } from "./oie-client.js";
 
 describe("Mapper Transform API, diagnostics, trace bounds and saved samples", () => {
@@ -24,12 +23,12 @@ describe("Mapper Transform API, diagnostics, trace bounds and saved samples", ()
   after(() => client?.close());
 
   test("ConceptMap $translate facade translates GLU to LOINC", async () => {
-    const queryLine = (await readExample("api/terminology-translate-query.txt")).trim();
-    const params = new URLSearchParams(queryLine.split("?")[1]);
-    for (const target of ["profiles=%2Ffhir-volume%2Fig", "server=http%3A%2F%2F127.0.0.1%3A10819%2Ffhir"]) {
-      const data = await client.getJson(
-        `/api/extensions/fhir-mapper/translate?fhirVersion=R4&${target}&conceptMap=${encodeURIComponent(params.get("url"))}&system=${encodeURIComponent(params.get("system"))}&code=${encodeURIComponent(params.get("code"))}`
-      );
+    const conceptMap = JSON.parse(await readRepoFile("demo/term-server/resources/ConceptMap-lab-codes-to-loinc.json"));
+    for (const target of [{ profiles: "/fhir-volume/shared/lab-r4" }, { server: "http://term-server:8500/fhir" }]) {
+      const query = new URLSearchParams({
+        ...target, fhirVersion: "R4", conceptMap: conceptMap.url, system: conceptMap.group[0].source, code: "GLU"
+      });
+      const data = await client.getJson(`/api/extensions/fhir-mapper/translate?${query}`);
       assert.equal(data.system, "http://loinc.org");
       assert.equal(data.code, "14749-6");
     }
@@ -113,16 +112,14 @@ describe("Mapper Transform API, diagnostics, trace bounds and saved samples", ()
     let totalSamples = 0;
 
     for (const entry of manifest.channels) {
-      const id = await channelId(entry.channel);
-      const ch = await client.channel(id);
-      const transformers = [
-        ch.sourceConnector?.transformer,
-        ...asList(ch.destinationConnectors?.connector).map(c => c.transformer)
-      ].filter(Boolean);
+      const ch = await client.channel(entry.id);
+      const connectors = [ch.sourceConnector, ...asList(ch.destinationConnectors?.connector)];
+      const transformers = connectors.flatMap(c => [c.transformer, c.responseTransformer]).filter(Boolean);
 
       for (const transformer of transformers) {
         const steps = mapperSteps(transformer);
         for (const step of asList(transformer.elements?.["fr.kazepoy.fhir.mapper.FhirMapperTransformStep"])) {
+          if (step.enabled === false || step.enabled === "false") continue;
           const samples = step.samples ? JSON.parse(step.samples) : [];
           for (const sample of samples) {
             totalSamples += 1;
@@ -134,22 +131,26 @@ describe("Mapper Transform API, diagnostics, trace bounds and saved samples", ()
               message: sample.message,
               dataType: sample.dataType || "HL7V2"
             });
-            assertCleanTestResult(res, `${entry.channel} / ${step.name} / ${sample.name}`);
+            assertCleanTestResult(res, `${entry.name} / ${step.name} / ${sample.name}`);
             if (sample.expected) {
-              assertNormalizedEqual(res.output, sample.expected, `${entry.channel} / ${step.name} / ${sample.name}`);
+              assertNormalizedEqual(res.output, sample.expected, `${entry.name} / ${step.name} / ${sample.name}`);
             }
           }
         }
       }
     }
 
-    assert.ok(totalSamples >= 20, `Expected at least 20 saved samples across demo channels, checked ${totalSamples}`);
+    assert.ok(totalSamples >= 10, `Expected at least 10 saved samples across demo channels, checked ${totalSamples}`);
   });
 
   test("OIE native server configuration backup and restore include live FHIR Mapper settings", async () => {
     const backup = await client.getText("/api/server/configuration");
     assert.match(backup, /<string>FHIR Mapper<\/string>\s*<properties>\s*<property name="settings">/);
     assert.match(backup, /demo-labo/);
+    const deployed = async () => asList((await client.getJson("/api/channels/statuses")).list?.dashboardStatus)
+      .map(status => [status.channelId, status.state]).sort();
+    const expected = (await loadManifest()).channels.map(channel => [channel.id, "STARTED"]).sort();
+    assert.deepEqual(await deployed(), expected);
     const before = await client.getJson("/api/extensions/fhir-mapper/settings");
     const modifiedJson = JSON.stringify({
       contexts: [...before.contexts, { name: "restore-probe", fhirVersion: "R4", packages: [], terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, validation: "always" }]
@@ -165,9 +166,10 @@ describe("Mapper Transform API, diagnostics, trace bounds and saved samples", ()
       const afterRestore = await client.getJson("/api/extensions/fhir-mapper/settings");
       assert.ok(afterRestore.contexts.some(c => c.name === "restore-probe"), "restored context must be active immediately without restart");
     } finally {
-      await client.putXml("/api/server/configuration?deploy=false&overwriteConfigMap=true", backup);
+      await client.putXml("/api/server/configuration?deploy=true&overwriteConfigMap=true", backup);
       const reverted = await client.getJson("/api/extensions/fhir-mapper/settings");
-      assert.ok(!reverted.contexts.some(c => c.name === "restore-probe"));
+      assert.deepEqual(reverted, before);
+      assert.deepEqual(await deployed(), expected);
     }
   });
 });

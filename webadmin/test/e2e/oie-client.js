@@ -10,6 +10,7 @@ export const REPO_ROOT = resolve(import.meta.dirname, "../../..");
 export const OIE_URL = process.env.OIE_URL || new URL(process.env.DEMO_URL || "https://localhost:8443/oie-webadmin/").origin;
 export const PASSWORD = process.env.OIE_DEMO_PASSWORD || "admin";
 export const DEMO_HOST = process.env.OIE_DEMO_HOST || "127.0.0.1";
+const DEMO_PORT_OFFSET = Number(process.env.OIE_DEMO_PORT_OFFSET || "0");
 
 const API_HEADERS = { "X-Requested-With": "OpenAPI", Accept: "application/json" };
 
@@ -18,7 +19,7 @@ export const asList = value => (Array.isArray(value) ? value : value == null ? [
 export const readRepoFile = rel => readFile(resolve(REPO_ROOT, rel), "utf8");
 export const readExample = rel => readRepoFile(`examples/${rel}`);
 export const readJsonExample = async rel => JSON.parse(await readExample(rel));
-export const loadManifest = async () => JSON.parse(await readExample("channels.json"));
+export const loadManifest = async () => JSON.parse(await readRepoFile("demo/oie-init/examples.json"));
 
 /** Reads the <id> of a channel export XML in demo/oie-init/data/channels/. */
 export async function channelId(channelFile) {
@@ -70,7 +71,7 @@ export function metaMapOf(connectorMessage) {
 }
 
 /** Asserts that two FHIR JSON strings match modulo sorted keys, urn:uuid renaming and lastUpdated. */
-export function assertNormalizedEqual(actual, expected, message) {
+export function assertNormalizedEqual(actual, expected, message = "FHIR outputs differ") {
   const actualText = typeof actual === "string" ? actual : JSON.stringify(actual);
   const expectedText = typeof expected === "string" ? expected : JSON.stringify(expected);
   assert.equal(normalizeResult(actualText), normalizeResult(expectedText), message);
@@ -127,7 +128,7 @@ export async function createOieClient() {
   const postChannel = async (port, route, body, contentType = "application/json") => {
     const prefixed = route.startsWith("/") ? route : `/${route}`;
     const path = prefixed.endsWith("/") ? prefixed : `${prefixed}/`;
-    const response = await listeners.post(`http://${DEMO_HOST}:${port}${path}`, {
+    const response = await listeners.post(`http://${DEMO_HOST}:${port + DEMO_PORT_OFFSET}${path}`, {
       headers: { "Content-Type": `${contentType}; charset=utf-8` },
       data: body,
       timeout: 30000

@@ -11,7 +11,7 @@ for (const colorScheme of ["light", "dark"]) test(`French editors and settings i
       const { setTheme } = await import(new URL("core/store.js", document.baseURI).href);
       setTheme(theme);
     }, colorScheme);
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Mappeur", exact: true }).waitFor();
     await mapper.getByRole("button", { name: /Plein écran/ }).click();
@@ -38,7 +38,7 @@ for (const colorScheme of ["light", "dark"]) test(`French editors and settings i
     await mapper.getByRole("button", { name: /Tout exécuter/ }).click();
     await mapper.getByRole("button", { name: /Tout exécuter/ }).and(mapper.locator(":enabled")).waitFor({ timeout: 90000 });
     assert.match(await mapper.getByRole("table", { name: "Résultats des exemples enregistrés" }).innerText(), /réussite/);
-    await openStep(page, "ORU R01 to FHIR Patient (FML inline)", "Patient (FML inline)");
+    await openStep(page, "17 ORU to Patient - FML vs Mapper", "Patient (FML inline)", "Patient (FML inline)");
     const fml = page.locator(".fhir-fml");
     await fml.getByRole("tab", { name: "Propriétés", exact: true }).waitFor();
     await fml.getByRole("tab", { name: "Map", exact: true }).click();
@@ -49,7 +49,7 @@ for (const colorScheme of ["light", "dark"]) test(`French editors and settings i
     await page.locator("[data-nav-item]").filter({ hasText: /^Settings$/ }).first().click();
     await page.getByText("FHIR Mapper", { exact: true }).click();
     await page.getByRole("button", { name: "Enregistrer", exact: true }).waitFor();
-    assert.equal(await page.getByLabel("Nom du contexte", { exact: true }).first().inputValue(), "demo-labo");
+    assert.equal(await page.getByLabel("Nom du contexte", { exact: true }).first().inputValue(), "patient-r4");
     assert.deepEqual(session.pluginErrors(), []);
   } finally { await session.close(); }
 });
@@ -57,7 +57,7 @@ for (const colorScheme of ["light", "dark"]) test(`French editors and settings i
 test("an unsupported browser language uses English", async () => {
   const session = await signIn({ locale: "es-ES" });
   try {
-    await openStep(session.page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(session.page, "10 ORU to Lab Bundle - Mapper", "Patient");
     await session.page.locator(".fhir-mapper-transform").getByRole("tab", { name: "Properties", exact: true }).waitFor();
   } finally { await session.close(); }
 });
@@ -70,10 +70,10 @@ test("simulated permission denials are explicit in preview and settings", async 
     await page.route("**/extensions/fhir-mapper/test", route => route.fulfill({ status: 403, body: "Test FHIR mapper steps" }));
     await page.route("**/extensions/fhir-mapper/settings", route => route.request().method() === "POST"
       ? route.fulfill({ status: 403, body: "Manage FHIR mapper settings" }) : route.continue());
-    await openStep(page, "ORU R01 to FHIR Patient", "Patient");
+    await openStep(page, "10 ORU to Lab Bundle - Mapper", "Patient");
     const mapper = page.locator(".fhir-mapper-transform");
     await mapper.getByRole("tab", { name: "Test", exact: true }).click();
-    await mapper.getByRole("button", { name: "Exécuter", exact: true }).click();
+    await mapper.getByRole("button", { name: "Exécuter le test", exact: true }).click();
     await mapper.getByText(/permission « Test FHIR mapper steps »/).waitFor();
     await page.goto(DEMO_URL);
     await page.locator("[data-nav-item]").filter({ hasText: /^Settings$/ }).first().click();

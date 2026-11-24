@@ -135,7 +135,7 @@ describe("development ORU to Patient with standard parser and inline FML", () =>
   test("the inline FML executes the default sample in Web Admin", async () => {
     const session = await signIn();
     try {
-      await openStep(session.page, "03 HL7v2 to Patient - OieMessage", "PID to Patient");
+      await openStep(session.page, "03 HL7v2 to Patient - OieMessage", "PID to Patient", "Standard HL7v2 to Patient");
       const editor = session.page.locator(".fhir-fml");
       await editor.getByRole("tab", { name: "Map", exact: true }).click();
       await editor.locator(".monaco-editor").waitFor();
@@ -157,12 +157,12 @@ describe("development ORU to Patient with standard parser and inline FML", () =>
       assertNormalizedEqual(result.output, expected, "Web Admin default sample output");
       assert.equal(await editor.getByRole("tab", { name: "Result", exact: true }).getAttribute("aria-selected"), "true");
       assert.equal(await editor.getByRole("combobox", { name: "Sample format" }).isVisible(), false);
-      await editor.getByRole("tab", { name: "Validation", exact: true }).click();
-      await editor.getByText("Valid.", { exact: true }).waitFor();
+      await editor.getByRole("tab", { name: /^Validation/ }).click();
+      await editor.getByText(/^Valid\.|^Validation: 0 error/).waitFor();
       for (const size of [{ width: 1600, height: 900 }, { width: 1100, height: 800 }]) {
         await session.page.setViewportSize(size);
         for (const name of ["Sample", "FML source", "Result", "Validation"]) {
-          await editor.getByRole("tab", { name, exact: true }).click();
+          await editor.getByRole("tab", name === "Validation" ? { name: /^Validation/ } : { name, exact: true }).click();
           await waitForFmlLayout(session.page);
           assert.equal(await editor.locator(".fml-test-panel:visible").count(), 1);
           const box = await editor.locator(".fml-test-panel:visible").boundingBox();
@@ -190,7 +190,7 @@ describe("development ORU to Patient with standard parser and inline FML", () =>
       ["Prepared text to Patient", "text", "prepared-identifier.txt", "patient-identifier.json"]]) {
       const session = await signIn();
       try {
-        await openStep(session.page, "03 HL7v2 to Patient - OieMessage", stepName);
+        await openStep(session.page, "03 HL7v2 to Patient - OieMessage", stepName, format === "channel" ? "Strict HL7v2 to Patient" : stepName);
         const editor = session.page.locator(".fhir-fml");
         await editor.getByRole("tab", { name: "Test", exact: true }).click();
         await editor.getByRole("button", { name: /Full screen/ }).click();
@@ -212,7 +212,7 @@ describe("development ORU to Patient with standard parser and inline FML", () =>
     const session = await signIn();
     const { page } = session;
     try {
-      await openStep(page, "03 HL7v2 to Patient - OieMessage", "PID to Patient");
+      await openStep(page, "03 HL7v2 to Patient - OieMessage", "PID to Patient", "Standard HL7v2 to Patient");
       const editor = page.locator(".fhir-fml");
       await editor.getByRole("tab", { name: "Test", exact: true }).click();
       await page.route("**/fhir-fml/test", route => route.fulfill({ json: {

@@ -31,7 +31,7 @@ Après avoir cliqué sur **Run test**, ouvrir le sous-onglet **FML source** : il
   - `occurrence` : rang parmi les répétitions de même nom (à partir de `1`, utile pour les répétitions de `PID.3`, `PID.5` ou les segments `OBX`) ;
   - `value` : valeur textuelle d'un nœud feuille ;
   - `context` : métadonnées du message (`channelId`, `channelName`, `dataType`…) et variables demandées.
-- En mode **FHIR resource / Logical model**, **FML source** affiche la ressource FHIR ou l'instance du modèle logique telle qu'elle a été lue par le parseur du core HL7 à partir de la `StructureDefinition` source.
+- En mode **FHIR resource** ou **Logical model**, **FML source** affiche la ressource FHIR ou l'instance du modèle logique telle qu'elle a été lue par le parseur du core HL7 à partir de la `StructureDefinition` source.
 
 ## 3. Contrôler le résultat et la validation (`Result` & `Validation`)
 

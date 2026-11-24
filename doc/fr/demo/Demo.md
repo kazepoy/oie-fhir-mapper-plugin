@@ -5,7 +5,7 @@
 La démonstration contient **dix-huit canaux** répartis dans trois groupes natifs OIE (**FML OieMessage**, **FML logical** et **Mapper transformer**), avec des tags par format d'entrée (`hl7v2`, `fhir`, `json`, `csv`, `xml`), type de transformation (`fml`, `mapper`), version (`r5`) et terminologie (`termino`). Le [catalogue des canaux](../../../demo/oie-init/README.md) et le fichier [examples.json](../../../demo/oie-init/examples.json) listent les entrées HTTP, les samples et l'apport de chaque parcours.
 
 - [demo/fhir-volume](../../../demo/fhir-volume/README.md) est monté dans `/fhir-volume` : ressources par exemple et profils laboratoire partagés (`/fhir-volume/shared/lab-r4`) ;
-- [demo/oie-init](../../../demo/oie-init/README.md) est monté dans `/oie-init` : configuration serveur, canaux `01` à `17`, groupes, samples et contextes *Settings › FHIR Mapper* ;
+- [demo/oie-init](../../../demo/oie-init/README.md) est monté dans `/oie-init` : configuration serveur, canaux `01` à `19` (sans `15`), groupes, samples et contextes *Settings › FHIR Mapper* ;
 - [demo/term-server](../../../demo/term-server/README.md) fournit le serveur terminologique Hades sur le port **8500**.
 
 ## Environnement
@@ -17,11 +17,11 @@ L'environnement Docker Compose déploie :
 - FHIR Data Type **1.6.1** ;
 - [Role Based Access Control](https://github.com/diridium-com/role-based-access-control) **1.3.0** (diridium-com) ;
 - [OIE Flow UI](https://github.com/kazepoy/oie-flow-ui-plugin) **0.9.0** (Flows Monitoring, Channel Flow) ;
-- FHIR Mapper **0.6.1**, compilé depuis les sources du projet, avec ses deux étapes : [FHIR Mapper Transform](../../fr/reference/Mappeur-graphique.md) et [FHIR FML Transform](../../fr/reference/Transformation-FML.md).
+- FHIR Mapper, compilé depuis les sources du projet, avec ses deux étapes : [FHIR Mapper Transform](../../fr/reference/Mappeur-graphique.md) et [FHIR FML Transform](../../fr/reference/Transformation-FML.md).
 
 Web Support, FHIR Data Type, RBAC, Flow UI et les packages [FR Core 2.2.0](https://hl7.fr/ig/fhir/core/2.2.0/) et [HL7 Europe Laboratory 2.0.0](https://hl7.eu/fhir/laboratory/2.0.0/) sont téléchargés au build avec vérification de leur SHA-256.
 
-La configuration définit dans *Settings › FHIR Mapper* les contextes partagés (`patient-r4`, `demo-labo`, `fr-core-2.2.0`, `eu-laboratory-2.0.0`, `external-terminology`, `demo-r5`).
+La configuration définit dans *Settings › FHIR Mapper* les contextes partagés (`patient-r4`, `demo-labo`, `external-terminology`).
 
 ## Les 18 canaux de démonstration
 
@@ -45,6 +45,7 @@ La [matrice des exemples](Matrice-exemples.md) et le [détail des parcours JSON,
 | **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | Traduction terminologique distante via `ConceptMap/$translate` sur `term-server` (contexte `external-terminology`) et repli sur code inconnu. |
 | **16 JSON to R5 Org - Mapper** | Mapper transformer | `10810/organization-r5/` | JSON métier vers `Organization` FHIR R5, avec le champ `description` de type `markdown` propre à R5. |
 | **17 ORU to Patient - FML vs Mapper** | Mapper transformer | `10817/patient-compare/` | Deux destinations parallèles (FML inline vs Mapper Transform) sur la même entrée HL7 v2, vérifiant l'égalité des sorties (`OUTPUTS_EQUAL=true`) et mesurant `FML_MS`, `MAPPER_MS` et `DIFF_MS`. |
+| **18 ADT to Patient - Dynamic FML** | FML logical | `10818/adt-dynamic-fml/` | ADT A28, A31 et A08 vers Patient. La destination résout la map et le modèle logique à partir des variables du message. |
 | **19 JSON to Contained - Mapper** | Mapper transformer | `10819/patient-contained/` | JSON métier vers `DiagnosticReport` FHIR R4 embarquant une `Observation` profilée dans `contained` et référencée via `#obs-1`. |
 
 ## Lancer la démonstration
@@ -68,10 +69,12 @@ Les réglages sont dans [compose.yaml](../../../demo/compose.yaml) (personnalisa
 Les contrôles hors ligne et les tests de bout en bout (API, canaux déployés et parcours navigateur Playwright) se lancent depuis la racine :
 
 ```sh
-# Validation hors ligne des schémas et samples des 17 canaux
+# Validation hors ligne des schémas et samples des 18 canaux
 node tools/run_tests.mjs --offline demo/oie-init/data/channels
 
 # Suite E2E complète sur la démo démarrée
+npm --prefix webadmin ci
+npm --prefix webadmin exec -- playwright install chromium
 npm --prefix webadmin run test:e2e
 ```
 
@@ -79,7 +82,7 @@ Voir également le [guide de rejeu](Rejeu-tests.md).
 
 ## Réinitialiser la démo
 
-Pour restaurer la configuration serveur, les contextes, les groupes et les 17 canaux à leur état initial :
+Pour restaurer la configuration serveur, les contextes, les groupes et les 18 canaux à leur état initial :
 
 ```sh
 cd demo
