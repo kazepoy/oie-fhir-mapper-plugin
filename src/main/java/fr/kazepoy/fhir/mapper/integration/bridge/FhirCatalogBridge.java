@@ -100,7 +100,7 @@ public final class FhirCatalogBridge {
         }
     }
 
-    public void clearCaches() { conceptMaps.clear(); answers.clear(); }
+    public void clearCaches() { conceptMaps.clear(); answers.clear(); baseDefinitions.clear(); }
 
     @FunctionalInterface
     private interface CatalogWork<T> { T call(Catalog catalog) throws Exception; }
@@ -113,8 +113,16 @@ public final class FhirCatalogBridge {
         });
     }
 
+    private Map<String, Map<String, JsonNode>> baseDefinitionsFor(Map<String, String> options) {
+        String key = options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
+        return baseDefinitions.computeIfAbsent(key, k -> new ConcurrentHashMap<>());
+    }
+
     public String listProfiles(Map<String, String> options) throws Exception {
-        return withCatalog(options, cached -> {
+        String key = "profiles|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "");
+        String cachedAnswer = answers.get(key);
+        if (cachedAnswer != null) return cachedAnswer;
+        String answer = withCatalog(options, cached -> {
             if (cached.profiles == null) {
                 return "[]";
             }
@@ -135,30 +143,39 @@ public final class FhirCatalogBridge {
             }
             return "[" + String.join(",", sorted.values()) + "]";
         });
+        answers.put(key, answer);
+        return answer;
     }
 
     public String structureDefinition(String url, Map<String, String> options) throws Exception {
-        return withCatalog(options, cached -> snapshotJson(cached, url));
+        String key = "sd|" + options.get(FHIR_VERSION) + "|" + options.getOrDefault(PROFILES, "") + "|" + url;
+        String cachedAnswer = answers.get(key);
+        if (cachedAnswer != null) return cachedAnswer;
+        String answer = withCatalog(options, cached -> {
+            ObjectMapper mapper = exactMapper();
+            return mapper.writeValueAsString(snapshotNode(cached, mapper, baseDefinitionsFor(options), url));
+        });
+        answers.put(key, answer);
+        return answer;
     }
 
-    /** A StructureDefinition with its snapshot, as FHIR JSON. */
-    private static String snapshotJson(Catalog cached, String url) throws Exception {
-        {
-            String canonical = url.trim().contains("/") ? url.trim() : "http://hl7.org/fhir/StructureDefinition/" + url.trim();
-            IBaseResource sd = cached.chain.fetchStructureDefinition(canonical);
-            if (sd == null) {
-                throw new IllegalArgumentException("StructureDefinition " + canonical + " not found in the specification or the profile packages.");
-            }
-            FhirTerser terser = cached.ctx.newTerser();
-            if (terser.getValues(sd, "snapshot.element").isEmpty()) {
-                IBaseResource copy = cached.ctx.newTerser().clone(sd);
-                sd = cached.chain.generateSnapshot(new ValidationSupportContext(cached.chain), copy, canonical, null, terser.getSinglePrimitiveValueOrNull(sd, "name"));
-                if (sd == null || terser.getValues(sd, "snapshot.element").isEmpty()) {
-                    throw new IllegalArgumentException("Cannot generate the snapshot of " + canonical + ": its base is not available.");
-                }
-            }
-            return withOriginalBases(cached, cached.ctx.newJsonParser().encodeResourceToString(sd));
+    /** A StructureDefinition with its snapshot, as a JSON tree with original base cardinalities. */
+    private static JsonNode snapshotNode(Catalog cached, ObjectMapper mapper, Map<String, Map<String, JsonNode>> definitions, String url) throws Exception {
+        String canonical = url.trim().contains("/") ? url.trim() : "http://hl7.org/fhir/StructureDefinition/" + url.trim();
+        IBaseResource sd = cached.chain.fetchStructureDefinition(canonical);
+        if (sd == null) {
+            throw new IllegalArgumentException("StructureDefinition " + canonical + " not found in the specification or the profile packages.");
         }
+        FhirTerser terser = cached.ctx.newTerser();
+        if (terser.getValues(sd, "snapshot.element").isEmpty()) {
+            IBaseResource copy = cached.ctx.newTerser().clone(sd);
+            sd = cached.chain.generateSnapshot(new ValidationSupportContext(cached.chain), copy, canonical, null, terser.getSinglePrimitiveValueOrNull(sd, "name"));
+            if (sd == null || terser.getValues(sd, "snapshot.element").isEmpty()) {
+                throw new IllegalArgumentException("Cannot generate the snapshot of " + canonical + ": its base is not available.");
+            }
+        }
+        JsonNode node = mapper.readTree(cached.ctx.newJsonParser().encodeResourceToString(sd));
+        return applyOriginalBases(cached, mapper, definitions, node);
     }
 
     // ------------------------------------------------------------------ catalogue of the locations
@@ -167,6 +184,8 @@ public final class FhirCatalogBridge {
     private static final Set<String> NOT_EXPANDED = Set.of("Resource", "DomainResource", "BackboneElement", "Element");
     /** Answers that are costly to build and do not change until the caches are cleared. */
     private final Map<String, String> answers = new ConcurrentHashMap<>();
+    /** Base element definitions per "version|profiles" and FHIR base type, reused across snapshots. */
+    private final Map<String, Map<String, Map<String, JsonNode>>> baseDefinitions = new ConcurrentHashMap<>();
 
     /**
      * The conformance resources of the profile locations: [{resourceType, url, name, title, version}],
@@ -268,8 +287,9 @@ public final class FhirCatalogBridge {
         if (cachedAnswer != null) return cachedAnswer;
         String answer = withCatalog(options, cached -> {
             ObjectMapper mapper = exactMapper();
+            Map<String, Map<String, JsonNode>> definitions = baseDefinitionsFor(options);
             ObjectNode result = mapper.createObjectNode();
-            JsonNode root = prune(mapper, mapper.readTree(snapshotJson(cached, url)));
+            JsonNode root = prune(mapper, snapshotNode(cached, mapper, definitions, url));
             result.set("root", root);
             ObjectNode types = result.putObject("types");
             ObjectNode errors = result.putObject("errors");
@@ -284,7 +304,7 @@ public final class FhirCatalogBridge {
                     if (hash > 0 && seen.add(contentRef.substring(0, hash))) {
                         String refUrl = contentRef.substring(0, hash);
                         try {
-                            JsonNode sd = prune(mapper, mapper.readTree(snapshotJson(cached, refUrl)));
+                            JsonNode sd = prune(mapper, snapshotNode(cached, mapper, definitions, refUrl));
                             types.set(refUrl, sd);
                             queue.add(sd);
                         } catch (Exception e) {
@@ -299,7 +319,7 @@ public final class FhirCatalogBridge {
                         String typeUrl = profile.isEmpty() ? FHIR_BASE + code : profile;
                         if (!seen.add(typeUrl)) continue;
                         try {
-                            JsonNode sd = prune(mapper, mapper.readTree(snapshotJson(cached, typeUrl)));
+                            JsonNode sd = prune(mapper, snapshotNode(cached, mapper, definitions, typeUrl));
                             types.set(typeUrl, sd);
                             queue.add(sd);
                         } catch (Exception e) {
@@ -601,10 +621,7 @@ public final class FhirCatalogBridge {
      * which elements are JSON arrays, so base.min and base.max are taken from the element that
      * base.path names, in the StructureDefinition of the specification.
      */
-    private static String withOriginalBases(Catalog cached, String json) throws IOException {
-        ObjectMapper mapper = exactMapper();
-        JsonNode sd = mapper.readTree(json);
-        Map<String, Map<String, JsonNode>> definitions = new HashMap<>();
+    private static JsonNode applyOriginalBases(Catalog cached, ObjectMapper mapper, Map<String, Map<String, JsonNode>> definitions, JsonNode sd) {
         for (JsonNode element : sd.path("snapshot").path("element")) {
             JsonNode base = element.get("base");
             if (!(base instanceof ObjectNode) || !base.hasNonNull("path")) {
@@ -624,7 +641,7 @@ public final class FhirCatalogBridge {
                 }
             }
         }
-        return mapper.writeValueAsString(sd);
+        return sd;
     }
 
     /** The snapshot elements of a type of the specification by path (slices left out), or none. */
