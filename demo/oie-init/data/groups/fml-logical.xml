@@ -1,0 +1,14 @@
+<set>
+  <channelGroup version="4.7.0">
+    <id>e7a3c190-4b2f-4d8e-9a1c-3f5b7d9e0102</id>
+    <name>FML logical</name>
+    <revision>1</revision>
+    <description>Curated FML transformer examples using logical and FHIR StructureDefinitions.</description>
+    <channels>
+      <channel version="4.7.0"><id>7bb123c3-8717-4f12-bbf0-fe8892bf8234</id></channel>
+      <channel version="4.7.0"><id>040f4f94-d926-495d-ac5b-762dada9b384</id></channel>
+      <channel version="4.7.0"><id>78dfe889-afa8-49f9-afd5-5aaa07aeb4f7</id></channel>
+      <channel version="4.7.0"><id>27b2a850-f3d4-46bb-b8ba-37f477c78818</id></channel>
+    </channels>
+  </channelGroup>
+</set>

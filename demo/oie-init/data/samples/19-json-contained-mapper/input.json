@@ -1,0 +1,10 @@
+{
+  "reportId": "rep-001",
+  "patientRef": "Patient/pat-101",
+  "obsId": "obs-1",
+  "codeSystem": "http://loinc.org",
+  "code": "29463-7",
+  "codeDisplay": "Body weight",
+  "value": 72.5,
+  "unit": "kg"
+}

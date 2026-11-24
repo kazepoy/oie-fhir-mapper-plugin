@@ -2,7 +2,7 @@
 
 [Demo](../../doc/fr/demo/Demo.md) · [FHIR resources](../fhir-volume/README.md) · [JSON catalog](examples.json)
 
-The demo contains seventeen channels in the **FML transformer** and
+The demo contains eighteen channels in the **FML OieMessage**, **FML logical** and
 **Mapper transformer** groups.
 
 | Channel | Endpoint | Purpose |
@@ -24,6 +24,7 @@ The demo contains seventeen channels in the **FML transformer** and
 | [16 JSON to R5 Org - Mapper](data/channels/16-json-organization-r5-mapper.xml) | `http://localhost:10810/organization-r5/` | Business JSON to FHIR R5 Organization with R5 markdown `description`. |
 | [17 ORU to Patient - FML vs Mapper](data/channels/17-oru-patient-fml-vs-mapper.xml) | `http://localhost:10817/patient-compare/` | Parallel destinations comparing inline FML and Mapper Transform outputs and timings. |
 | [18 ADT to Patient - Dynamic FML](data/channels/18-adt-patient-dynamic-fml.xml) | `http://localhost:10818/adt-dynamic-fml/` | A28/A31/A08 → Patient; one destination selects three map/SD pairs from message variables. |
+| [19 JSON to Contained - Mapper](data/channels/19-json-contained-mapper.xml) | `http://localhost:10819/patient-contained/` | Business JSON to FHIR R4 `DiagnosticReport` with a profiled `contained` `Observation`. |
 
 ## Sources and resources
 

@@ -165,6 +165,7 @@ if [ "$OIE_SEED_MESSAGES" = true ] && [ -f "$INIT_DIR/examples.json" ]; then
   seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a28.er7"
   seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a31.er7"
   seed_message 10818 "/adt-dynamic-fml" "text/plain; charset=UTF-8" "data/samples/18-adt-patient-dynamic-fml/adt-a08.er7"
+  seed_message 10819 "/patient-contained" "application/json; charset=UTF-8" "data/samples/19-json-contained-mapper/input.json"
 fi
 
 echo "=== Done: $count channel(s) imported and deployed ==="

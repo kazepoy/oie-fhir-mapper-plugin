@@ -6,11 +6,11 @@ Cette page détaille les parcours spécialisés de la démonstration : FHIR R5, 
 
 | Canal | Groupe | Port et route | Objectif |
 |---|---|---|---|
-| **04 HL7v2 PID to FR Core INS** | FML transformer | `10801/pid-fr-core-ins/` | XML Strict Parser + modèle logique `PID` vers `FRCorePatientINSProfile` (FR Core 2.2.0). |
-| **05 FHIR Patient - Normalize Identity** | FML transformer | `10802/fhir-patient/` | Ressource `Patient` FHIR R4 reçue directement (`sourceModel=fhir`). |
-| **06 JSON Order to Dispatch** | FML transformer | `10803/commande-json/` | Modèles logiques JSON source et cible sans ressources FHIR. |
-| **07 CSV to R5 Permission - FML** | FML transformer | `10814/permission-r5/` | Source CSV vers `Bundle` transaction R5 (`Organization` + `Permission`). |
-| **08 ORU to Patient - StructureMap** | FML transformer | `10815/patient-fml-ig/` | `StructureMap` JSON publiée dans `/fhir-volume/08-oru-patient-structuremap`, appelée par `mapUrl`. |
+| **04 HL7v2 PID to FR Core INS** | FML logical | `10801/pid-fr-core-ins/` | XML Strict Parser + modèle logique `PID` vers `FRCorePatientINSProfile` (FR Core 2.2.0). |
+| **05 FHIR Patient - Normalize Identity** | FML logical | `10802/fhir-patient/` | Ressource `Patient` FHIR R4 reçue directement (`sourceModel=fhir`). |
+| **06 JSON Order to Dispatch** | FML logical | `10803/commande-json/` | Modèles logiques JSON source et cible sans ressources FHIR. |
+| **07 CSV to R5 Permission - FML** | FML OieMessage | `10814/permission-r5/` | Source CSV vers `Bundle` transaction R5 (`Organization` + `Permission`). |
+| **08 ORU to Patient - StructureMap** | FML OieMessage | `10815/patient-fml-ig/` | `StructureMap` JSON publiée dans `/fhir-volume/08-oru-patient-structuremap`, appelée par `mapUrl`. |
 | **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | `ConceptMap/$translate` vers `term-server` et repli `fixed` sur code inconnu. |
 | **16 JSON to R5 Org - Mapper** | Mapper transformer | `10810/organization-r5/` | Source JSON métier et champ `Organization.description` (`markdown`) propre à R5. |
 

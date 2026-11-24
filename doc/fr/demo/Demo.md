@@ -2,7 +2,7 @@
 
 ## Présentation
 
-La démonstration contient **dix-sept canaux** répartis dans deux groupes natifs OIE (**FML transformer** et **Mapper transformer**), avec des tags par format d'entrée (`hl7v2`, `fhir`, `json`, `csv`, `xml`), type de transformation (`fml`, `mapper`), version (`r5`) et terminologie (`termino`). Le [catalogue des canaux](../../../demo/oie-init/README.md) et le fichier [examples.json](../../../demo/oie-init/examples.json) listent les entrées HTTP, les samples et l'apport de chaque parcours.
+La démonstration contient **dix-huit canaux** répartis dans trois groupes natifs OIE (**FML OieMessage**, **FML logical** et **Mapper transformer**), avec des tags par format d'entrée (`hl7v2`, `fhir`, `json`, `csv`, `xml`), type de transformation (`fml`, `mapper`), version (`r5`) et terminologie (`termino`). Le [catalogue des canaux](../../../demo/oie-init/README.md) et le fichier [examples.json](../../../demo/oie-init/examples.json) listent les entrées HTTP, les samples et l'apport de chaque parcours.
 
 - [demo/fhir-volume](../../../demo/fhir-volume/README.md) est monté dans `/fhir-volume` : ressources par exemple et profils laboratoire partagés (`/fhir-volume/shared/lab-r4`) ;
 - [demo/oie-init](../../../demo/oie-init/README.md) est monté dans `/oie-init` : configuration serveur, canaux `01` à `17`, groupes, samples et contextes *Settings › FHIR Mapper* ;
@@ -23,28 +23,29 @@ Web Support, FHIR Data Type, RBAC, Flow UI et les packages [FR Core 2.2.0](https
 
 La configuration définit dans *Settings › FHIR Mapper* les contextes partagés (`patient-r4`, `demo-labo`, `fr-core-2.2.0`, `eu-laboratory-2.0.0`, `external-terminology`, `demo-r5`).
 
-## Les 17 canaux de démonstration
+## Les 18 canaux de démonstration
 
 La [matrice des exemples](Matrice-exemples.md) et le [détail des parcours JSON, R5 et FML](JSON-FR-Core-et-FML.md) complètent le tableau ci-dessous :
 
 | Canal | Groupe | Port et route | Capacités illustrées |
 |---|---|---|---|
-| **01 ADT A28 to Patient - Inline FML** | FML transformer | `10804/simple-fml/` | ADT A28 → Patient, FML inline sur XML natif OIE (`OieMessage`), sans étape JavaScript préalable. |
-| **02 ADT A28 to Patient - Terminology** | FML transformer | `10805/fml-terminology/` | Contexte Settings `patient-r4`, serveur terminologique Hades (`:8500`), imports FML imbriqués et traces `FML_TRACE_D2_S0` / `S1`. |
-| **03 HL7v2 to Patient - OieMessage** | FML transformer | `10800/oru-patient/` | Cinq destinations indépendantes comparant HL7 v2 standard, Strict Parser et entrées préparées XML, JSON et texte avec `OieMessage`. |
-| **04 HL7v2 PID to FR Core INS** | FML transformer | `10801/pid-fr-core-ins/` | XML HAPI du Strict Parser, modèle logique `PID` et profil cible `FRCorePatientINSProfile`. |
-| **05 FHIR Patient - Normalize Identity** | FML transformer | `10802/fhir-patient/` | Ressource FHIR entrante (`sourceModel=fhir`) : normalisation d'identité, nom en majuscules et `active=true`. |
-| **06 JSON Order to Dispatch** | FML transformer | `10803/commande-json/` | Transformation entre deux modèles logiques métier JSON non FHIR (`Commande` → `BonPreparation`), sans validation FHIR de sortie. |
-| **07 CSV to R5 Permission - FML** | FML transformer | `10814/permission-r5/` | Entrée CSV (`DELIMITED`) vers Bundle transaction FHIR R5 (`Organization` + `Permission`). |
-| **08 ORU to Patient - StructureMap** | FML transformer | `10815/patient-fml-ig/` | `StructureMap` JSON publiée sur le serveur, exécutée par `mapUrl` et copiable vers l'éditeur inline. |
+| **01 ADT A28 to Patient - Inline FML** | FML OieMessage | `10804/simple-fml/` | ADT A28 → Patient, FML inline sur XML natif OIE (`OieMessage`), sans étape JavaScript préalable. |
+| **02 ADT A28 to Patient - Terminology** | FML OieMessage | `10805/fml-terminology/` | Contexte Settings `patient-r4`, serveur terminologique Hades (`:8500`), imports FML imbriqués et traces `FML_TRACE_D2_S0` / `S1`. |
+| **03 HL7v2 to Patient - OieMessage** | FML OieMessage | `10800/oru-patient/` | Cinq destinations indépendantes comparant HL7 v2 standard, Strict Parser et entrées préparées XML, JSON et texte avec `OieMessage`. |
+| **04 HL7v2 PID to FR Core INS** | FML logical | `10801/pid-fr-core-ins/` | XML HAPI du Strict Parser, modèle logique `PID` et profil cible `FRCorePatientINSProfile`. |
+| **05 FHIR Patient - Normalize Identity** | FML logical | `10802/fhir-patient/` | Ressource FHIR entrante (`sourceModel=fhir`) : normalisation d'identité, nom en majuscules et `active=true`. |
+| **06 JSON Order to Dispatch** | FML logical | `10803/commande-json/` | Transformation entre deux modèles logiques métier JSON non FHIR (`Commande` → `BonPreparation`), sans validation FHIR de sortie. |
+| **07 CSV to R5 Permission - FML** | FML OieMessage | `10814/permission-r5/` | Entrée CSV (`DELIMITED`) vers Bundle transaction FHIR R5 (`Organization` + `Permission`). |
+| **08 ORU to Patient - StructureMap** | FML OieMessage | `10815/patient-fml-ig/` | `StructureMap` JSON publiée sur le serveur, exécutée par `mapUrl` et copiable vers l'éditeur inline. |
 | **09 CSV to Patient Bundle - Mapper** | Mapper transformer | `10806/csv-patients-collection/` | Nettoyage CSV en source puis construction d'un Bundle `collection` de dix Patients en destination (accents et zéros initiaux préservés). |
 | **10 ORU to Lab Bundle - Mapper** | Mapper transformer | `10807/oru/` | Bundle `transaction` clinique à sept étapes Mapper Transform, itérations d'observations, références typées (`fhirRef`), traductions ConceptMap et trace des messages traités (`fhirMapperTrace`). |
-| **11 HL7v2 to Patient - IG tgz** | FML transformer | `10808/devdays-patient/` | ADT A28 → `DevDaysIGtutorial-Patient` à partir d'un package IG `.tgz` et du serveur terminologique Hades. |
+| **11 HL7v2 to Patient - IG tgz** | FML OieMessage | `10808/devdays-patient/` | ADT A28 → `DevDaysIGtutorial-Patient` à partir d'un package IG `.tgz` et du serveur terminologique Hades. |
 | **12 ORU to Two Lab Bundles - Mapper** | Mapper transformer | `10811/labo/` | Construction simultanée de deux Bundles (`transaction` et `document`) partageant les mêmes ressources cliniques, sortie en variable (`bundleDocument`) et archivage conditionnel. |
 | **13 SQL XML to Patient - Mapper** | Mapper transformer | `10812/sql-patient/` | Ligne XML de résultat SQL vers `ExampleLabPatient`, conservation des accents et des zéros initiaux de l'IPP. |
 | **14 JSON to Obs Ext TX - Mapper** | Mapper transformer | `10816/obs-external-tx/` | Traduction terminologique distante via `ConceptMap/$translate` sur `term-server` (contexte `external-terminology`) et repli sur code inconnu. |
 | **16 JSON to R5 Org - Mapper** | Mapper transformer | `10810/organization-r5/` | JSON métier vers `Organization` FHIR R5, avec le champ `description` de type `markdown` propre à R5. |
 | **17 ORU to Patient - FML vs Mapper** | Mapper transformer | `10817/patient-compare/` | Deux destinations parallèles (FML inline vs Mapper Transform) sur la même entrée HL7 v2, vérifiant l'égalité des sorties (`OUTPUTS_EQUAL=true`) et mesurant `FML_MS`, `MAPPER_MS` et `DIFF_MS`. |
+| **19 JSON to Contained - Mapper** | Mapper transformer | `10819/patient-contained/` | JSON métier vers `DiagnosticReport` FHIR R4 embarquant une `Observation` profilée dans `contained` et référencée via `#obs-1`. |
 
 ## Lancer la démonstration
 

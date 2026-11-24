@@ -2,21 +2,27 @@
 
 [Démonstration](README.md) · [Guide de la démo](Demo.md) · [Catalogue JSON](../../../demo/oie-init/examples.json)
 
-La démonstration active déploie **dix-sept canaux** (`01` à `17`) répartis en deux groupes natifs OIE : **FML transformer** (9 canaux) et **Mapper transformer** (8 canaux). Chaque étape contient un sample préchargé testable directement dans l'onglet **Test**.
+La démonstration active déploie **dix-huit canaux** (`01` à `19`, sans `15`) répartis en trois groupes natifs OIE : **FML OieMessage** (6 canaux), **FML logical** (4 canaux) et **Mapper transformer** (8 canaux). Chaque étape contient un sample préchargé testable directement dans l'onglet **Test**.
 
-## Groupe `FML transformer`
+## Groupe `FML OieMessage`
 
 | Canal | Port et route | Modèle source | Ressources serveur (`/fhir-volume`) | Capacités démontrées |
 |---|---|---|---|---|
 | [01 ADT A28 to Patient - Inline FML](../../../demo/oie-init/data/channels/01-adt-a28-patient-inline-fml.xml) | `10804/simple-fml/` | `oie-message` | *(aucune : map inline)* | Map FML écrite dans l'étape (`mapSource`) sur le XML HL7 v2 natif d'OIE. |
 | [02 ADT A28 to Patient - Terminology](../../../demo/oie-init/data/channels/02-adt-a28-patient-terminology.xml) | `10805/fml-terminology/` | `oie-message` | `02-adt-patient-context` + Hades (`:8500`) | Contexte Settings `patient-r4`, `translate()` distant via Hades, imports FML imbriqués et traces `FML_TRACE_D2_S0` / `S1`. |
 | [03 HL7v2 to Patient - OieMessage](../../../demo/oie-init/data/channels/03-hl7v2-patient-oiemessage.xml) | `10800/oru-patient/` | `oie-message` | *(aucune : maps inline)* | Cinq destinations comparant HL7 v2 standard, Strict Parser et entrées préparées XML, JSON et texte. |
-| [04 HL7v2 PID to FR Core INS](../../../demo/oie-init/data/channels/04-hl7v2-pid-fr-core-ins.xml) | `10801/pid-fr-core-ins/` | `logical` (SD logique `PID`) | `04-hl7v2-pid-fr-core-ins` + `fr-core-2.2.0` | XML HAPI du Strict Parser lu via une `StructureDefinition` logique `PID` vers `FRCorePatientINSProfile`. |
-| [05 FHIR Patient - Normalize Identity](../../../demo/oie-init/data/channels/05-fhir-patient-normalization.xml) | `10802/fhir-patient/` | `fhir` (`Patient`) | `05-fhir-patient-normalization` | Ressource FHIR R4 entrante transformée en ressource FHIR R4 normalisée. |
-| [06 JSON Order to Dispatch](../../../demo/oie-init/data/channels/06-json-order-to-dispatch.xml) | `10803/commande-json/` | `logical` (SD logique `CommandeSource`) | `06-json-order-to-dispatch` | Deux modèles logiques métier JSON non FHIR (`CommandeSource` → `BonPreparation`), validation FHIR désactivée. |
 | [07 CSV to R5 Permission - FML](../../../demo/oie-init/data/channels/07-csv-permission-r5-fml.xml) | `10814/permission-r5/` | `oie-message` | `07-csv-permission-r5` | CSV (`DELIMITED`) vers Bundle `transaction` FHIR R5 contenant `Organization` et `Permission`. |
 | [08 ORU to Patient - StructureMap](../../../demo/oie-init/data/channels/08-oru-patient-structuremap.xml) | `10815/patient-fml-ig/` | `oie-message` | `08-oru-patient-structuremap` + `shared/lab-r4` | `StructureMap` JSON publiée appelée par `mapUrl`, validation locale et copie vers l'éditeur inline. |
 | [11 HL7v2 to Patient - IG tgz](../../../demo/oie-init/data/channels/11-hl7v2-patient-ig-tgz.xml) | `10808/devdays-patient/` | `oie-message` | `11-hl7v2-patient-ig-tgz` + Hades (`:8500`) | Chargement d'un package IG `.tgz` (`DevDaysIGtutorial-Patient`) et traduction terminologique sur Hades. |
+
+## Groupe `FML logical`
+
+| Canal | Port et route | Modèle source | Ressources serveur (`/fhir-volume`) | Capacités démontrées |
+|---|---|---|---|---|
+| [04 HL7v2 PID to FR Core INS](../../../demo/oie-init/data/channels/04-hl7v2-pid-fr-core-ins.xml) | `10801/pid-fr-core-ins/` | `logical` (SD logique `PID`) | `04-hl7v2-pid-fr-core-ins` + `fr-core-2.2.0` | XML HAPI du Strict Parser lu via une `StructureDefinition` logique `PID` vers `FRCorePatientINSProfile`. |
+| [05 FHIR Patient - Normalize Identity](../../../demo/oie-init/data/channels/05-fhir-patient-normalization.xml) | `10802/fhir-patient/` | `fhir` (`Patient`) | `05-fhir-patient-normalization` | Ressource FHIR R4 entrante transformée en ressource FHIR R4 normalisée. |
+| [06 JSON Order to Dispatch](../../../demo/oie-init/data/channels/06-json-order-to-dispatch.xml) | `10803/commande-json/` | `logical` (SD logique `CommandeSource`) | `06-json-order-to-dispatch` | Deux modèles logiques métier JSON non FHIR (`CommandeSource` → `BonPreparation`), validation FHIR désactivée. |
+| [18 ADT to Patient - Dynamic FML](../../../demo/oie-init/data/channels/18-adt-patient-dynamic-fml.xml) | `10818/adt-dynamic-fml/` | `logical` (`${fmlSourceModelUrl}`) | `18-adt-patient-dynamic-fml` | Routage dynamique A28/A31/A08 vers trois paires map/SD dans une même destination FML. |
 
 ## Groupe `Mapper transformer`
 
@@ -29,6 +35,7 @@ La démonstration active déploie **dix-sept canaux** (`01` à `17`) répartis e
 | [14 JSON to Obs Ext TX - Mapper](../../../demo/oie-init/data/channels/14-json-obs-external-tx-mapper.xml) | `10816/obs-external-tx/` | JSON métier | Contexte `external-terminology` | Traduction distante via `ConceptMap/$translate` sur `term-server` (`GLU` → LOINC, repli `data-absent-reason#unknown`). |
 | [16 JSON to R5 Org - Mapper](../../../demo/oie-init/data/channels/16-json-organization-r5-mapper.xml) | `10810/organization-r5/` | JSON métier | Core FHIR R5 | Ressource `Organization` en FHIR R5, champ `description` de type `markdown` et diagnostic de conversion booléenne. |
 | [17 ORU to Patient - FML vs Mapper](../../../demo/oie-init/data/channels/17-oru-patient-fml-vs-mapper.xml) | `10817/patient-compare/` | HL7 v2 ER7 | Contexte `demo-labo` | Double destination parallèle (Destination 1 en FML inline, Destination 2 en Mapper Transform) vérifiant l'égalité des Patients produits. |
+| [19 JSON to Contained - Mapper](../../../demo/oie-init/data/channels/19-json-contained-mapper.xml) | `10819/patient-contained/` | JSON métier | `19-json-contained-mapper` | `DiagnosticReport` R4 avec slice `contained:observation` profilée (`ContainedObservation`) et référence `#obs-1`. |
 
 ## Vérification automatisée
 

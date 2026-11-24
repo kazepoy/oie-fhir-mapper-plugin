@@ -1,8 +1,8 @@
 # OIE FHIR Mapper demo
 
 The demo uses [oie-init](oie-init/README.md) and
-[fhir-volume](fhir-volume/README.md): seventeen channels in the
-**FML transformer** and **Mapper transformer** groups.
+[fhir-volume](fhir-volume/README.md): eighteen channels in the
+**FML OieMessage**, **FML logical** and **Mapper transformer** groups.
 
 The [launch guide](../doc/fr/demo/Demo.md) describes Compose and prerequisites.
 The [Hades terminology server](term-server/README.md) is available on port 8500.
