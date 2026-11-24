@@ -1,4 +1,4 @@
-// OIE FHIR Mapper 0.6.1 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
+// OIE FHIR Mapper 0.6.2 · MPL-2.0 · generated from webadmin/src by build.mjs: do not edit
 
 // src/i18n/locales/en.js
 var en_default = {
@@ -3454,6 +3454,70 @@ function formatSample(message, dataType) {
 }
 
 // src/mapper-transform/editor.js
+async function resolveMappedTree({ index, keys, local, expanded, fetchType, isStale }) {
+  const { version, profiles } = local;
+  let t2 = makeTree(index, local);
+  const attempted = /* @__PURE__ */ new Set();
+  while (true) {
+    const missingUrls = /* @__PURE__ */ new Set();
+    for (const key of keys) {
+      const parts = key.split(".");
+      for (let i = 1; i <= parts.length; i++) {
+        const prefix = parts.slice(0, i).join(".");
+        if (t2.chain(prefix)) continue;
+        const parentNodes = t2.chain(parts.slice(0, i - 1).join("."));
+        const parent = parentNodes && parentNodes[parentNodes.length - 1];
+        const urlToFetch = parent && parent.typeUrl;
+        if (urlToFetch && !attempted.has(urlToFetch) && !sdLoaded.has(sdKey(version, profiles, urlToFetch))) {
+          missingUrls.add(urlToFetch);
+        }
+        break;
+      }
+    }
+    if (!missingUrls.size) break;
+    for (const u of missingUrls) attempted.add(u);
+    await Promise.all([...missingUrls].map((u) => fetchType(u)));
+    if (isStale()) return null;
+    if (![...missingUrls].some((u) => sdLoaded.has(sdKey(version, profiles, u)))) break;
+    t2 = makeTree(index, local);
+  }
+  const unresolved = [];
+  for (const key of keys) {
+    const parts = key.split(".");
+    let found = true;
+    for (let i = 1; i <= parts.length && found; i++) {
+      const prefix = parts.slice(0, i).join(".");
+      if (!t2.chain(prefix)) found = false;
+      else if (i < parts.length) expanded.add(prefix);
+    }
+    if (!found) unresolved.push(key);
+  }
+  for (let round = 0; round < 4; round++) {
+    const urls = /* @__PURE__ */ new Set();
+    const bestDepth = /* @__PURE__ */ new Map();
+    const walk = (node, depth) => {
+      const prev = bestDepth.get(node.key);
+      if (prev !== void 0 && prev <= depth) return;
+      bestDepth.set(node.key, depth);
+      for (const d of t2.children(node) || []) {
+        if (Number(d.min) < 1 || d.instance) continue;
+        const kids = t2.children(d);
+        if (kids === null && d.typeUrl) urls.add(d.typeUrl);
+        else if (kids && depth < 6) walk(d, depth + 1);
+      }
+    };
+    for (const key of keys) {
+      const nodes = t2.chain(key);
+      if (nodes) for (const n of nodes.slice(0, -1)) walk(n, 0);
+    }
+    if (!urls.size) break;
+    await Promise.all([...urls].map((u) => fetchType(u).catch(() => null)));
+    if (isStale()) return null;
+    if (![...urls].some((u) => sdLoaded.has(sdKey(version, profiles, u)))) break;
+    t2 = makeTree(index, local);
+  }
+  return unresolved;
+}
 function ResultDiff({ expected, actual }) {
   const host = React.useRef(null);
   React.useEffect(() => {
@@ -3838,48 +3902,15 @@ function MapperTransformEditor({ element, onChange, platform: platform2 }) {
       }
       st.expanded.add(index.sd.type);
       const local = { version, profiles, instances: st.instances, showAll: true };
-      const unresolved = [];
-      for (const key of allKeys()) {
-        const parts = key.split(".");
-        let found = true;
-        for (let i = 1; i <= parts.length && found; i++) {
-          const prefix = parts.slice(0, i).join(".");
-          let t2 = makeTree(index, local);
-          let nodes = t2.chain(prefix);
-          if (!nodes) {
-            const parentNodes = t2.chain(parts.slice(0, i - 1).join("."));
-            const parent = parentNodes && parentNodes[parentNodes.length - 1];
-            if (parent && parent.typeUrl) {
-              await fetchSd(platform2, version, profiles, parent.typeUrl);
-              if (state.current !== st || st.loadSeq !== reqId) return;
-              t2 = makeTree(index, local);
-              nodes = t2.chain(prefix);
-            }
-          }
-          if (!nodes) found = false;
-          else if (i < parts.length) st.expanded.add(prefix);
-        }
-        if (!found) unresolved.push(key);
-      }
-      for (let round = 0; round < 4; round++) {
-        const t2 = makeTree(index, local);
-        const urls = /* @__PURE__ */ new Set();
-        const walk = (node, depth) => {
-          for (const d of t2.children(node) || []) {
-            if (Number(d.min) < 1 || d.instance) continue;
-            const kids = t2.children(d);
-            if (kids === null && d.typeUrl) urls.add(d.typeUrl);
-            else if (kids && depth < 6) walk(d, depth + 1);
-          }
-        };
-        for (const key of allKeys()) {
-          const nodes = t2.chain(key);
-          if (nodes) for (const n of nodes.slice(0, -1)) walk(n, 0);
-        }
-        if (!urls.size) break;
-        await Promise.all([...urls].map((u) => fetchSd(platform2, version, profiles, u).catch(() => null)));
-        if (state.current !== st || st.loadSeq !== reqId) return;
-      }
+      const unresolved = await resolveMappedTree({
+        index,
+        keys: allKeys(),
+        local,
+        expanded: st.expanded,
+        fetchType: (u) => fetchSd(platform2, version, profiles, u),
+        isStale: () => state.current !== st || st.loadSeq !== reqId
+      });
+      if (!unresolved) return;
       const sdVersion = index.sd.version || "";
       if (sameProfile && element.profileVersion && sdVersion && element.profileVersion !== sdVersion) {
         st.versionNotice = t("mapper.the_profile_is_now_version_p0", { p0: sdVersion, p1: element.profileVersion });

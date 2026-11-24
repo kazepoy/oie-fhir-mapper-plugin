@@ -5,7 +5,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { snapshot } from "../../src/fhir/history.js";
 import { Inspector } from "../../src/mapper-transform/inspector.js";
-import { MapperTransformEditor, register } from "../../src/mapper-transform/editor.js";
+import { MapperTransformEditor, register, resolveMappedTree } from "../../src/mapper-transform/editor.js";
 import { MapperExpression, isCompletionShortcut, buildExpressionCompletionItems } from "../../src/mapper-transform/expression.js";
 import { bindReact as setReact } from "../../src/host/react.js";
 import { indexSd, makeTree, compile, completeness, instancesOf, sdLoaded, sdKey } from "../../src/fhir/model.js";
@@ -559,4 +559,96 @@ test("expression completion filters to unquoted ValueSet codes when inside a str
   const inside = buildExpressionCompletionItems(ctx, { inString: true });
   assert.equal(inside.length, 1);
   assert.equal(inside[0].insertText, "female");
+});
+
+test("resolveMappedTree fetches missing types in parallel waves and expands resolved prefixes", async () => {
+  const version = "R4";
+  const profiles = "test-parallel";
+  const codingUrl = "http://hl7.org/fhir/StructureDefinition/Coding";
+  const codeableUrl = "http://hl7.org/fhir/StructureDefinition/CodeableConcept";
+  const idUrl = "http://hl7.org/fhir/StructureDefinition/Identifier";
+  const root = indexSd({
+    resourceType: "StructureDefinition",
+    url: "http://example.org/StructureDefinition/patient-parallel",
+    type: "Patient",
+    snapshot: {
+      element: [
+        { id: "Patient", path: "Patient", min: 0, max: "*" },
+        el("Patient.identifier", 0, "*", ["Identifier"]),
+        el("Patient.maritalStatus", 0, "1", ["CodeableConcept"])
+      ]
+    }
+  });
+  const defs = new Map([
+    [idUrl, indexSd({
+      resourceType: "StructureDefinition",
+      url: idUrl,
+      type: "Identifier",
+      snapshot: {
+        element: [
+          { id: "Identifier", path: "Identifier", min: 0, max: "*" },
+          el("Identifier.value", 0, "1", ["string"]),
+          el("Identifier.type", 0, "1", ["CodeableConcept"])
+        ]
+      }
+    })],
+    [codeableUrl, indexSd({
+      resourceType: "StructureDefinition",
+      url: codeableUrl,
+      type: "CodeableConcept",
+      snapshot: {
+        element: [
+          { id: "CodeableConcept", path: "CodeableConcept", min: 0, max: "*" },
+          el("CodeableConcept.coding", 1, "*", ["Coding"])
+        ]
+      }
+    })],
+    [codingUrl, indexSd({
+      resourceType: "StructureDefinition",
+      url: codingUrl,
+      type: "Coding",
+      snapshot: {
+        element: [
+          { id: "Coding", path: "Coding", min: 0, max: "*" },
+          el("Coding.code", 0, "1", ["code"])
+        ]
+      }
+    })]
+  ]);
+  const waves = [];
+  let currentWave = [];
+  let inflight = 0;
+  const fetchType = async (url) => {
+    if (inflight === 0) {
+      currentWave = [];
+      waves.push(currentWave);
+    }
+    inflight++;
+    currentWave.push(url);
+    await Promise.resolve();
+    sdLoaded.set(sdKey(version, profiles, url), defs.get(url));
+    inflight--;
+    return defs.get(url);
+  };
+  const expanded = new Set();
+  try {
+    const unresolved = await resolveMappedTree({
+      index: root,
+      keys: ["Patient.identifier.value", "Patient.maritalStatus.coding.code", "Patient.unknown"],
+      local: { version, profiles, instances: new Map(), showAll: true },
+      expanded,
+      fetchType,
+      isStale: () => false
+    });
+    assert.deepEqual(unresolved, ["Patient.unknown"]);
+    assert.equal(waves.length, 2);
+    assert.deepEqual(new Set(waves[0]), new Set([idUrl, codeableUrl]));
+    assert.deepEqual(waves[1], [codingUrl]);
+    assert.ok(expanded.has("Patient"));
+    assert.ok(expanded.has("Patient.identifier"));
+    assert.ok(expanded.has("Patient.maritalStatus"));
+    assert.ok(expanded.has("Patient.maritalStatus.coding"));
+  } finally {
+    for (const url of defs.keys()) sdLoaded.delete(sdKey(version, profiles, url));
+  }
 });

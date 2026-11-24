@@ -1,6 +1,6 @@
 {
   "name": "oie-fhir-mapper-web",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Web Admin editors of the OIE FHIR Mapper: FHIR Mapper Transform and FHIR Mapping Language steps.",
   "license": "MPL-2.0",
   "private": true,

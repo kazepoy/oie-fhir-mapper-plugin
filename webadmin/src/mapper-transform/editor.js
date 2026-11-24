@@ -26,6 +26,76 @@ import { showContextMenu } from "../host/context-menu.js";
 import { formatSample } from "../fml/sample-format.js";
 import { MAPPER_API, mapperFunctions } from "../host/api.js";
 
+/**
+ * Resolves all mapped keys against `index`, fetching any missing StructureDefinitions in parallel
+ * waves and rebuilding `makeTree` only when new definitions enter `sdLoaded`.
+ */
+export async function resolveMappedTree({ index, keys, local, expanded, fetchType, isStale }) {
+  const { version, profiles } = local;
+  let t = makeTree(index, local);
+  const attempted = new Set();
+  while (true) {
+    const missingUrls = new Set();
+    for (const key of keys) {
+      const parts = key.split(".");
+      for (let i = 1; i <= parts.length; i++) {
+        const prefix = parts.slice(0, i).join(".");
+        if (t.chain(prefix)) continue;
+        const parentNodes = t.chain(parts.slice(0, i - 1).join("."));
+        const parent = parentNodes && parentNodes[parentNodes.length - 1];
+        const urlToFetch = parent && parent.typeUrl;
+        if (urlToFetch && !attempted.has(urlToFetch) && !sdLoaded.has(sdKey(version, profiles, urlToFetch))) {
+          missingUrls.add(urlToFetch);
+        }
+        break;
+      }
+    }
+    if (!missingUrls.size) break;
+    for (const u of missingUrls) attempted.add(u);
+    await Promise.all([...missingUrls].map((u) => fetchType(u)));
+    if (isStale()) return null;
+    if (![...missingUrls].some((u) => sdLoaded.has(sdKey(version, profiles, u)))) break;
+    t = makeTree(index, local);
+  }
+  const unresolved = [];
+  for (const key of keys) {
+    const parts = key.split(".");
+    let found = true;
+    for (let i = 1; i <= parts.length && found; i++) {
+      const prefix = parts.slice(0, i).join(".");
+      if (!t.chain(prefix)) found = false;
+      else if (i < parts.length) expanded.add(prefix);
+    }
+    if (!found) unresolved.push(key);
+  }
+  // Load the types of required elements below what is mapped, so that their fixed values are known.
+  for (let round = 0; round < 4; round++) {
+    const urls = new Set();
+    const bestDepth = new Map();
+    const walk = (node, depth) => {
+      const prev = bestDepth.get(node.key);
+      if (prev !== undefined && prev <= depth) return;
+      bestDepth.set(node.key, depth);
+      for (const d of t.children(node) || []) {
+        if (Number(d.min) < 1 || d.instance) continue;
+        const kids = t.children(d);
+        if (kids === null && d.typeUrl) urls.add(d.typeUrl);
+        else if (kids && depth < 6) walk(d, depth + 1);
+      }
+    };
+    for (const key of keys) {
+      const nodes = t.chain(key);
+      if (nodes) for (const n of nodes.slice(0, -1)) walk(n, 0);
+    }
+    if (!urls.size) break;
+    await Promise.all([...urls].map((u) => fetchType(u).catch(() => null)));
+    if (isStale()) return null;
+    if (![...urls].some((u) => sdLoaded.has(sdKey(version, profiles, u)))) break;
+    t = makeTree(index, local);
+  }
+  return unresolved;
+}
+
 
 // ---------------------------------------------------------------------------------------------
 // FHIR Mapper Transform transformer step (FhirMapperTransformStep). The tree of the target profile is
@@ -387,50 +457,15 @@ export function MapperTransformEditor({ element, onChange, platform }) {
       }
       st.expanded.add(index.sd.type);
       const local = { version, profiles, instances: st.instances, showAll: true };
-      const unresolved = [];
-      for (const key of allKeys()) {
-        const parts = key.split(".");
-        let found = true;
-        for (let i = 1; i <= parts.length && found; i++) {
-          const prefix = parts.slice(0, i).join(".");
-          let t = makeTree(index, local);
-          let nodes = t.chain(prefix);
-          if (!nodes) {
-            // the parent may be a type that is not loaded yet
-            const parentNodes = t.chain(parts.slice(0, i - 1).join("."));
-            const parent = parentNodes && parentNodes[parentNodes.length - 1];
-            if (parent && parent.typeUrl) {
-              await fetchSd(platform, version, profiles, parent.typeUrl);
-              if (state.current !== st || st.loadSeq !== reqId) return;
-              t = makeTree(index, local);
-              nodes = t.chain(prefix);
-            }
-          }
-          if (!nodes) found = false;
-          else if (i < parts.length) st.expanded.add(prefix);
-        }
-        if (!found) unresolved.push(key);
-      }
-      // Load the types of required elements below what is mapped, so that their fixed values are known.
-      for (let round = 0; round < 4; round++) {
-        const t = makeTree(index, local);
-        const urls = new Set();
-        const walk = (node, depth) => {
-          for (const d of t.children(node) || []) {
-            if (Number(d.min) < 1 || d.instance) continue;
-            const kids = t.children(d);
-            if (kids === null && d.typeUrl) urls.add(d.typeUrl);
-            else if (kids && depth < 6) walk(d, depth + 1);
-          }
-        };
-        for (const key of allKeys()) {
-          const nodes = t.chain(key);
-          if (nodes) for (const n of nodes.slice(0, -1)) walk(n, 0);
-        }
-        if (!urls.size) break;
-        await Promise.all([...urls].map((u) => fetchSd(platform, version, profiles, u).catch(() => null)));
-        if (state.current !== st || st.loadSeq !== reqId) return;
-      }
+      const unresolved = await resolveMappedTree({
+        index,
+        keys: allKeys(),
+        local,
+        expanded: st.expanded,
+        fetchType: (u) => fetchSd(platform, version, profiles, u),
+        isStale: () => state.current !== st || st.loadSeq !== reqId
+      });
+      if (!unresolved) return;
       const sdVersion = index.sd.version || "";
       if (sameProfile && element.profileVersion && sdVersion && element.profileVersion !== sdVersion) {
         st.versionNotice = tr("mapper.the_profile_is_now_version_p0", { p0: sdVersion, p1: element.profileVersion });
