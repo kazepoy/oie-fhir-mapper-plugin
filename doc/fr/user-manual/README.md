@@ -19,7 +19,7 @@ Ce manuel présente l'utilisation complète du plugin **OIE FHIR Mapper** dans l
 
 ## Prérequis et permissions
 
-Le serveur OIE doit disposer du plugin **FHIR Mapper** et du plugin [**FHIR Data Type 1.6.1**](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE/releases/tag/v1.6.1). Les chemins de packages et de profils configurés dans l'interface sont des chemins du **serveur OIE** (ou de son conteneur Docker), et non du poste client.
+Le serveur OIE doit disposer du plugin **FHIR Mapper** et du plugin [**FHIR Data Type 1.6.2**](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE/releases/tag/v1.6.2). Les chemins de packages et de profils configurés dans l'interface sont des chemins du **serveur OIE** (ou de son conteneur Docker), et non du poste client.
 
 Lorsque le contrôle d'accès par rôles (RBAC) est actif, cinq permissions gouvernent les fonctions du plugin :
 

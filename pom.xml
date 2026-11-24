@@ -23,7 +23,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <oie.version>4.7.0</oie.version>
     <log4j.version>2.26.1</log4j.version>
-    <datatype.fhir.version>1.6.1</datatype.fhir.version>
+    <datatype.fhir.version>1.6.2</datatype.fhir.version>
     <hapi.version>8.12.1</hapi.version>
     <project.build.outputTimestamp>2026-11-12T00:00:00Z</project.build.outputTimestamp>
     <skipTests>false</skipTests>

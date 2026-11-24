@@ -16,12 +16,12 @@ RUN curl --fail --silent --show-error --location --max-time 300 \
       --output /tmp/websupport.zip \
     && echo '69a6b2285000d6c7356aaa547746528fe0bf145ba9bdf5d595fb9a390aff54ff  /tmp/websupport.zip' | sha256sum -c -
 
-# FHIR Data Type 1.6.1, without the POC mapper.
+# FHIR Data Type 1.6.2, without the POC mapper.
 RUN curl --fail --silent --show-error --location --max-time 300 \
       --header 'Accept: application/octet-stream' \
-      https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/736247048 \
+      https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/773430633 \
       --output /tmp/datatype-fhir.zip \
-    && echo '82dcfb525912e160725736005266bf34c512698661577974cbe1f81ba7dd0c9e  /tmp/datatype-fhir.zip' | sha256sum -c -
+    && echo '845f172761ef63539a2b0fc9a918c6723e646ac3a1bc9c3775a3fd721b822f00  /tmp/datatype-fhir.zip' | sha256sum -c -
 
 # Role Based Access Control 1.3.0 (diridium-com), for OIE 4.7.0: role and channel
 # permissions on the server and in Web Admin.
@@ -110,9 +110,9 @@ RUN --mount=type=cache,target=/root/.m2 \
     && mvn -B -ntp install:install-file -Dfile=/engine/client-core.jar \
       -DgroupId=com.mirth.connect -DartifactId=client-core -Dversion=4.7.0 -Dpackaging=jar \
     && mvn -B -ntp install:install-file -Dfile=/engine/datatype-fhir-api.jar \
-      -DgroupId=com.matthy.oie -DartifactId=datatype-fhir-api -Dversion=1.6.1 -Dpackaging=jar \
+      -DgroupId=com.matthy.oie -DartifactId=datatype-fhir-api -Dversion=1.6.2 -Dpackaging=jar \
     && mvn -B -ntp install:install-file -Dfile=/engine/datatype-fhir-engine.jar \
-      -DgroupId=com.matthy.oie -DartifactId=datatype-fhir-engine -Dversion=1.6.1 -Dpackaging=jar \
+      -DgroupId=com.matthy.oie -DartifactId=datatype-fhir-engine -Dversion=1.6.2 -Dpackaging=jar \
     && mvn -B -ntp package -DskipTests \
     && mkdir /extensions && cd /extensions && jar xf /build/target/fhir-mapper-*.zip
 

@@ -13,9 +13,9 @@ permissions:
 env:
   OIE_VERSION: 4.7.0
   OIE_SHA256: ab08558873dc6be1e474afaacc46efe94d29c945cd3381c10d0ae548ecb429de
-  DATATYPE_FHIR_VERSION: 1.6.1
-  DATATYPE_FHIR_ASSET: https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/736247048
-  DATATYPE_FHIR_SHA256: 82dcfb525912e160725736005266bf34c512698661577974cbe1f81ba7dd0c9e
+  DATATYPE_FHIR_VERSION: 1.6.2
+  DATATYPE_FHIR_ASSET: https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/773430633
+  DATATYPE_FHIR_SHA256: 845f172761ef63539a2b0fc9a918c6723e646ac3a1bc9c3775a3fd721b822f00
 
 jobs:
   build:

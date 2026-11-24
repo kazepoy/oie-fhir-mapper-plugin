@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-/** Exercises the real, unmodified FHIR Data Type 1.6.1 engine through our boundary. */
+/** Exercises the real, unmodified FHIR Data Type 1.6.2 engine through our boundary. */
 public class FhirFacadeTest {
     private static final String PROFILE = "http://example.org/fhir/StructureDefinition/patient-with-birthdate";
     private static String fixture(String name) { return Path.of("src/test/resources", name).toAbsolutePath().toString(); }

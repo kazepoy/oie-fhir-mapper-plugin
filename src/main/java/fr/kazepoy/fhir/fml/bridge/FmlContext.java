@@ -358,7 +358,7 @@ final class FmlContext {
         }
     }
 
-    // Compatibility boundary for FHIR Data Type 1.6.1, as in FhirCatalogBridge: the datatype's own
+    // Compatibility boundary for FHIR Data Type 1.6.2, as in FhirCatalogBridge: the datatype's own
     // validation context, specification and profile loading.
     private static Object invoke(Object engine, String name, Class<?>[] types, Object... args) throws Exception {
         try {
@@ -366,7 +366,7 @@ final class FmlContext {
             method.setAccessible(true);
             return method.invoke(engine, args);
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("FHIR Data Type 1.6.1 compatibility: missing " + name, e);
+            throw new IllegalStateException("FHIR Data Type 1.6.2 compatibility: missing " + name, e);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
             throw e;

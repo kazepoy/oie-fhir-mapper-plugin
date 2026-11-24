@@ -13,7 +13,7 @@ documentés. Il sert à trois choses :
 | Composant | Version | Source |
 |---|---|---|
 | Open Integration Engine | 4.7.0 | Build officiel depuis le tag `v4.7.0` |
-| FHIR Data Type | 1.6.1 | [matthydehoog/fhir-datatype-Eclipse-OIE](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE) |
+| FHIR Data Type | 1.6.2 | [matthydehoog/fhir-datatype-Eclipse-OIE](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE) |
 
 ## Tenir le registre
 
@@ -62,7 +62,7 @@ fait), *Contourné* (le mapper vit avec), *Signalé* (issue ouverte), *Résolu* 
 - **Demande amont.** Permettre aux plugins de rattacher les menus à leur overlay,
   ou exposer une politique commune de superposition. Aucune issue envoyée.
 
-## FHIR Data Type (1.6.1)
+## FHIR Data Type (1.6.2)
 
 ### FD-01
 
@@ -78,7 +78,7 @@ fait), *Contourné* (le mapper vit avec), *Signalé* (issue ouverte), *Résolu* 
   sans lire ces méthodes privées. Toute version du datatype peut les changer.
 - **Contournement.** `FhirCatalogBridge`, dans un JAR séparé chargé avec le chargeur
   HAPI du datatype, appelle ces trois méthodes par réflexion ; une méthode absente
-  donne l'erreur « FHIR Data Type 1.6.1 compatibility: missing … ». Le catalogue
+  donne l'erreur « FHIR Data Type 1.6.2 compatibility: missing … ». Le catalogue
   n'est pas conservé entre deux requêtes. Voir
   [Intégration](Integration-FHIR-Data-Type.md#pont-de-catalogue).
   Le pont appelle `warmUp` avant de prendre le verrou du moteur : l'ordre inverse
@@ -102,7 +102,7 @@ fait), *Contourné* (le mapper vit avec), *Signalé* (issue ouverte), *Résolu* 
 - **Résolution (1.5.2).** Depuis FHIR Data Type **1.5.2** (PR #30 sur
   [#29](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE/issues/29)), le
   minuteur de libération démarre dès que le moteur FHIR est chargé, quel que soit
-  l'appelant. Vérifié également en **1.6.1** ; le minuteur de contournement
+  l'appelant. Vérifié également en **1.6.2** ; le minuteur de contournement
   du mapper (`startValidatorRelease`) et `FhirValidatorReleaseTest` ont été supprimés.
 - **Preuve.** Bytecode 1.5.1 : `startPeriodicRelease` est appelée dans
   `FhirSerializer.validate`, le préchauffage de `FhirSerializer` et

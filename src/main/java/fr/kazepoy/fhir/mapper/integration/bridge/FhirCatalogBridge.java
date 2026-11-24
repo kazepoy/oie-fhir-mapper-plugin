@@ -66,7 +66,7 @@ public final class FhirCatalogBridge {
         }
     }
 
-    // Compatibility boundary for FHIR Data Type 1.6.1. No private HAPI fields are used.
+    // Compatibility boundary for FHIR Data Type 1.6.2. No private HAPI fields are used.
     // Do not retain a catalogue: the datatype owns the lifetime of its specification.
     private Catalog catalog(Map<String, String> options) throws Exception {
         // validator.computeIfAbsent takes its own lock before specification takes the engine monitor.
@@ -93,7 +93,7 @@ public final class FhirCatalogBridge {
             method.setAccessible(true);
             return method.invoke(engine, args);
         } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("FHIR Data Type 1.6.1 compatibility: missing " + name, e);
+            throw new IllegalStateException("FHIR Data Type 1.6.2 compatibility: missing " + name, e);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof Exception) throw (Exception) e.getCause();
             throw e;

@@ -14,7 +14,7 @@ L'environnement Docker Compose déploie :
 
 - Open Integration Engine **4.7.0** et PostgreSQL **18.3** ;
 - Web Support **1.3.0**, avec l'administration web **1.3.0** ;
-- FHIR Data Type **1.6.1** ;
+- FHIR Data Type **1.6.2** ;
 - [Role Based Access Control](https://github.com/diridium-com/role-based-access-control) **1.3.0** (diridium-com) ;
 - [OIE Flow UI](https://github.com/kazepoy/oie-flow-ui-plugin) **0.9.0** (Flows Monitoring, Channel Flow) ;
 - FHIR Mapper, compilé depuis les sources du projet, avec ses deux étapes : [FHIR Mapper Transform](../../fr/reference/Mappeur-graphique.md) et [FHIR FML Transform](../../fr/reference/Transformation-FML.md).

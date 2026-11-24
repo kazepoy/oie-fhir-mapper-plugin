@@ -6,7 +6,7 @@ L'étape graphique est `fr.kazepoy.fhir.mapper.FhirMapperTransformStep` et ses r
 sont exposées sous `/api/extensions/fhir-mapper`. L'étape FML est
 `fr.kazepoy.fhir.fml.FhirFmlTransformStep` sous `/api/extensions/fhir-fml`.
 Le plugin n'enregistre pas de second type de données FHIR : il utilise le datatype
-officiel **1.6.1**. L'initialisation autorise les classes des étapes dans le
+officiel **1.6.2**. L'initialisation autorise les classes des étapes dans le
 sérialiseur XML d'OIE ; `ChannelSerializationTest` couvre l'import/export XML.
 
 ## Contrat et isolation
@@ -16,7 +16,7 @@ de validation appartiennent au mapper et contiennent des listes/maps Java.
 Les appels au datatype et à HAPI restent dans `integration/`.
 
 La validation et les conversions utilisent les méthodes publiques du datatype
-officiel **1.6.1**, installé sans modification. Le parseur JSON interne
+officiel **1.6.2**, installé sans modification. Le parseur JSON interne
 (`fr.kazepoy.fhir.mapper.util.FhirJson`) conserve les décimaux exacts ; celui du
 datatype publié n'est pas public.
 
@@ -33,7 +33,7 @@ catalogue de lecture des profils pour chaque requête, sans conserver ses
 références à la spécification après la requête. La lecture des ConceptMaps reste
 indépendante du chargement de la spécification.
 
-Cette compatibilité repose sur trois méthodes internes du moteur 1.6.1 :
+Cette compatibilité repose sur trois méthodes internes du moteur 1.6.2 :
 `validationContext`, `specification` et `loadProfiles`. Depuis la version 1.5.2,
 le datatype démarre lui-même son minuteur de libération dès le chargement du
 moteur FHIR ([FD-02](limites-plateforme.md#fd-02) résolu) ; le minuteur de

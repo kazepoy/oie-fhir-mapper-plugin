@@ -6,7 +6,7 @@ A plugin for [Open Integration Engine](https://github.com/OpenIntegrationEngine/
 (OIE 4.7, Web Admin 1.3). It builds FHIR resources and Bundles from business
 messages.
 It requires the [**FHIR Data Type**](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE)
-plugin, version 1.6.1 ([release](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE/releases/tag/v1.6.1)).
+plugin, version 1.6.2 ([release](https://github.com/matthydehoog/fhir-datatype-Eclipse-OIE/releases/tag/v1.6.2)).
 OIE FHIR Mapper is a separate project, not part of FHIR Data Type: please report
 bugs in [GitHub Issues](https://github.com/kazepoy/oie-fhir-mapper-plugin/issues)
 and use [GitHub Discussions](https://github.com/kazepoy/oie-fhir-mapper-plugin/discussions)

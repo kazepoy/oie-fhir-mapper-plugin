@@ -183,7 +183,7 @@ l'étape. Les maps peuvent en importer d'autres (`imports`), créer des ressourc
 
 ### 3.1 Choix : le core HL7 de FHIR Data Type, sans Matchbox
 
-FHIR Data Type 1.6.1 installe HAPI 8.12.1 et le core HL7 **6.9.12**, qui contient
+FHIR Data Type 1.6.2 installe HAPI 8.12.1 et le core HL7 **6.9.12**, qui contient
 le moteur FML (`StructureMapUtilities`). L'étape l'utilise directement, à
 travers le contexte de validation du datatype : aucun JAR tiers n'est ajouté.
 
