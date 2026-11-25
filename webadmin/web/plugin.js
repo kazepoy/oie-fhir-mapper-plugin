@@ -540,12 +540,17 @@ var en_default = {
   "mapper.what_is_below_this_element_is": "What is below this element is only mapped when the condition holds",
   "mapper.when_translate_gives_no_match": "When $translate gives no match",
   "settings.a_fhir_context_is_a_named": "A FHIR context is a named set of profile packages, a terminology server and a validation policy. FHIR Mapper Transform and FHIR FML Transform steps that name a context share them; a step without a context keeps its own. A deployed channel takes a change when it is redeployed.",
+  "settings.ambiguous_time": "Ambiguous DST time",
+  "settings.ambiguous_time_earlier": "First occurrence (earlier)",
+  "settings.ambiguous_time_error": "Reject with error (default)",
+  "settings.ambiguous_time_later": "Second occurrence (later)",
   "settings.authorization": "Authorization",
   "settings.base_url_as_the_oie_server": "Base URL as the OIE server reaches it; empty to translate locally.",
   "settings.browser_language": "Browser language",
   "settings.cache_seconds": "Cache (seconds)",
   "settings.changing_the_fhir_contexts_requires_the": "Changing the FHIR contexts requires the permission “Manage FHIR mapper settings”.",
   "settings.context_name": "Context name",
+  "settings.date_time_policy": "Date and time policy",
   "settings.delete": "Delete",
   "settings.fhir_contexts_saved_redeploy_the_channels": "FHIR contexts saved. Redeploy the channels that use a changed context.",
   "settings.fhir_mapper_tasks": "FHIR Mapper Tasks",
@@ -558,6 +563,12 @@ var en_default = {
   "settings.packages_and_profile_files": "Packages and profile files",
   "settings.save": "Save",
   "settings.terminology_server_options": "Terminology server options",
+  "settings.time_precision": "Time precision",
+  "settings.time_precision_minutes": "Require minutes (default)",
+  "settings.time_precision_pad": "Pad missing parts with 00",
+  "settings.time_precision_seconds": "Require seconds",
+  "settings.time_zone": "Default time zone",
+  "settings.time_zone_hint": "Used when neither the field nor MSH-7 carries an offset (e.g. Europe/Paris); empty for server zone.",
   "settings.timeout_seconds": "Timeout (seconds)",
   "settings.validation_of_results": "Validation of results",
   "trace.channel_name_revision_revision": "Channel {name}, revision {revision}",
@@ -1110,12 +1121,17 @@ var fr_default = {
   "mapper.what_is_below_this_element_is": "Les éléments descendants ne sont mappés que si la condition est vraie",
   "mapper.when_translate_gives_no_match": "Lorsque $translate ne trouve aucune correspondance",
   "settings.a_fhir_context_is_a_named": "Un contexte FHIR regroupe des packages de profils, un serveur terminologique et une politique de validation. Les étapes qui le nomment partagent ces réglages ; sans contexte, elles gardent leurs propriétés. Redéployer un canal pour appliquer un changement.",
+  "settings.ambiguous_time": "Heure ambiguë (changement d’heure)",
+  "settings.ambiguous_time_earlier": "Première occurrence (été)",
+  "settings.ambiguous_time_error": "Rejeter en erreur (défaut)",
+  "settings.ambiguous_time_later": "Seconde occurrence (hiver)",
   "settings.authorization": "Autorisation",
   "settings.base_url_as_the_oie_server": "URL de base accessible par le serveur OIE ; vide pour traduire localement.",
   "settings.browser_language": "Langue du navigateur",
   "settings.cache_seconds": "Cache (secondes)",
   "settings.changing_the_fhir_contexts_requires_the": "Modifier les contextes FHIR nécessite la permission « Manage FHIR mapper settings ».",
   "settings.context_name": "Nom du contexte",
+  "settings.date_time_policy": "Politique date et heure",
   "settings.delete": "Supprimer",
   "settings.fhir_contexts_saved_redeploy_the_channels": "Contextes FHIR enregistrés. Redéployer les canaux qui utilisent un contexte modifié.",
   "settings.fhir_mapper_tasks": "Tâches FHIR Mapper",
@@ -1128,6 +1144,12 @@ var fr_default = {
   "settings.packages_and_profile_files": "Packages et fichiers de profils",
   "settings.save": "Enregistrer",
   "settings.terminology_server_options": "Options du serveur terminologique",
+  "settings.time_precision": "Précision horaire",
+  "settings.time_precision_minutes": "Minutes obligatoires (défaut)",
+  "settings.time_precision_pad": "Compléter par 00",
+  "settings.time_precision_seconds": "Secondes obligatoires",
+  "settings.time_zone": "Fuseau horaire par défaut",
+  "settings.time_zone_hint": "Utilisé si ni le champ ni MSH-7 ne portent de décalage (ex. Europe/Paris) ; vide pour le fuseau serveur.",
   "settings.timeout_seconds": "Délai (secondes)",
   "settings.validation_of_results": "Validation des résultats",
   "trace.channel_name_revision_revision": "Canal {name}, révision {revision}",
@@ -1350,6 +1372,11 @@ function ContextFields({ value, onChange, disabled = false }) {
   React3.useEffect(() => {
     if (configured) setOpen(true);
   }, [configured]);
+  const timeConfigured = !!String(value.timeZone || "").trim() || value.timePrecision && value.timePrecision !== "minutes" || value.ambiguousTime && value.ambiguousTime !== "error";
+  const [timeOpen, setTimeOpen] = React3.useState(timeConfigured);
+  React3.useEffect(() => {
+    if (timeConfigured) setTimeOpen(true);
+  }, [timeConfigured]);
   const field = (label, control, hint, wide = false) => h3(
     "div",
     { className: wide ? "field span-2" : "field" },
@@ -1409,6 +1436,40 @@ function ContextFields({ value, onChange, disabled = false }) {
         field("settings.authorization", input("terminologyAuthorization", "settings.authorization"), "settings.javascript_expression_of_the_authorization_header"),
         field("settings.cache_seconds", input("cacheSeconds", "settings.cache_seconds", "number", 0)),
         field("settings.timeout_seconds", input("timeoutSeconds", "settings.timeout_seconds", "number", 1))
+      )
+    ),
+    h3(
+      "details",
+      { className: "span-2 fhir-context-datetime", open: timeOpen, onToggle: (e) => setTimeOpen(e.currentTarget.open) },
+      h3("summary", null, t("settings.date_time_policy")),
+      h3(
+        "div",
+        { className: "form-grid", style: { marginTop: "10px" } },
+        field("settings.time_zone", input("timeZone", "settings.time_zone"), "settings.time_zone_hint", true),
+        field("settings.time_precision", h3(
+          "select",
+          {
+            disabled,
+            value: value.timePrecision || "minutes",
+            "aria-label": t("settings.time_precision"),
+            onChange: (e) => onChange({ timePrecision: e.target.value })
+          },
+          h3("option", { value: "minutes" }, t("settings.time_precision_minutes")),
+          h3("option", { value: "seconds" }, t("settings.time_precision_seconds")),
+          h3("option", { value: "pad" }, t("settings.time_precision_pad"))
+        )),
+        field("settings.ambiguous_time", h3(
+          "select",
+          {
+            disabled,
+            value: value.ambiguousTime || "error",
+            "aria-label": t("settings.ambiguous_time"),
+            onChange: (e) => onChange({ ambiguousTime: e.target.value })
+          },
+          h3("option", { value: "error" }, t("settings.ambiguous_time_error")),
+          h3("option", { value: "earlier" }, t("settings.ambiguous_time_earlier")),
+          h3("option", { value: "later" }, t("settings.ambiguous_time_later"))
+        ))
       )
     )
   );
@@ -1666,7 +1727,7 @@ var SETTINGS_HELP = {
 };
 
 // src/settings/panel.js
-var emptyContext = () => ({ name: "", fhirVersion: "R4", packages: [], terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, validation: "always" });
+var emptyContext = () => ({ name: "", fhirVersion: "R4", packages: [], terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, validation: "always", timeZone: "", timePrecision: "minutes", ambiguousTime: "error" });
 var normalizeContexts = (list) => (list || []).map((c) => ({ ...emptyContext(), ...c }));
 var serializeContexts = (list) => JSON.stringify(list || []);
 function errorText(e) {

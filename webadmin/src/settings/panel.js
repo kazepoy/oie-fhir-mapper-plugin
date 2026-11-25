@@ -9,7 +9,7 @@ import { loadFhirSettings, saveFhirSettings } from "../host/settings.js";
 import { HelpButton } from "../host/help.js";
 import { SETTINGS_HELP } from "../host/help-texts.js";
 
-const emptyContext = () => ({ name: "", fhirVersion: "R4", packages: [], terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, validation: "always" });
+const emptyContext = () => ({ name: "", fhirVersion: "R4", packages: [], terminologyServer: "", terminologyAuthorization: "", cacheSeconds: 300, timeoutSeconds: 10, validation: "always", timeZone: "", timePrecision: "minutes", ambiguousTime: "error" });
 const normalizeContexts = list => (list || []).map(c => ({ ...emptyContext(), ...c }));
 const serializeContexts = list => JSON.stringify(list || []);
 

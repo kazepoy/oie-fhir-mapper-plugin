@@ -9,6 +9,11 @@ export function ContextFields({ value, onChange, disabled = false }) {
   const configured = !!String(value.terminologyServer || value.terminologyAuthorization || "").trim();
   const [open, setOpen] = React.useState(configured);
   React.useEffect(() => { if (configured) setOpen(true); }, [configured]);
+  const timeConfigured = !!String(value.timeZone || "").trim()
+    || (value.timePrecision && value.timePrecision !== "minutes")
+    || (value.ambiguousTime && value.ambiguousTime !== "error");
+  const [timeOpen, setTimeOpen] = React.useState(timeConfigured);
+  React.useEffect(() => { if (timeConfigured) setTimeOpen(true); }, [timeConfigured]);
   const field = (label, control, hint, wide = false) => h("div", { className: wide ? "field span-2" : "field" },
     h("label", null, tr(label)), control, hint ? h("div", { className: "hint" }, tr(hint)) : null);
   const input = (key, label, type = "text", min) => h("input", { type, min, disabled,
@@ -29,5 +34,18 @@ export function ContextFields({ value, onChange, disabled = false }) {
         field("common.terminology_server", input("terminologyServer", "common.terminology_server"), "settings.base_url_as_the_oie_server"),
         field("settings.authorization", input("terminologyAuthorization", "settings.authorization"), "settings.javascript_expression_of_the_authorization_header"),
         field("settings.cache_seconds", input("cacheSeconds", "settings.cache_seconds", "number", 0)),
-        field("settings.timeout_seconds", input("timeoutSeconds", "settings.timeout_seconds", "number", 1)))));
+        field("settings.timeout_seconds", input("timeoutSeconds", "settings.timeout_seconds", "number", 1)))),
+    h("details", { className: "span-2 fhir-context-datetime", open: timeOpen, onToggle: e => setTimeOpen(e.currentTarget.open) }, h("summary", null, tr("settings.date_time_policy")),
+      h("div", { className: "form-grid", style: { marginTop: "10px" } },
+        field("settings.time_zone", input("timeZone", "settings.time_zone"), "settings.time_zone_hint", true),
+        field("settings.time_precision", h("select", { disabled, value: value.timePrecision || "minutes", "aria-label": tr("settings.time_precision"),
+          onChange: e => onChange({ timePrecision: e.target.value }) },
+          h("option", { value: "minutes" }, tr("settings.time_precision_minutes")),
+          h("option", { value: "seconds" }, tr("settings.time_precision_seconds")),
+          h("option", { value: "pad" }, tr("settings.time_precision_pad")))),
+        field("settings.ambiguous_time", h("select", { disabled, value: value.ambiguousTime || "error", "aria-label": tr("settings.ambiguous_time"),
+          onChange: e => onChange({ ambiguousTime: e.target.value }) },
+          h("option", { value: "error" }, tr("settings.ambiguous_time_error")),
+          h("option", { value: "earlier" }, tr("settings.ambiguous_time_earlier")),
+          h("option", { value: "later" }, tr("settings.ambiguous_time_later")))))));
 }
