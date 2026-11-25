@@ -4,11 +4,16 @@ package fr.kazepoy.fhir.mapper.server;
 import static org.junit.Assert.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import fr.kazepoy.fhir.mapper.util.FhirJson;
 
 public class FhirMapperTransformerTest {
@@ -115,6 +120,144 @@ public class FhirMapperTransformerTest {
         assertEquals(result.toString(), "[]", result.get("errors").toString());
         assertEquals(FhirJson.NULL, result.get("output"));
         assertEquals(Boolean.FALSE, result.get("validationPerformed"));
+    }
+
+    private static List<Map<String, Object>> oru10Steps() throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        var doc = factory.newDocumentBuilder().parse(Path.of("demo/oie-init/data/channels/10-oru-lab-transaction-mapper.xml").toFile());
+        NodeList nodes = doc.getElementsByTagName("fr.kazepoy.fhir.mapper.FhirMapperTransformStep");
+        String profiles = Path.of("demo/fhir-volume/shared/lab-r4").toAbsolutePath().toString();
+        List<Map<String, Object>> steps = new ArrayList<>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element el = (Element) nodes.item(i);
+            Map<String, Object> step = new LinkedHashMap<>();
+            NodeList children = el.getChildNodes();
+            for (int j = 0; j < children.getLength(); j++) {
+                if (children.item(j) instanceof Element child) {
+                    String tag = child.getTagName();
+                    String val = child.getTextContent();
+                    if ("addMetaProfile".equals(tag) || "setLastUpdated".equals(tag) || "enabled".equals(tag) || "traceMessages".equals(tag)) {
+                        step.put(tag, Boolean.parseBoolean(val));
+                    } else if ("terminologyCacheSeconds".equals(tag) || "terminologyTimeoutSeconds".equals(tag)) {
+                        step.put(tag, Integer.parseInt(val));
+                    } else {
+                        step.put(tag, val);
+                    }
+                }
+            }
+            step.put("profiles", profiles);
+            steps.add(step);
+        }
+        return steps;
+    }
+
+    private static String hl7Pid(String ipp, String family, String given, String dob, String sex) {
+        return "<PID><PID.1><PID.1.1>1</PID.1.1></PID.1>"
+                + "<PID.3><PID.3.1>" + ipp + "</PID.3.1><PID.3.4>EXAMPLE</PID.3.4><PID.3.5>PI</PID.3.5></PID.3>"
+                + "<PID.5><PID.5.1>" + family + "</PID.5.1><PID.5.2>" + given + "</PID.5.2><PID.5.7>L</PID.5.7></PID.5>"
+                + "<PID.7><PID.7.1>" + dob + "</PID.7.1></PID.7>"
+                + "<PID.8><PID.8.1>" + sex + "</PID.8.1></PID.8></PID>";
+    }
+
+    private static String hl7Order(String ord, String fill, String code, String obxCode, String obxVal, String spm) {
+        return "<ORC><ORC.1><ORC.1.1>SC</ORC.1.1></ORC.1><ORC.2><ORC.2.1>" + ord + "</ORC.2.1></ORC.2><ORC.5><ORC.5.1>CM</ORC.5.1></ORC.5><ORC.9><ORC.9.1>20260114080000</ORC.9.1></ORC.9></ORC>"
+                + "<OBR><OBR.2><OBR.2.1>" + ord + "</OBR.2.1></OBR.2><OBR.3><OBR.3.1>" + fill + "</OBR.3.1></OBR.3><OBR.4><OBR.4.1>" + code + "</OBR.4.1><OBR.4.2>" + code + "</OBR.4.2></OBR.4><OBR.7><OBR.7.1>20260114073000</OBR.7.1></OBR.7><OBR.22><OBR.22.1>20260114170000</OBR.22.1></OBR.22><OBR.25><OBR.25.1>F</OBR.25.1></OBR.25></OBR>"
+                + "<OBX><OBX.2><OBX.2.1>NM</OBX.2.1></OBX.2><OBX.3><OBX.3.1>" + obxCode + "</OBX.3.1><OBX.3.2>" + obxCode + "</OBX.3.2></OBX.3><OBX.5><OBX.5.1>" + obxVal + "</OBX.5.1></OBX.5><OBX.6><OBX.6.1>mmol/L</OBX.6.1></OBX.6><OBX.11><OBX.11.1>F</OBX.11.1></OBX.11><OBX.14><OBX.14.1>20260114073000</OBX.14.1></OBX.14></OBX>"
+                + "<SPM><SPM.2><SPM.2.1><SPM.2.1.1>" + spm + "</SPM.2.1.1></SPM.2.1></SPM.2><SPM.4><SPM.4.1>SER</SPM.4.1><SPM.4.2>Sérum</SPM.4.2></SPM.4><SPM.17><SPM.17.1>20260114073000</SPM.17.1></SPM.17></SPM>";
+    }
+
+    @Test public void oru10AttachesEachPatientResultGroupToItsOwnPatientIpp() throws Exception {
+        List<Map<String, Object>> steps = oru10Steps();
+        String xml = "<HL7Message>"
+                + "<MSH><MSH.7><MSH.7.1>20260114171908</MSH.7.1></MSH.7><MSH.10><MSH.10.1>MSG-2PAT</MSH.10.1></MSH.10></MSH>"
+                + hl7Pid("100001", "MARTIN", "CLAIRE", "19800215", "F")
+                + "<PV1><PV1.2><PV1.2.1>I</PV1.2.1></PV1.2><PV1.19><PV1.19.1>V-1</PV1.19.1></PV1.19></PV1>"
+                + hl7Order("ORD-1", "LAB-1", "BIOCHEM", "GLU", "6.80", "SPM-1")
+                + hl7Pid("200002", "DUPONT", "JEAN", "19750310", "M")
+                + "<PV1><PV1.2><PV1.2.1>O</PV1.2.1></PV1.2><PV1.19><PV1.19.1>V-2</PV1.19.1></PV1.19></PV1>"
+                + hl7Order("ORD-2", "LAB-2", "BIOCHEM", "K", "4.50", "SPM-2")
+                + "</HL7Message>";
+
+        Map<?, ?> result = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(
+                FhirJson.write(Map.of("steps", steps, "dataType", "XML", "message", xml)), ENV));
+        assertEquals(result.toString(), "[]", result.get("errors").toString());
+
+        Map<?, ?> bundle = resource(result.get("output"));
+        List<Map<?, ?>> entries = (List<Map<?, ?>>) bundle.get("entry");
+        assertEquals(12, entries.size());
+
+        Map<String, String> ippByFullUrl = new LinkedHashMap<>();
+        Map<String, String> patientUrlByIpp = new LinkedHashMap<>();
+        Map<String, String> encounterPatientByUrl = new LinkedHashMap<>();
+        List<Map<?, ?>> patients = new ArrayList<>();
+        for (Map<?, ?> entry : entries) {
+            Map<?, ?> res = (Map<?, ?>) entry.get("resource");
+            String fullUrl = entry.get("fullUrl").toString();
+            String type = res.get("resourceType").toString();
+            if ("Patient".equals(type)) {
+                patients.add(entry);
+                String ipp = ((Map<?, ?>) ((List<?>) res.get("identifier")).get(0)).get("value").toString();
+                ippByFullUrl.put(fullUrl, ipp);
+                patientUrlByIpp.put(ipp, fullUrl);
+            } else if ("Encounter".equals(type)) {
+                encounterPatientByUrl.put(fullUrl, ((Map<?, ?>) res.get("subject")).get("reference").toString());
+            }
+        }
+        assertEquals(2, patients.size());
+        assertEquals(List.of("MARTIN"), ((List<Map<?, ?>>) ((Map<?, ?>) patients.get(0).get("resource")).get("name")).stream().map(n -> n.get("family").toString()).toList());
+        assertEquals(List.of("DUPONT"), ((List<Map<?, ?>>) ((Map<?, ?>) patients.get(1).get("resource")).get("name")).stream().map(n -> n.get("family").toString()).toList());
+        assertEquals("PUT", ((Map<?, ?>) patients.get(0).get("request")).get("method"));
+        assertEquals("Patient?identifier=http://example.org/fhir/oru2fhir/sid/ipp|100001", ((Map<?, ?>) patients.get(0).get("request")).get("url"));
+        assertEquals("PUT", ((Map<?, ?>) patients.get(1).get("request")).get("method"));
+        assertEquals("Patient?identifier=http://example.org/fhir/oru2fhir/sid/ipp|200002", ((Map<?, ?>) patients.get(1).get("request")).get("url"));
+
+        Map<String, String> ippByObsCode = new LinkedHashMap<>();
+        for (Map<?, ?> entry : entries) {
+            Map<?, ?> res = (Map<?, ?>) entry.get("resource");
+            String type = res.get("resourceType").toString();
+            if ("Observation".equals(type)) {
+                String code = ((Map<?, ?>) ((List<?>) ((Map<?, ?>) res.get("code")).get("coding")).get(0)).get("code").toString();
+                String subjectRef = ((Map<?, ?>) res.get("subject")).get("reference").toString();
+                String encounterRef = ((Map<?, ?>) res.get("encounter")).get("reference").toString();
+                String ipp = ippByFullUrl.get(subjectRef);
+                ippByObsCode.put(code, ipp);
+                assertEquals(subjectRef, encounterPatientByUrl.get(encounterRef));
+            } else if ("ServiceRequest".equals(type) || "Specimen".equals(type) || "DiagnosticReport".equals(type)) {
+                String subjectRef = ((Map<?, ?>) res.get("subject")).get("reference").toString();
+                assertTrue(ippByFullUrl.containsKey(subjectRef));
+                if (res.containsKey("encounter")) {
+                    assertEquals(subjectRef, encounterPatientByUrl.get(((Map<?, ?>) res.get("encounter")).get("reference").toString()));
+                }
+            }
+        }
+        assertEquals("100001", ippByObsCode.get("GLU"));
+        assertEquals("200002", ippByObsCode.get("K"));
+        assertEquals(patientUrlByIpp.get("100001"), encounterPatientByUrl.values().stream().filter(patientUrlByIpp.get("100001")::equals).findFirst().orElse(null));
+        assertEquals(patientUrlByIpp.get("200002"), encounterPatientByUrl.values().stream().filter(patientUrlByIpp.get("200002")::equals).findFirst().orElse(null));
+
+        // Asymmetric PV1: first patient has no PV1, second patient has PV1; Observation 1 must not borrow Encounter 2.
+        String asymmetricXml = "<HL7Message>"
+                + "<MSH><MSH.7><MSH.7.1>20260114171908</MSH.7.1></MSH.7><MSH.10><MSH.10.1>MSG-ASYM</MSH.10.1></MSH.10></MSH>"
+                + hl7Pid("100001", "MARTIN", "CLAIRE", "19800215", "F")
+                + hl7Order("ORD-1", "LAB-1", "BIOCHEM", "GLU", "6.80", "SPM-1")
+                + hl7Pid("200002", "DUPONT", "JEAN", "19750310", "M")
+                + "<PV1><PV1.2><PV1.2.1>O</PV1.2.1></PV1.2><PV1.19><PV1.19.1>V-2</PV1.19.1></PV1.19></PV1>"
+                + hl7Order("ORD-2", "LAB-2", "BIOCHEM", "K", "4.50", "SPM-2")
+                + "</HL7Message>";
+        Map<?, ?> asymResult = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(
+                FhirJson.write(Map.of("steps", steps, "dataType", "XML", "message", asymmetricXml)), ENV));
+        assertEquals(asymResult.toString(), "[]", asymResult.get("errors").toString());
+        List<Map<?, ?>> asymEntries = (List<Map<?, ?>>) resource(asymResult.get("output")).get("entry");
+        for (Map<?, ?> entry : asymEntries) {
+            Map<?, ?> res = (Map<?, ?>) entry.get("resource");
+            if ("Observation".equals(res.get("resourceType"))) {
+                String code = ((Map<?, ?>) ((List<?>) ((Map<?, ?>) res.get("code")).get("coding")).get(0)).get("code").toString();
+                if ("GLU".equals(code)) assertFalse("First patient without PV1 must not get second patient's Encounter", res.containsKey("encounter"));
+                if ("K".equals(code)) assertTrue("Second patient with PV1 must reference its Encounter", res.containsKey("encounter"));
+            }
+        }
     }
 
 }
