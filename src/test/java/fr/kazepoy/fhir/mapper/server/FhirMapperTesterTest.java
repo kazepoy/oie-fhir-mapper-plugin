@@ -335,4 +335,15 @@ public class FhirMapperTesterTest {
         assertEquals("[]", result.get("errors").toString());
         assertTrue(result.toString(), result.get("output").toString().contains("\"resourceType\":\"Patient\""));
     }
+
+    @Test
+    public void addMetaProfileNormalizesCoreResourceTypeToCanonicalUrl() {
+        Map<String, Object> config = (Map<String, Object>) FhirJson.parse(step("[" + value("Patient.active", "boolean", "true", "[[\"active\"]]") + "]"));
+        config.put("addMetaProfile", true);
+        String request = "{\"dataType\":\"JSON\",\"message\":\"{}\",\"step\":" + FhirJson.write(config) + "}";
+        Map<?, ?> result = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(request, ENVIRONMENT));
+        assertEquals("[]", result.get("errors").toString());
+        Map<?, ?> out = (Map<?, ?>) FhirJson.parse(result.get("output").toString());
+        assertEquals(List.of("http://hl7.org/fhir/StructureDefinition/Patient"), ((Map<?, ?>) out.get("meta")).get("profile"));
+    }
 }

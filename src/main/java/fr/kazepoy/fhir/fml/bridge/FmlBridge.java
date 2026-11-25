@@ -99,6 +99,7 @@ public final class FmlBridge {
             Element src = FmlSourceBuilder.build(worker, source, format, messageContext, variables, options);
             if (trace != null) trace.put("sourceModelUrl", options.getOrDefault("sourceModelUrl", ""));
             if (trace != null) trace.put("fmlSource", new ObjectMapper().readValue(compose(worker, src), Object.class));
+            verifySourceType(worker, map, src);
             OieTransformerServices services = new OieTransformerServices(worker, context.chain);
             StructureMapUtilities utilities = new StructureMapUtilities(worker, services);
             Element target = Manager.build(worker, targetType(worker, map));
@@ -263,6 +264,49 @@ public final class FmlBridge {
      */
     private static StructureDefinition targetType(IWorkerContext worker, StructureMap map) {
         return parameterType(worker, map, StructureMapInputMode.TARGET);
+    }
+
+    /** Ensures the built source instance is compatible with the entry group's source parameter before rules run. */
+    private static void verifySourceType(IWorkerContext worker, StructureMap map, Element src) {
+        StructureDefinition expected = parameterType(worker, map, StructureMapInputMode.SOURCE);
+        StructureDefinition actual = src != null && src.getProperty() != null ? src.getProperty().getStructure() : null;
+        if (actual == null && src != null && src.fhirType() != null) {
+            actual = fetchStructureDefinition(worker, src.fhirType());
+        }
+        if (isCompatibleSource(worker, actual, expected)) {
+            return;
+        }
+        String actualLabel = actual == null ? (src == null ? "null" : src.fhirType())
+                : actual.getType() + " (" + actual.getUrl() + ")";
+        String expectedLabel = expected.getType() + " (" + expected.getUrl() + ")";
+        throw new FHIRException("Incompatible source type " + actualLabel + " for StructureMap " + map.getUrl()
+                + " (expected " + expectedLabel + ").");
+    }
+
+    private static boolean isCompatibleSource(IWorkerContext worker, StructureDefinition actual, StructureDefinition expected) {
+        if (actual == null || expected == null) return false;
+        if (isSubtypeOf(worker, actual, expected.getUrl())) return true;
+        if (expected.getKind() == StructureDefinition.StructureDefinitionKind.RESOURCE
+                && expected.getDerivation() == StructureDefinition.TypeDerivationRule.CONSTRAINT
+                && actual.getKind() == StructureDefinition.StructureDefinitionKind.RESOURCE) {
+            return expected.hasType() && expected.getType().equals(actual.getType())
+                    && (actual.getDerivation() != StructureDefinition.TypeDerivationRule.CONSTRAINT
+                            || isSubtypeOf(worker, actual, expected.getUrl()));
+        }
+        return false;
+    }
+
+    private static boolean isSubtypeOf(IWorkerContext worker, StructureDefinition actual, String expectedUrl) {
+        if (expectedUrl == null) return false;
+        StructureDefinition current = actual;
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        while (current != null) {
+            if (expectedUrl.equals(current.getUrl())) return true;
+            String base = current.getBaseDefinition();
+            if (base == null || base.isEmpty() || !seen.add(base)) break;
+            current = fetchStructureDefinition(worker, base);
+        }
+        return false;
     }
 
     private static StructureDefinition parameterType(IWorkerContext worker, StructureMap map, StructureMapInputMode mode) {

@@ -158,6 +158,28 @@ public class FmlBridgeTest {
     }
 
     @Test
+    public void rejectsIncompatibleFhirSourceTypeBeforeExecutingRules() throws Exception {
+        Map<String, String> opts = new LinkedHashMap<>(options());
+        opts.put("sourceModel", "fhir");
+        String map = "inline:map \"http://example.org/fhir/StructureMap/CopyPatientId\" = \"CopyPatientId\"\n"
+                + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias Patient as source\n"
+                + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias TargetPatient as target\n"
+                + "group CopyPatientId(source src : Patient, target tgt : TargetPatient) {\n"
+                + "  src.id as id -> tgt.id = id \"copy-id\";\n"
+                + "}\n";
+        try {
+            bridge.transform(map, "{\"resourceType\":\"Organization\",\"id\":\"p1\"}", "json", Map.of(), Map.of(), opts);
+            fail("Expected incompatible source type error for Organization on Patient map");
+        } catch (Exception expected) {
+            assertTrue(expected.getMessage(), expected.getMessage().contains("Organization"));
+            assertTrue(expected.getMessage(), expected.getMessage().contains("Patient"));
+        }
+        JsonNode valid = JSON.readTree(bridge.transform(map, "{\"resourceType\":\"Patient\",\"id\":\"p1\"}", "json", Map.of(), Map.of(), opts));
+        assertEquals("Patient", valid.path("resourceType").asText());
+        assertEquals("p1", valid.path("id").asText());
+    }
+
+    @Test
     public void reportsAnUnknownOrAmbiguousFmlSourceModel() throws Exception {
         Map<String, String> opts = new LinkedHashMap<>(options());
         opts.put("sourceModel", "fhir");

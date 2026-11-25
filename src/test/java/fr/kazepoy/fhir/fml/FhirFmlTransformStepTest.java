@@ -100,6 +100,18 @@ public class FhirFmlTransformStepTest {
             assertEquals("error", trace.get("status"));
             assertEquals("configuration", trace.get("phase"));
         }
+
+        // Dynamic map selection with a mismatched logical source model must also fail before rules run
+        channelMap.put("fmlMapUrl", "http://example.org/fhir/StructureMap/AdtA28");
+        channelMap.put("fmlSourceModelUrl", "http://example.org/fhir/StructureDefinition/AdtA31");
+        try {
+            run(script, channelMap, "{\"identifier\":\"AdtA31\"}", true);
+            fail("Expected incompatible dynamic logical source model error");
+        } catch (Exception expected) {
+            assertTrue(expected.toString(), expected.toString().contains("Incompatible source type"));
+            Map<?, ?> trace = (Map<?, ?>) FhirJson.parse(channelMap.get("FML_TRACE_D0_S0").toString());
+            assertEquals("error", trace.get("status"));
+        }
     }
 
     @Test

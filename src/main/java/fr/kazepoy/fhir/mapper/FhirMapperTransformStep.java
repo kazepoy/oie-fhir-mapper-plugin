@@ -339,8 +339,12 @@ public class FhirMapperTransformStep extends Step {
         sb.append("var __build = function (").append(params).append(") {\n");
         sb.append("var __r = {resourceType: ").append(FhirJson.write(resourceType.trim())).append("};\n");
         if (addMetaProfile && !profileUrl.trim().isEmpty()) {
+            String rawProfile = profileUrl.trim();
+            String canonicalProfile = (!rawProfile.contains("://") && !rawProfile.contains("/"))
+                    ? "http://hl7.org/fhir/StructureDefinition/" + rawProfile
+                    : rawProfile;
             sb.append("__fhir.set(__r, [[\"meta\"], [\"profile\", \"#profile\"]], \"canonical\", function () { return ")
-                    .append(FhirJson.write(profileUrl.trim())).append("; }, \"meta.profile\", null);\n");
+                    .append(FhirJson.write(canonicalProfile)).append("; }, \"meta.profile\", null);\n");
         }
         if (setLastUpdated) {
             sb.append("__fhir.set(__r, [[\"meta\"], [\"lastUpdated\"]], \"instant\", function () { return String(java.time.OffsetDateTime.now()); }, \"meta.lastUpdated\", null);\n");
