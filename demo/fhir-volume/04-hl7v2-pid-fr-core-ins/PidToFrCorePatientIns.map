@@ -18,23 +18,17 @@ uses "http://example.org/fhir/hl7v2-demo/StructureDefinition/PID" alias PID as s
 uses "https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins" alias FrCorePatientIns as target
 
 group PidToFrCorePatientIns(source src : PID, target tgt : FrCorePatientIns) {
-  src -> tgt.meta as meta, meta.profile = 'https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins' "profile";
-
-  // PID-3 is repeatable; CX-5 identifies the identifier type.
-  // INS: the profile's INS-NIR slice, with type INS-NIR and OID 1.2.250.1.213.1.4.8.
-  src.PID_3 as cx where cx.CX_5.value = 'INS' -> tgt.identifier as identifier then {
-    cx -> identifier.use = 'official' "ins-use";
-    cx -> identifier.system = 'urn:oid:1.2.250.1.213.1.4.8' "ins-system";
-    cx -> identifier.type as type then {
-      cx -> type.coding as coding then {
-        cx -> coding.system = 'https://hl7.fr/ig/fhir/core/CodeSystem/fr-core-cs-v2-0203' "ins-type-system";
-        cx -> coding.code = 'INS-NIR' "ins-type-code";
-      } "ins-type-coding";
-    } "ins-type";
-    cx.CX_1 as idNumber then {
-      idNumber.value as idValue -> identifier.value = idValue "ins-value";
-    } "ins-number";
-  } "identifier-ins";
+  // PID-3 is repeatable; CX-5 and CX-4.2 (assigning authority OID) must match strictly:
+  //   1.2.250.1.213.1.4.8  <-> INS-NIR
+  //   1.2.250.1.213.1.4.9  <-> INS-NIA
+  //   1.2.250.1.213.1.4.10 <-> INS-NIR-TEST
+  //   1.2.250.1.213.1.4.11 <-> INS-NIR-DEMO
+  // An absent, unknown, or contradictory authority never falls back to ...4.8 / INS-NIR
+  // and never emits the fr-core-patient-ins profile.
+  src.PID_3 as cx where (cx.CX_5.value = 'INS' or cx.CX_5.value = 'INS-NIR') and cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.8' -> tgt.identifier as identifier then InsIdentifier(cx, tgt, identifier) "identifier-ins-nir";
+  src.PID_3 as cx where (cx.CX_5.value = 'INS' or cx.CX_5.value = 'INS-NIA') and cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.9' -> tgt.identifier as identifier then InsIdentifier(cx, tgt, identifier) "identifier-ins-nia";
+  src.PID_3 as cx where (cx.CX_5.value = 'INS' or cx.CX_5.value = 'INS-NIR-TEST') and cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.10' -> tgt.identifier as identifier then InsIdentifier(cx, tgt, identifier) "identifier-ins-nir-test";
+  src.PID_3 as cx where (cx.CX_5.value = 'INS' or cx.CX_5.value = 'INS-NIR-DEMO') and cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.11' -> tgt.identifier as identifier then InsIdentifier(cx, tgt, identifier) "identifier-ins-nir-demo";
 
   // Local patient identifier: PI slice, for which the profile does not require a specific system.
   src.PID_3 as cx where cx.CX_5.value = 'PI' -> tgt.identifier as identifier then {
@@ -103,4 +97,26 @@ group PidToFrCorePatientIns(source src : PID, target tgt : FrCorePatientIns) {
       } "insee";
     } "birth-place-address";
   } "birth-place";
+}
+
+group InsIdentifier(source cx : CX, target tgt : FrCorePatientIns, target identifier : Identifier) {
+  cx -> tgt.meta as meta, meta.profile = 'https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins' "profile";
+  cx -> identifier.use = 'official' "ins-use";
+  cx.CX_4 as auth then {
+    auth.HD_2 as oid then {
+      oid.value as oidValue -> identifier.system = ('urn:oid:' & oidValue) "ins-system";
+    } "ins-authority-oid";
+  } "ins-authority";
+  cx -> identifier.type as type then {
+    cx -> type.coding as coding then {
+      cx -> coding.system = 'https://hl7.fr/ig/fhir/core/CodeSystem/fr-core-cs-v2-0203' "ins-type-system";
+      cx where cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.8' -> coding.code = 'INS-NIR' "ins-type-nir";
+      cx where cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.9' -> coding.code = 'INS-NIA' "ins-type-nia";
+      cx where cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.10' -> coding.code = 'INS-NIR-TEST' "ins-type-nir-test";
+      cx where cx.CX_4.HD_2.value = '1.2.250.1.213.1.4.11' -> coding.code = 'INS-NIR-DEMO' "ins-type-nir-demo";
+    } "ins-type-coding";
+  } "ins-type";
+  cx.CX_1 as idNumber then {
+    idNumber.value as idValue -> identifier.value = idValue "ins-value";
+  } "ins-number";
 }

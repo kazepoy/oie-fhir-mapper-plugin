@@ -11,7 +11,7 @@
   "name": "CX",
   "title": "HL7 v2 CX data type",
   "status": "draft",
-  "description": "Demo HL7 v2 CX logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: CX_1, CX_5. CX-5 is bound to the local v2-0203-fr ValueSet, which adds the French INS code to international table 0203.",
+  "description": "Demo HL7 v2 CX logical model, restricted to components used by PidToFrCorePatientIns.map. Retained components: CX_1, CX_4, CX_5. CX-4 carries the assigning authority (HD); CX-5 is bound to the local v2-0203-fr ValueSet.",
   "fhirVersion": "4.0.1",
   "kind": "logical",
   "abstract": false,
@@ -65,6 +65,29 @@
         "type": [
           {
             "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "CX.CX_4",
+        "path": "CX.CX_4",
+        "short": "Assigning Authority",
+        "definition": "CX.4 - Assigning Authority",
+        "alias": [
+          "CX.4",
+          "AssigningAuthority"
+        ],
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "http://example.org/fhir/hl7v2-demo/StructureDefinition/HD"
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/tools/StructureDefinition/xml-name",
+            "valueString": "CX.4"
           }
         ]
       },

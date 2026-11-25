@@ -69,8 +69,65 @@ public class FmlBridgeTest {
         JsonNode source = JSON.readTree(bridge.source(input, "xml", Map.of(), Map.of(), opts));
         assertEquals("000003", source.path("PID_3").get(0).path("CX_1").path("value").asText());
         assertEquals("279035121518989", source.path("PID_3").get(1).path("CX_1").path("value").asText());
+        assertEquals("1.2.250.1.213.1.4.10", source.path("PID_3").get(1).path("CX_4").path("HD_2").path("value").asText());
         assertEquals("PAT-TROIS", source.path("PID_5").get(0).path("XPN_1").path("FN_1").path("value").asText());
         assertEquals(source.toPrettyString(), "F", source.path("PID_8").path("value").asText());
+
+        String mapSource = Files.readString(Path.of("demo/fhir-volume/04-hl7v2-pid-fr-core-ins/PidToFrCorePatientIns.map"))
+                .replace("uses \"https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins\" alias FrCorePatientIns as target",
+                        "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias FrCorePatientIns as target");
+        String map = "inline:" + mapSource;
+        JsonNode expected = JSON.readTree(Files.readString(Path.of("demo/oie-init/data/samples/04-hl7v2-pid-fr-core-ins/patient.json")));
+        assertEquals(expected, JSON.readTree(bridge.transform(map, input, "xml", Map.of(), Map.of(), opts)));
+
+        // 1. NIR prod, 2. NIA, 3. NIR test, 4. NIR demo
+        for (List<String> valid : List.of(
+                List.of("INS", "1.2.250.1.213.1.4.8", "INS-NIR"),
+                List.of("INS-NIR", "1.2.250.1.213.1.4.8", "INS-NIR"),
+                List.of("INS", "1.2.250.1.213.1.4.9", "INS-NIA"),
+                List.of("INS-NIA", "1.2.250.1.213.1.4.9", "INS-NIA"),
+                List.of("INS", "1.2.250.1.213.1.4.10", "INS-NIR-TEST"),
+                List.of("INS-NIR-TEST", "1.2.250.1.213.1.4.10", "INS-NIR-TEST"),
+                List.of("INS", "1.2.250.1.213.1.4.11", "INS-NIR-DEMO"),
+                List.of("INS-NIR-DEMO", "1.2.250.1.213.1.4.11", "INS-NIR-DEMO"))) {
+            String xml = pidWithIns(valid.get(0), valid.get(1));
+            JsonNode out = JSON.readTree(bridge.transform(map, xml, "xml", Map.of(), Map.of(), opts));
+            assertEquals("https://hl7.fr/ig/fhir/core/StructureDefinition/fr-core-patient-ins",
+                    out.path("meta").path("profile").get(0).asText());
+            JsonNode insId = out.path("identifier").get(0);
+            assertEquals("urn:oid:" + valid.get(1), insId.path("system").asText());
+            assertEquals(valid.get(2), insId.path("type").path("coding").get(0).path("code").asText());
+        }
+
+        // 5. Missing / unknown authority & 6. Contradictory (CX.5, CX.4.2) pairs: never default to ...4.8 / INS-NIR
+        for (List<String> invalid : List.of(
+                List.of("INS", ""),
+                List.of("INS", "1.2.3.4"),
+                List.of("INS-NIA", "1.2.250.1.213.1.4.8"),
+                List.of("INS-NIR-TEST", "1.2.250.1.213.1.4.8"),
+                List.of("INS-NIR", "1.2.250.1.213.1.4.10"))) {
+            String xml = pidWithIns(invalid.get(0), invalid.get(1));
+            JsonNode out = JSON.readTree(bridge.transform(map, xml, "xml", Map.of(), Map.of(), opts));
+            assertFalse("Invalid INS authority/type must not emit fr-core-patient-ins profile: " + invalid,
+                    out.path("meta").has("profile"));
+            for (JsonNode id : out.path("identifier")) {
+                assertFalse("Invalid INS must not fall back to ...4.8: " + invalid,
+                        id.path("system").asText().contains("1.2.250.1.213.1.4."));
+                assertFalse("Invalid INS must not emit INS-* type: " + invalid,
+                        id.path("type").path("coding").get(0).path("code").asText().startsWith("INS"));
+            }
+        }
+    }
+
+    private static String pidWithIns(String cx5, String oid) {
+        String authority = oid.isEmpty() ? "" : "<CX.4><HD.2>" + oid + "</HD.2></CX.4>";
+        return "<PID>"
+                + "<PID.3><CX.1>000003</CX.1><CX.5>PI</CX.5></PID.3>"
+                + "<PID.3><CX.1>279035121518989</CX.1>" + authority + "<CX.5>" + cx5 + "</CX.5></PID.3>"
+                + "<PID.5><XPN.1><FN.1>PAT-TROIS</FN.1></XPN.1><XPN.2>DOMINIQUE</XPN.2><XPN.7>L</XPN.7></PID.5>"
+                + "<PID.7><TS.1>19790328</TS.1></PID.7>"
+                + "<PID.8>F</PID.8>"
+                + "</PID>";
     }
 
     @Test

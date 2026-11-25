@@ -13,6 +13,22 @@
     {
       "code": "INS",
       "display": "French national health identifier"
+    },
+    {
+      "code": "INS-NIR",
+      "display": "French national health identifier (NIR)"
+    },
+    {
+      "code": "INS-NIA",
+      "display": "French national health identifier (NIA)"
+    },
+    {
+      "code": "INS-NIR-TEST",
+      "display": "French national health identifier (NIR test)"
+    },
+    {
+      "code": "INS-NIR-DEMO",
+      "display": "French national health identifier (NIR demonstration)"
     }
   ]
 }

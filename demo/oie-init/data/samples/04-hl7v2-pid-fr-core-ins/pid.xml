@@ -1,10 +1,20 @@
 <PID>
   <PID.3>
     <CX.1>000003</CX.1>
+    <CX.4>
+      <HD.1>CHU-X</HD.1>
+      <HD.2>000897406</HD.2>
+      <HD.3>N</HD.3>
+    </CX.4>
     <CX.5>PI</CX.5>
   </PID.3>
   <PID.3>
     <CX.1>279035121518989</CX.1>
+    <CX.4>
+      <HD.1>ASIP-SANTE-INS-NIR</HD.1>
+      <HD.2>1.2.250.1.213.1.4.10</HD.2>
+      <HD.3>ISO</HD.3>
+    </CX.4>
     <CX.5>INS</CX.5>
   </PID.3>
   <PID.5>
