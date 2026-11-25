@@ -180,6 +180,26 @@ public class FmlBridgeTest {
     }
 
     @Test
+    public void validatesAgainstMapTargetProfileEvenWithoutMetaProfile() throws Exception {
+        Map<String, String> opts = new LinkedHashMap<>(options());
+        opts.put("profiles", Path.of("src/test/resources/profiles/patient-with-birthdate.json").toAbsolutePath().toString());
+        opts.put("sourceModel", "fhir");
+        String map = "inline:map \"http://example.org/fhir/StructureMap/CopyPatientNoMeta\" = \"CopyPatientNoMeta\"\n"
+                + "uses \"http://hl7.org/fhir/StructureDefinition/Patient\" alias Patient as source\n"
+                + "uses \"http://example.org/fhir/StructureDefinition/patient-with-birthdate\" alias TargetPatient as target\n"
+                + "group CopyPatientNoMeta(source src : Patient, target tgt : TargetPatient) {\n"
+                + "  src.id as id -> tgt.id = id \"copy-id\";\n"
+                + "}\n";
+        opts.put("mapReference", map);
+        String output = bridge.transform(map, "{\"resourceType\":\"Patient\",\"id\":\"p1\"}", "json", Map.of(), Map.of(), opts);
+        assertFalse(JSON.readTree(output).path("meta").has("profile"));
+        List<Map<String, String>> issues = bridge.validate(output, opts);
+        assertTrue(issues.toString(), issues.stream().anyMatch(i ->
+                ("error".equals(i.get("severity")) || "fatal".equals(i.get("severity")))
+                        && i.get("message").contains("birthDate")));
+    }
+
+    @Test
     public void reportsAnUnknownOrAmbiguousFmlSourceModel() throws Exception {
         Map<String, String> opts = new LinkedHashMap<>(options());
         opts.put("sourceModel", "fhir");

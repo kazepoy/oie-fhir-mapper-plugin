@@ -616,7 +616,7 @@
     // What the steps of one message share: named Bundles and the fullUrls of their resources.
     function state() {
         if (!global.__fhirMapperTransform) {
-            global.__fhirMapperTransform = {bundles: Object.create(null), active: [], outputs: []};
+            global.__fhirMapperTransform = {bundles: Object.create(null), active: [], outputs: [], entries: []};
         }
         return global.__fhirMapperTransform;
     }
@@ -956,6 +956,9 @@
                 }
                 b.resource.entry.push(entry);
             }
+            if (this.options.validateOutput !== false && this.options.requiredProfile) {
+                state().entries.push({resource: copy(resource), options: this.options});
+            }
             stepEvent('bundle-entry', 'added', start, {bundles: active.slice(), resourceType: String(resource.resourceType),
                 refName: refName === null || refName === undefined ? null : String(refName), fullUrl: fullUrl, reserved: reserved});
         },
@@ -1039,6 +1042,20 @@
                     messageEvent('references', 'passed', step, {bundle: name, entries: b.resource.entry.length});
                     b.name = name;
                     results.push(b);
+                }
+                var entries = state().entries || [];
+                for (var e = 0; e < entries.length; e++) {
+                    var entryItem = entries[e];
+                    subject = {resourceType: String(entryItem.resource.resourceType)};
+                    phase = 'validation';
+                    step = java.lang.System.nanoTime();
+                    var entryResult = FhirFacade.validate(
+                        json(entryItem.resource), entryItem.options.requiredProfile, entryItem.options.profiles, entryItem.options.fhirVersion);
+                    if (!entryResult.isValid()) {
+                        messageEvent('validation', 'failed', step, subject);
+                        subject = null;
+                        throw new Error('FHIR Mapper Transform, ' + entryItem.resource.resourceType + ': ' + entryResult.summary());
+                    }
                 }
                 var targets = Object.create(null);
                 for (var r = 0; r < results.length; r++) {

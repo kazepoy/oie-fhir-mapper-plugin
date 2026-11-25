@@ -111,8 +111,15 @@ final class FmlContext {
     }
 
     List<Map<String, String>> validate(String json) {
+        return validate(json, null);
+    }
+
+    List<Map<String, String>> validate(String json, String profileUrl) {
         List<Map<String, String>> issues = new ArrayList<>();
-        for (ca.uhn.fhir.validation.SingleValidationMessage message : validator.validateWithResult(json).getMessages()) {
+        ca.uhn.fhir.validation.ValidationResult result = (profileUrl == null || profileUrl.isBlank())
+                ? validator.validateWithResult(json)
+                : validator.validateWithResult(json, new ca.uhn.fhir.validation.ValidationOptions().addProfile(profileUrl));
+        for (ca.uhn.fhir.validation.SingleValidationMessage message : result.getMessages()) {
             Map<String, String> issue = new LinkedHashMap<>();
             issue.put("severity", message.getSeverity().getCode());
             issue.put("location", message.getLocationString() == null ? "" : message.getLocationString());

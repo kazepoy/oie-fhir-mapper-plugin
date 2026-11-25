@@ -318,4 +318,25 @@ public class FhirMapperTransformerTest {
         assertEquals(FhirJson.NULL, invalidResult.get("output"));
     }
 
+    @Test public void bundleEntryIsValidatedAgainstItsStepProfileEvenWithoutMetaProfile() {
+        String profiles = Path.of("src/test/resources/profiles/patient-with-birthdate.json").toAbsolutePath().toString();
+        Map<String, Object> bundleStep = Map.ofEntries(
+                Map.entry("action", "createBundle"), Map.entry("name", "Bundle"), Map.entry("sequenceNumber", "1"), Map.entry("enabled", true),
+                Map.entry("fhirVersion", "R4"), Map.entry("profiles", profiles), Map.entry("profileUrl", "Bundle"), Map.entry("resourceType", "Bundle"),
+                Map.entry("bundleName", "labo"), Map.entry("bundleType", "transaction"), Map.entry("validateOutput", true),
+                Map.entry("mappings", "[{\"key\":\"Bundle.type\",\"fixed\":\"transaction\",\"when\":0,\"path\":[[\"type\"]]}]"));
+        Map<String, Object> patientStep = Map.ofEntries(
+                Map.entry("action", "resource"), Map.entry("name", "Patient"), Map.entry("sequenceNumber", "2"), Map.entry("enabled", true),
+                Map.entry("fhirVersion", "R4"), Map.entry("profiles", profiles),
+                Map.entry("profileUrl", "http://example.org/fhir/StructureDefinition/patient-with-birthdate"),
+                Map.entry("resourceType", "Patient"), Map.entry("addMetaProfile", false), Map.entry("validateOutput", true),
+                Map.entry("bundleTargets", "[{\"name\":\"labo\",\"requestMethod\":\"POST\"}]"),
+                Map.entry("mappings", "[{\"key\":\"Patient.id\",\"element\":\"Patient.id\",\"type\":\"id\",\"expression\":\"'p1'\",\"path\":[[\"id\"]]}]"));
+
+        Map<?, ?> result = run(List.of(bundleStep, patientStep));
+        assertFalse(result.get("errors").toString(), ((List<?>) result.get("errors")).isEmpty());
+        assertTrue(result.get("errors").toString(), result.get("errors").toString().contains("birthDate"));
+        assertEquals(FhirJson.NULL, result.get("output"));
+    }
+
 }

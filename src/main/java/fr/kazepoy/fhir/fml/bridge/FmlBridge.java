@@ -255,7 +255,26 @@ public final class FmlBridge {
     }
 
     public List<Map<String, String>> validate(String json, Map<String, String> options) throws Exception {
-        return withContext(options, context -> context.validate(json));
+        return withContext(options, context -> {
+            String profileUrl = targetProfileUrl(context, options);
+            return context.validate(json, profileUrl);
+        });
+    }
+
+    private static String targetProfileUrl(FmlContext context, Map<String, String> options) throws Exception {
+        if (options == null) return null;
+        String mapRef = options.get("mapReference");
+        if (mapRef == null || mapRef.isBlank()) return null;
+        String url = mapRef.trim();
+        StructureMap map = url.startsWith(INLINE)
+                ? context.inline(mapRef.substring(mapRef.indexOf(INLINE) + INLINE.length()))
+                : context.map(url);
+        if (map == null) return null;
+        StructureDefinition target = targetType(context.worker, map);
+        if (target.getKind() == StructureDefinition.StructureDefinitionKind.RESOURCE) {
+            return target.getUrl();
+        }
+        return null;
     }
 
     /**
