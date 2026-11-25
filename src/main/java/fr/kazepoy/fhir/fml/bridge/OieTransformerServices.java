@@ -53,9 +53,14 @@ final class OieTransformerServices implements ITransformerServices {
                     List.of(source), null, conceptMapUrl, null, null, null, null, false);
             var result = terminology.translateConcept(request);
             if (result == null || !result.getResult() || result.isEmpty()) return null;
-            var coding = result.getResults().stream().filter(c -> !java.util.Set.of("unmatched", "disjoint", "not-related-to")
-                    .contains(c.getEquivalence() == null ? "" : c.getEquivalence())).findFirst();
-            return coding.map(c -> new Coding(c.getSystem(), c.getCode(), c.getDisplay())).orElse(null);
+            var matches = result.getResults().stream().filter(c -> !java.util.Set.of("unmatched", "disjoint", "not-related-to")
+                    .contains(c.getEquivalence() == null ? "" : c.getEquivalence())).toList();
+            if (matches.size() > 1) {
+                throw new FHIRException("FML: ambiguous ConceptMap translation in " + conceptMapUrl + " for code '" + source.getCode() + "': " + matches.size() + " matching targets.");
+            }
+            if (matches.isEmpty()) return null;
+            var c = matches.get(0);
+            return new Coding(c.getSystem(), c.getCode(), c.getDisplay());
         }
         throw new FHIRException("FML: ConceptMap " + conceptMapUrl + " is not in the profiles of the step.");
     }

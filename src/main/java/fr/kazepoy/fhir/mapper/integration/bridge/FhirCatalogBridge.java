@@ -474,6 +474,8 @@ public final class FhirCatalogBridge {
             }
         }
         Set<JsonNode> noMapGroups = new HashSet<>();
+        List<JsonNode> matches = new ArrayList<>();
+        boolean blockedByDependsOn = false;
         for (JsonNode group : groups) {
             for (JsonNode element : group.path("element")) {
                 if (!code.equals(element.path("code").asText(null))) {
@@ -485,11 +487,25 @@ public final class FhirCatalogBridge {
                 }
                 for (JsonNode target : element.path("target")) {
                     String relation = target.has("relationship") ? target.path("relationship").asText("") : target.path("equivalence").asText("");
-                    if (!NO_MATCH.contains(relation) && !target.path("code").asText("").isEmpty()) {
-                        return coding(unversioned(group.path("target").asText("")), target.path("code").asText(), target.path("display").asText(""));
+                    if (NO_MATCH.contains(relation) || target.path("code").asText("").isEmpty()) {
+                        continue;
                     }
+                    if (target.path("dependsOn").isArray() && target.path("dependsOn").size() > 0) {
+                        blockedByDependsOn = true;
+                        continue;
+                    }
+                    matches.add(coding(unversioned(group.path("target").asText("")), target.path("code").asText(), target.path("display").asText("")));
                 }
             }
+        }
+        if (matches.size() > 1) {
+            throw new IllegalArgumentException("Ambiguous ConceptMap translation in " + map.path("url").asText("") + " for code '" + code + "': " + matches.size() + " matching targets.");
+        }
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+        if (blockedByDependsOn) {
+            throw new IllegalArgumentException("ConceptMap " + map.path("url").asText("") + ": target for code '" + code + "' requires dependsOn context which was not provided.");
         }
         for (JsonNode group : groups) {
             if (noMapGroups.contains(group)) {

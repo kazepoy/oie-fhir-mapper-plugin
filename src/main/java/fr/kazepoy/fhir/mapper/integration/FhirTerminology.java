@@ -269,6 +269,8 @@ public final class FhirTerminology {
                 return null;
             }
         }
+        List<Map<String, Object>> matches = new java.util.ArrayList<>();
+        boolean blockedByDependsOn = false;
         for (Object p : list(parameters.get("parameter"))) {
             Map<?, ?> parameter = map(p);
             if (!"match".equals(parameter.get("name"))) {
@@ -276,15 +278,23 @@ public final class FhirTerminology {
             }
             Map<?, ?> concept = null;
             String equivalence = "";
+            boolean hasDependsOn = false;
             for (Object part : list(parameter.get("part"))) {
                 Map<?, ?> pp = map(part);
-                if ("concept".equals(pp.get("name"))) {
+                String partName = value(pp.get("name"));
+                if ("concept".equals(partName)) {
                     concept = map(pp.get("valueCoding"));
-                } else if ("equivalence".equals(pp.get("name")) || "relationship".equals(pp.get("name"))) {
+                } else if ("equivalence".equals(partName) || "relationship".equals(partName)) {
                     equivalence = value(pp.get("valueCode"));
+                } else if ("dependsOn".equals(partName)) {
+                    hasDependsOn = true;
                 }
             }
             if (concept == null || NO_MATCH.contains(equivalence) || value(concept.get("code")).isEmpty()) {
+                continue;
+            }
+            if (hasDependsOn) {
+                blockedByDependsOn = true;
                 continue;
             }
             Map<String, Object> coding = new LinkedHashMap<>();
@@ -293,7 +303,16 @@ public final class FhirTerminology {
                     coding.put(field, value(concept.get(field)));
                 }
             }
-            return FhirFacade.write(coding);
+            matches.add(coding);
+        }
+        if (matches.size() > 1) {
+            throw new IllegalArgumentException("Ambiguous ConceptMap translation: " + matches.size() + " matching targets returned.");
+        }
+        if (matches.size() == 1) {
+            return FhirFacade.write(matches.get(0));
+        }
+        if (blockedByDependsOn) {
+            throw new IllegalArgumentException("ConceptMap translation requires dependsOn context which was not provided.");
         }
         return null;
     }

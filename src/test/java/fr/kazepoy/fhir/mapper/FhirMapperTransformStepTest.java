@@ -324,6 +324,38 @@ public class FhirMapperTransformStepTest {
     }
 
     @Test
+    public void remoteFirstMatchRejectsAmbiguousTargetsAndUnverifiedDependsOn() throws Exception {
+        String multi = "{\"resourceType\":\"Parameters\",\"parameter\":["
+                + "{\"name\":\"result\",\"valueBoolean\":true},"
+                + "{\"name\":\"match\",\"part\":[{\"name\":\"equivalence\",\"valueCode\":\"equivalent\"},{\"name\":\"concept\",\"valueCoding\":{\"system\":\"http://hl7.org/fhir/administrative-gender\",\"code\":\"female\"}}]},"
+                + "{\"name\":\"match\",\"part\":[{\"name\":\"equivalence\",\"valueCode\":\"equivalent\"},{\"name\":\"concept\",\"valueCoding\":{\"system\":\"http://hl7.org/fhir/administrative-gender\",\"code\":\"other\"}}]}"
+                + "]}";
+        try {
+            FhirTerminology.class.getDeclaredMethod("firstMatch", Object.class);
+            java.lang.reflect.Method m = FhirTerminology.class.getDeclaredMethod("firstMatch", Object.class);
+            m.setAccessible(true);
+            try {
+                m.invoke(null, FhirJson.parse(multi));
+                fail("Expected ambiguous match rejection");
+            } catch (java.lang.reflect.InvocationTargetException expected) {
+                assertTrue(expected.getCause().getMessage().contains("Ambiguous"));
+            }
+            String dep = "{\"resourceType\":\"Parameters\",\"parameter\":["
+                    + "{\"name\":\"result\",\"valueBoolean\":true},"
+                    + "{\"name\":\"match\",\"part\":[{\"name\":\"equivalence\",\"valueCode\":\"equivalent\"},{\"name\":\"dependsOn\",\"valueString\":\"ctx\"},{\"name\":\"concept\",\"valueCoding\":{\"system\":\"http://hl7.org/fhir/administrative-gender\",\"code\":\"female\"}}]}"
+                    + "]}";
+            try {
+                m.invoke(null, FhirJson.parse(dep));
+                fail("Expected dependsOn rejection");
+            } catch (java.lang.reflect.InvocationTargetException expected) {
+                assertTrue(expected.getCause().getMessage().contains("dependsOn"));
+            }
+        } catch (NoSuchMethodException e) {
+            throw e;
+        }
+    }
+
+    @Test
     public void noMatchCanGiveAFixedValueOrAnExpression() throws Exception {
         String server = terminologyServer();
         FhirMapperTransformStep step = patient(gender("Coding", "'X'", "fixed", "http://hl7.org/fhir/administrative-gender|unknown", SEX_MAP, V2_SEX));

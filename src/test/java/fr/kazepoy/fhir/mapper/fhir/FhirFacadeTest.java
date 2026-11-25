@@ -67,6 +67,28 @@ public class FhirFacadeTest {
                 "http://terminology.hl7.org/CodeSystem/v2-0001", "F", "", "R4");
         assertEquals("female", ((Map<?, ?>) FhirFacade.parse(translated)).get("code"));
         assertNull(FhirFacade.translate("n/a", maps, "http://example.org/ConceptMap/v2-sex", "", "U", "", "R4"));
+
+        // dependsOn without context and multiple admissible targets must be rejected
+        java.nio.file.Path dir = java.nio.file.Files.createTempDirectory("cm-strict-");
+        try {
+            java.nio.file.Files.writeString(dir.resolve("cm-strict.json"), "{"
+                    + "\"resourceType\":\"ConceptMap\",\"url\":\"http://example.org/ConceptMap/strict\",\"status\":\"active\","
+                    + "\"group\":[{\"source\":\"http://example.org/src\",\"target\":\"http://example.org/tgt\",\"element\":["
+                    + "{\"code\":\"DEP\",\"target\":[{\"code\":\"T1\",\"equivalence\":\"equivalent\",\"dependsOn\":[{\"property\":\"ctx\",\"value\":\"1\"}]}]},"
+                    + "{\"code\":\"MULTI\",\"target\":[{\"code\":\"T1\",\"equivalence\":\"equivalent\"},{\"code\":\"T2\",\"equivalence\":\"equivalent\"}]}"
+                    + "]}]}");
+            for (String code : List.of("DEP", "MULTI")) {
+                try {
+                    FhirFacade.translate("n/a", dir.toString(), "http://example.org/ConceptMap/strict", "http://example.org/src", code, "", "R4");
+                    fail("Expected rejection for " + code);
+                } catch (IllegalArgumentException expected) {
+                    assertTrue(expected.getMessage(), expected.getMessage().contains(code));
+                }
+            }
+        } finally {
+            java.nio.file.Files.deleteIfExists(dir.resolve("cm-strict.json"));
+            java.nio.file.Files.deleteIfExists(dir);
+        }
     }
 
     @Test
