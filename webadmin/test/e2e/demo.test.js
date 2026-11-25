@@ -238,7 +238,9 @@ describe("the step editors in the demo", () => {
       const result = await (await response).json();
       assert.deepEqual(result.errors || [], []);
       assert.ok(result.output, JSON.stringify(result));
-      const extension = JSON.parse(result.output).extension.find(extension => extension.url === url + name);
+      const output = JSON.parse(result.output);
+      const patient = output.resourceType === "Bundle" ? output.entry[0].resource : output;
+      const extension = patient.extension.find(extension => extension.url === url + name);
       assert.equal(extension[kind === "profile" ? "valueCode" : "valueString"], value);
       assert.equal((result.issues || []).filter(issue => ["error", "fatal"].includes(issue.severity)).length, 0);
     }

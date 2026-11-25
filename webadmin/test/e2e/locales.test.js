@@ -22,7 +22,7 @@ for (const colorScheme of ["light", "dark"]) test(`French editors and settings i
     await inspector.getByRole("button", { name: "Fermer", exact: true }).click();
     // Resource keys and expressions remain data even when their controls are French.
     const expression = mapper.locator("tr[title^='Patient.gender'] [role=combobox]").first();
-    assert.match(await expression.evaluate(el => el.value ?? el.dataset.value), /msg\['PID'\]/);
+    assert.match(await expression.evaluate(el => el.value ?? el.dataset.value), /pid\['PID\.8'\]/);
     const theme = await mapper.evaluate(el => ({ background: getComputedStyle(el).backgroundColor, text: getComputedStyle(el).color }));
     if (colorScheme === "dark") {
       const channels = theme.background.match(/\d+/g)?.map(Number) ?? [];
