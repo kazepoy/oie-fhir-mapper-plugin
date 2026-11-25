@@ -94,7 +94,7 @@ test("expanded tree branches keep their auxiliary rows and descendants together 
   assert.ok(!properties.some(node => node.tag === "tbody"));
   assert.ok(!properties.some(node => node.tag === "summary" && node.children.includes("Edit as JSON")));
   state.tab = "tools";
-  assert.ok(all(render()).some(node => node.tag === "summary" && node.children.includes("Edit as JSON")));
+  assert.ok(all(render()).some(node => node.tag === "h3" && node.children.includes("Edit as JSON")));
   state.tab = "test";
   const testNodes = all(render());
   assert.ok(testNodes.some(node => node.tag === "button" && node.children.includes("Run test")));
