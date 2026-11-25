@@ -10,7 +10,7 @@ import { MapperExpression, isCompletionShortcut, buildExpressionCompletionItems 
 import { bindReact as setReact } from "../../src/host/react.js";
 import { indexSd, makeTree, compile, completeness, instancesOf, sdLoaded, sdKey } from "../../src/fhir/model.js";
 import { inserted, substitute } from "../../src/fhir/expressions.js";
-import { mapperSourcePaths, mapperHelpUrl, mapperJsonImport, mapperRuleIds } from "../../src/fhir/step.js";
+import { mapperSourcePaths, mapperHelpUrl, mapperJsonExport, mapperJsonImport, mapperRuleIds } from "../../src/fhir/step.js";
 import { mapperBundleDeclarations, mapperSample } from "../../src/host/channel-context.js";
 import { mapperDiagnostic, traceRows as mapperTraceRows, traceExport as mapperTraceExport } from "../../src/fhir/diagnostics.js";
 import { functionCompletion as completeSymbols, completeFunction, completionContext as mapperCompletionContext } from "../../src/fhir/completion.js";
@@ -266,7 +266,15 @@ test("source suggestions use sample structure and JSON round trips preserve rule
   assert.equal(JSON.parse(edited.mappings)[0].id, "stable-1");
   const reopened = mapperJsonImport(original, JSON.stringify(edited));
   assert.equal(reopened.mappings, edited.mappings);
-  assert.throws(() => mapperJsonImport(original, '{"mappings":[]}'));
+  const unfolded = mapperJsonExport({ ...original, samples: JSON.stringify([{ id: "s1", name: "Sample 1", message: "<ADT/>" }]) });
+  assert.ok(Array.isArray(unfolded.mappings));
+  assert.ok(Array.isArray(unfolded.bundleTargets));
+  assert.ok(Array.isArray(unfolded.samples));
+  assert.equal(unfolded.samples[0].message, "<ADT/>");
+  const fromUnfolded = mapperJsonImport(original, JSON.stringify({ ...unfolded, mappings: [{ ...unfolded.mappings[0], expression: "false" }] }));
+  assert.equal(JSON.parse(fromUnfolded.mappings)[0].expression, "false");
+  assert.equal(JSON.parse(fromUnfolded.samples)[0].id, "s1");
+  assert.throws(() => mapperJsonImport(original, '{"mappings":{}}'));
   const rules = JSON.parse(original.mappings);
   assert.equal(mapperRuleIds([{ ...rules[0], expression: "false" }], rules)[0].id, "stable-1");
   assert.throws(() => mapperRuleIds([rules[0], rules[0]]));

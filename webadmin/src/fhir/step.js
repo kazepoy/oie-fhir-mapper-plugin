@@ -33,6 +33,29 @@ export function mapperHelpUrl(version, type, key = type) {
   return `https://hl7.org/fhir/${release}/${type.toLowerCase()}-definitions.html#${encodeURIComponent(type + (field ? "." + field : ""))}`;
 }
 
+const JSON_ARRAY_FIELDS = ["mappings", "bundleTargets", "samples"];
+
+function normalizeArrayField(value, field) {
+  if (value === undefined || value === null) return value;
+  const parsed = typeof value === "string" ? JSON.parse(value || "[]") : value;
+  if (!Array.isArray(parsed)) throw new Error(tr("fhir.p0_must_be_a_string_containing", { p0: field }));
+  return JSON.stringify(parsed);
+}
+
+export function mapperJsonExport(element) {
+  const out = {};
+  for (const [key, value] of Object.entries(element || {})) {
+    if (JSON_ARRAY_FIELDS.includes(key) && typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value || "[]");
+        if (Array.isArray(parsed)) { out[key] = parsed; continue; }
+      } catch { /* Keep malformed raw string so the user can fix it in JSON. */ }
+    }
+    out[key] = value;
+  }
+  return out;
+}
+
 export function mapperJsonImport(element, text) {
   const patch = JSON.parse(text);
   if (!patch || Array.isArray(patch) || typeof patch !== "object") throw new Error(tr("fhir.expected_a_step_json_object"));
@@ -42,8 +65,10 @@ export function mapperJsonImport(element, text) {
     sequenceNumber: element.sequenceNumber, enabled: element.enabled };
   if (!["resource", "createBundle"].includes(merged.action) || !merged.resourceType) throw new Error(tr("fhir.an_action_and_resourcetype_are_required"));
   for (const field of ["mappings", "bundleTargets"]) {
-    if (typeof (merged[field] ?? "[]") !== "string" || !Array.isArray(JSON.parse(merged[field] || "[]")))
-      throw new Error(tr("fhir.p0_must_be_a_string_containing", { p0: field }));
+    merged[field] = normalizeArrayField(merged[field] ?? "[]", field);
+  }
+  if ("samples" in patch && patch.samples !== undefined && patch.samples !== null) {
+    merged.samples = normalizeArrayField(patch.samples, "samples");
   }
   const allowed = new Set(["id", "key", "element", "type", "expression", "path", "each", "variable", "condition", "fixed", "when", "translate", "note", "disabled"]);
   for (const rule of JSON.parse(merged.mappings || "[]")) {

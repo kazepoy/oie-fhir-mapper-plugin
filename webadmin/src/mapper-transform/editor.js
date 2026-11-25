@@ -5,7 +5,7 @@ import { React, h, bindReact } from "../host/react.js";
 import { ExpressionField, setExpressionFunctions } from "./expression.js";
 import { completionContext as mapperCompletionContext } from "../fhir/completion.js";
 import { sdKey, sdLoaded, shortType, makeTree, instancesOf, parseMappings, compile, completeness } from "../fhir/model.js";
-import { mapperSourcePaths, mapperHelpUrl, mapperJsonImport, mapperRuleKey, mapperRuleIds, MAPPER_TYPE } from "../fhir/step.js";
+import { mapperSourcePaths, mapperHelpUrl, mapperJsonExport, mapperJsonImport, mapperRuleKey, mapperRuleIds, MAPPER_TYPE } from "../fhir/step.js";
 import { inserted, asBool, fixedText, TRANSLATABLE, isLocalServer, substitute } from "../fhir/expressions.js";
 import { fetchSd, fetchElements } from "../host/catalog.js";
 import { mapperContext, mapperBundleDeclarations, mapperSample, mapperPreviewSteps } from "../host/channel-context.js";
@@ -1468,7 +1468,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
       h("div", { className: "mapper-tools-json-body" },
         h("p", { className: "mapper-tools-hint" }, tr("mapper.the_whole_step_properties_and_rules")),
         h("div", { className: "mapper-actions" },
-          h("button", { type: "button", className: "btn btn-sm", onClick: () => { st.jsonDraft = JSON.stringify(element, null, 2); rerender(); } }, tr("mapper.read_current_step")),
+          h("button", { type: "button", className: "btn btn-sm", onClick: () => { st.jsonDraft = JSON.stringify(mapperJsonExport(element), null, 2); rerender(); } }, tr("mapper.read_current_step")),
           h("button", { type: "button", className: "btn btn-sm btn-primary", disabled: st.loading || !st.jsonDraft.trim(), onClick: async () => {
             try {
               const next = mapperJsonImport(element, st.jsonDraft);
@@ -1479,7 +1479,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
               onChange(); rerender();
             } catch (error) { st.error = errorText(error); rerender(); }
           } }, tr("mapper.validate_and_apply"))),
-        h(CodeBox, { value: st.jsonDraft, language: "json", height: "320px", label: tr("mapper.step_mapping_json"),
+        h(CodeBox, { value: st.jsonDraft, language: "json", height: "100%", label: tr("mapper.step_mapping_json"),
           onChange: (text) => { if (text !== st.jsonDraft) { st.jsonDraft = text; rerender(); } } }),
         h("p", { className: "mapper-tools-hint" }, tr("mapper.applies_to_this_step_only_its"))))
   );
@@ -1951,7 +1951,7 @@ export function MapperTransformEditor({ element, onChange, platform }) {
   };
   return h(
     "div",
-    { className: "fhir-mapper-transform mapper-layout" + (st.fullScreen ? " mapper-fullscreen" : "") + (current.id === "test" && tree ? " mapper-testing-layout" : "") + (current.id === "mapper" && tree ? " mapper-mapping-layout" : "") },
+    { className: "fhir-mapper-transform mapper-layout" + (st.fullScreen ? " mapper-fullscreen" : "") + (current.id === "test" && tree ? " mapper-testing-layout" : "") + (current.id === "mapper" && tree ? " mapper-mapping-layout" : "") + (current.id === "tools" ? " mapper-tools-layout" : "") },
     h("div", { className: "mapper-tabs", role: "tablist", "aria-label": tr("mapper.fhir_mapper_sections"), onKeyDown: tabKeys },
       tabs.map((t) => h("button", {
         key: t.id, id: `${tabId}-${t.id}`, type: "button", role: "tab", "aria-selected": t === current, "aria-controls": `${tabId}-panel`,
