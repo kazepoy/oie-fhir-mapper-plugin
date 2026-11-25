@@ -260,4 +260,62 @@ public class FhirMapperTransformerTest {
         }
     }
 
+    @Test public void oru10PreservesCweValuesReconcilesCorrectionsAndRejectsUnsupportedObx2() throws Exception {
+        List<Map<String, Object>> steps = oru10Steps();
+        String cweMessage = "<HL7Message>"
+                + "<MSH><MSH.7><MSH.7.1>20260114171908</MSH.7.1></MSH.7><MSH.10><MSH.10.1>MSG-CWE</MSH.10.1></MSH.10></MSH>"
+                + hl7Pid("100001", "MARTIN", "CLAIRE", "19800215", "F")
+                + "<ORC><ORC.1><ORC.1.1>SC</ORC.1.1></ORC.1><ORC.2><ORC.2.1>ORD-1</ORC.2.1></ORC.2><ORC.5><ORC.5.1>CM</ORC.5.1></ORC.5><ORC.9><ORC.9.1>20260114080000</ORC.9.1></ORC.9></ORC>"
+                + "<OBR><OBR.2><OBR.2.1>ORD-1</OBR.2.1></OBR.2><OBR.3><OBR.3.1>LAB-1</OBR.3.1></OBR.3><OBR.4><OBR.4.1>BIOCHEM</OBR.4.1><OBR.4.2>Bilan</OBR.4.2></OBR.4><OBR.7><OBR.7.1>20260114073000</OBR.7.1></OBR.7><OBR.22><OBR.22.1>20260114170000</OBR.22.1></OBR.22><OBR.25><OBR.25.1>F</OBR.25.1></OBR.25></OBR>"
+                + "<OBX><OBX.2><OBX.2.1>%s</OBX.2.1></OBX.2><OBX.3><OBX.3.1>GLU</OBX.3.1><OBX.3.2>Test codé</OBX.3.2></OBX.3><OBX.5><OBX.5.1>%s</OBX.5.1><OBX.5.2>%s</OBX.5.2><OBX.5.3>L</OBX.5.3></OBX.5><OBX.11><OBX.11.1>%s</OBX.11.1></OBX.11><OBX.14><OBX.14.1>20260114073000</OBX.14.1></OBX.14></OBX>"
+                + "</HL7Message>";
+
+        // 1. Final coded result (OBX-11=F, OBX-2=CWE, OBX-5=POS^Positif^L)
+        Map<?, ?> finalResult = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(
+                FhirJson.write(Map.of("steps", steps, "dataType", "XML", "message", String.format(cweMessage, "CWE", "POS", "Positif", "F"))), ENV));
+        assertEquals(finalResult.toString(), "[]", finalResult.get("errors").toString());
+        Map<?, ?> finalObsEntry = ((List<Map<?, ?>>) resource(finalResult.get("output")).get("entry")).stream()
+                .filter(e -> "Observation".equals(((Map<?, ?>) e.get("resource")).get("resourceType"))).findFirst().orElseThrow();
+        Map<?, ?> finalObs = (Map<?, ?>) finalObsEntry.get("resource");
+        assertEquals("final", finalObs.get("status"));
+        Map<?, ?> finalVal = (Map<?, ?>) finalObs.get("valueCodeableConcept");
+        assertEquals("Positif", finalVal.get("text"));
+        Map<?, ?> finalCoding = (Map<?, ?>) ((List<?>) finalVal.get("coding")).get(0);
+        assertEquals("POS", finalCoding.get("code"));
+        assertEquals("Positif", finalCoding.get("display"));
+        assertEquals("http://example.org/fhir/oru2fhir/CodeSystem/lab-codes", finalCoding.get("system"));
+        String expectedId = "LAB-1|GLU";
+        Map<?, ?> finalId = (Map<?, ?>) ((List<?>) finalObs.get("identifier")).get(0);
+        assertEquals("http://example.org/fhir/oru2fhir/sid/observation", finalId.get("system"));
+        assertEquals(expectedId, finalId.get("value"));
+        String expectedPutUrl = "Observation?identifier=http://example.org/fhir/oru2fhir/sid/observation|" + expectedId;
+        assertEquals("PUT", ((Map<?, ?>) finalObsEntry.get("request")).get("method"));
+        assertEquals(expectedPutUrl, ((Map<?, ?>) finalObsEntry.get("request")).get("url"));
+
+        // 2. Correction (OBX-11=C, OBX-5=NEG^Négatif^L) & 3. Replay of correction
+        String correctedXml = String.format(cweMessage, "CWE", "NEG", "Négatif", "C");
+        for (int attempt = 0; attempt < 2; attempt++) {
+            Map<?, ?> corrResult = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(
+                    FhirJson.write(Map.of("steps", steps, "dataType", "XML", "message", correctedXml)), ENV));
+            assertEquals(corrResult.toString(), "[]", corrResult.get("errors").toString());
+            Map<?, ?> corrObsEntry = ((List<Map<?, ?>>) resource(corrResult.get("output")).get("entry")).stream()
+                    .filter(e -> "Observation".equals(((Map<?, ?>) e.get("resource")).get("resourceType"))).findFirst().orElseThrow();
+            Map<?, ?> corrObs = (Map<?, ?>) corrObsEntry.get("resource");
+            assertEquals("corrected", corrObs.get("status"));
+            Map<?, ?> corrCoding = (Map<?, ?>) ((List<?>) ((Map<?, ?>) corrObs.get("valueCodeableConcept")).get("coding")).get(0);
+            assertEquals("NEG", corrCoding.get("code"));
+            assertEquals("Négatif", corrCoding.get("display"));
+            assertEquals(expectedId, ((Map<?, ?>) ((List<?>) corrObs.get("identifier")).get(0)).get("value"));
+            assertEquals("PUT", ((Map<?, ?>) corrObsEntry.get("request")).get("method"));
+            assertEquals(expectedPutUrl, ((Map<?, ?>) corrObsEntry.get("request")).get("url"));
+        }
+
+        // 4. Out-of-contract OBX-2 (e.g. DT) must be explicitly rejected
+        Map<?, ?> invalidResult = (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(
+                FhirJson.write(Map.of("steps", steps, "dataType", "XML", "message", String.format(cweMessage, "DT", "20260114", "", "F"))), ENV));
+        assertFalse(invalidResult.get("errors").toString(), ((List<?>) invalidResult.get("errors")).isEmpty());
+        assertTrue(invalidResult.get("errors").toString(), invalidResult.get("errors").toString().contains("hors contrat"));
+        assertEquals(FhirJson.NULL, invalidResult.get("output"));
+    }
+
 }
