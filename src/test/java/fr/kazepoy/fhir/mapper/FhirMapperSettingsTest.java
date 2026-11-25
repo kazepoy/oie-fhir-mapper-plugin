@@ -71,9 +71,16 @@ public class FhirMapperSettingsTest {
         assertEquals("{\"contexts\":[]}", FhirMapperSettings.toJson(FhirMapperSettings.parse("")).replaceAll("\\s", ""));
         assertTrue(FhirMapperSettings.toJson(FhirMapperSettings.parse("{\"contexts\":[{\"name\":\"a\",\"packages\":\"/x;/y\"}]}")).replaceAll("\\s", "").contains("\"packages\":[\"/x\",\"/y\"]"));
         for (String bad : new String[] { "{\"contexts\":[{\"name\":\"a b\"}]}", "{\"contexts\":[{\"name\":\"a\"},{\"name\":\"a\"}]}",
-                "{\"contexts\":[{\"name\":\"a\",\"fhirVersion\":\"R3\"}]}", "{\"contexts\":[{\"name\":\"a\",\"validation\":\"maybe\"}]}" }) {
+                "{\"contexts\":[{\"name\":\"a\",\"fhirVersion\":\"R3\"}]}", "{\"contexts\":[{\"name\":\"a\",\"validation\":\"maybe\"}]}",
+                "{\"contexts\":[{\"name\":\"a\",\"timeZone\":\"Mars/Olympus\"}]}",
+                "{\"contexts\":[{\"name\":\"a\",\"timePrecision\":\"hours\"}]}",
+                "{\"contexts\":[{\"name\":\"a\",\"ambiguousTime\":\"guess\"}]}" }) {
             try { FhirMapperSettings.parse(bad); fail(bad); } catch (IllegalArgumentException expected) { /* refused */ }
         }
+        FhirMapperSettings.Context tz = FhirMapperSettings.parse("{\"contexts\":[{\"name\":\"eu\",\"timeZone\":\"Europe/Paris\",\"timePrecision\":\"seconds\",\"ambiguousTime\":\"later\"}]}").get("eu");
+        assertEquals("Europe/Paris", tz.timeZone);
+        assertEquals("seconds", tz.timePrecision);
+        assertEquals("later", tz.ambiguousTime);
     }
 
     @Test

@@ -34,9 +34,15 @@ public final class FhirMapperSettings {
         public final int timeoutSeconds;
         /** always or off. */
         public final String validation;
+        /** Optional IANA time zone or offset (empty = MSH-7 then server zone). */
+        public final String timeZone;
+        /** minutes (default), seconds, or pad. */
+        public final String timePrecision;
+        /** error (default), earlier, or later. */
+        public final String ambiguousTime;
 
         Context(String name, String fhirVersion, String packages, String terminologyServer, String terminologyAuthorization,
-                int cacheSeconds, int timeoutSeconds, String validation) {
+                int cacheSeconds, int timeoutSeconds, String validation, String timeZone, String timePrecision, String ambiguousTime) {
             this.name = name;
             this.fhirVersion = fhirVersion;
             this.packages = packages;
@@ -45,6 +51,9 @@ public final class FhirMapperSettings {
             this.cacheSeconds = cacheSeconds;
             this.timeoutSeconds = timeoutSeconds;
             this.validation = validation;
+            this.timeZone = timeZone;
+            this.timePrecision = timePrecision;
+            this.ambiguousTime = ambiguousTime;
         }
 
         Map<String, Object> toMap() {
@@ -59,6 +68,9 @@ public final class FhirMapperSettings {
             map.put("cacheSeconds", cacheSeconds);
             map.put("timeoutSeconds", timeoutSeconds);
             map.put("validation", validation);
+            if (!timeZone.isEmpty()) map.put("timeZone", timeZone);
+            if (!"minutes".equals(timePrecision)) map.put("timePrecision", timePrecision);
+            if (!"error".equals(ambiguousTime)) map.put("ambiguousTime", ambiguousTime);
             return map;
         }
     }
@@ -93,12 +105,26 @@ public final class FhirMapperSettings {
             if (!List.of("R4", "R4B", "R5").contains(version)) throw new IllegalArgumentException("Context " + name + ": FHIR version " + version + " is not supported.");
             String validation = text(m.get("validation")).isEmpty() ? "always" : text(m.get("validation"));
             if (!List.of("always", "off").contains(validation)) throw new IllegalArgumentException("Context " + name + ": validation must be always or off.");
+            String timeZone = text(m.get("timeZone"));
+            if (!timeZone.isEmpty()) {
+                try { java.time.ZoneId.of(timeZone); }
+                catch (java.time.DateTimeException e) { throw new IllegalArgumentException("Context " + name + ": invalid timeZone \"" + timeZone + "\"."); }
+            }
+            String timePrecision = text(m.get("timePrecision")).isEmpty() ? "minutes" : text(m.get("timePrecision"));
+            if (!List.of("minutes", "seconds", "pad").contains(timePrecision)) {
+                throw new IllegalArgumentException("Context " + name + ": timePrecision must be minutes, seconds or pad.");
+            }
+            String ambiguousTime = text(m.get("ambiguousTime")).isEmpty() ? "error" : text(m.get("ambiguousTime"));
+            if (!List.of("error", "earlier", "later").contains(ambiguousTime)) {
+                throw new IllegalArgumentException("Context " + name + ": ambiguousTime must be error, earlier or later.");
+            }
             Object packages = m.get("packages");
             List<String> paths = new ArrayList<>();
             if (packages instanceof List) for (Object path : (List<?>) packages) { if (!text(path).isEmpty()) paths.add(text(path)); }
             else for (String path : text(packages).split("[;\\n]")) { if (!path.isBlank()) paths.add(path.trim()); }
             if (result.put(name, new Context(name, version, String.join(";", paths), text(m.get("terminologyServer")), text(m.get("terminologyAuthorization")),
-                    Math.max(0, integer(m.get("cacheSeconds"), 300)), positive(integer(m.get("timeoutSeconds"), 10)), validation)) != null) {
+                    Math.max(0, integer(m.get("cacheSeconds"), 300)), positive(integer(m.get("timeoutSeconds"), 10)), validation,
+                    timeZone, timePrecision, ambiguousTime)) != null) {
                 throw new IllegalArgumentException("Two contexts are named " + name + ".");
             }
         }

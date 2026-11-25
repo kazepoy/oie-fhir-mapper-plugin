@@ -271,9 +271,28 @@
     }
 
     // HL7 v2 DT / TS (YYYY[MM[DD[HH[MM[SS[.S+]]]]]][+/-ZZZZ]) to FHIR date / dateTime / instant.
-    // Values already in FHIR form (with '-' in the date) are kept. Without a time zone, the server's
-    // (TZ) offset of that date and time is used: FHIR requires one as soon as there is a time.
+    // Values already in FHIR form (with '-' in the date) are kept. Precision and time zone follow
+    // the step/context policy (field offset -> MSH-7 offset -> configured timeZone / server zone),
+    // rejecting ambiguous/non-existent DST local times and incomplete hours by default.
     var TS = /^(\d{4})(\d{2})?(\d{2})?(?:(\d{2})(\d{2})?(\d{2})?(\.\d+)?)?([+-]\d{4})?$/;
+
+    function msh7Offset() {
+        var msg = state().source;
+        if (msg === undefined || msg === null) return '';
+        var raw = '';
+        if (typeof msg === 'xml') {
+            var msh7 = msg['MSH']['MSH.7']['MSH.7.1'];
+            raw = msh7 && msh7.length() ? msh7.toString().trim() : '';
+        } else if (typeof msg === 'object' && msg.MSH && msg.MSH['MSH.7']) {
+            var node = msg.MSH['MSH.7'];
+            raw = String(typeof node === 'object' && node['MSH.7.1'] !== undefined ? node['MSH.7.1'] : node).trim();
+        }
+        var match = TS.exec(raw);
+        if (match && match[8]) {
+            return match[8].substring(0, 3) + ':' + match[8].substring(3);
+        }
+        return '';
+    }
 
     function dateValue(s, type, element) {
         var m = TS.exec(s);
@@ -291,13 +310,45 @@
             }
             return out;
         }
+        var opts = (runtime && runtime.options) || {};
+        var precision = opts.timePrecision || 'minutes';
+        if (precision === 'minutes' && !m[5]) {
+            throw new Error(element + ': "' + s + '" has an hour without minutes (timePrecision=minutes).');
+        }
+        if (precision === 'seconds' && (!m[5] || !m[6])) {
+            throw new Error(element + ': "' + s + '" requires seconds (timePrecision=seconds).');
+        }
         var zone = m[8];
         if (zone) {
             zone = zone.substring(0, 3) + ':' + zone.substring(3);
         } else {
-            var local = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5] || 0), Number(m[6] || 0));
-            var offset = -local.getTimezoneOffset();
-            zone = (offset < 0 ? '-' : '+') + pad(Math.floor(Math.abs(offset) / 60)) + ':' + pad(Math.abs(offset) % 60);
+            zone = msh7Offset();
+        }
+        if (!zone) {
+            var zoneId = opts.timeZone ? java.time.ZoneId.of(String(opts.timeZone)) : java.time.ZoneId.systemDefault();
+            var ldt = java.time.LocalDateTime.of(
+                Number(m[1]), Number(m[2]), Number(m[3]),
+                Number(m[4]), Number(m[5] || 0), Number(m[6] || 0)
+            );
+            var offsets = zoneId.getRules().getValidOffsets(ldt);
+            if (offsets.size() === 0) {
+                throw new Error(element + ': "' + s + '" does not exist in time zone ' + zoneId.getId() + '.');
+            }
+            var offset;
+            if (offsets.size() > 1) {
+                var ambiguous = opts.ambiguousTime || 'error';
+                if (ambiguous === 'earlier') {
+                    offset = offsets.get(0);
+                } else if (ambiguous === 'later') {
+                    offset = offsets.get(offsets.size() - 1);
+                } else {
+                    throw new Error(element + ': "' + s + '" is ambiguous in time zone ' + zoneId.getId() + '.');
+                }
+            } else {
+                offset = offsets.get(0);
+            }
+            var offsetId = String(offset.getId());
+            zone = offsetId === 'Z' ? '+00:00' : offsetId;
         }
         return out + 'T' + m[4] + ':' + (m[5] || '00') + ':' + (m[6] || '00') + (m[7] || '') + zone;
     }
@@ -765,7 +816,7 @@
         };
     }
 
-    return {
+    var runtime = {
         // terminologyServer, profiles, fhirVersion, authorization, cacheSeconds, timeoutSeconds of the step
         options: {},
 
@@ -1131,4 +1182,5 @@
             return request;
         }
     };
+    return runtime;
 })()

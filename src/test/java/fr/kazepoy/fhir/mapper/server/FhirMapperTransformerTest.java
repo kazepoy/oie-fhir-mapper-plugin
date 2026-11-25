@@ -339,4 +339,41 @@ public class FhirMapperTransformerTest {
         assertEquals(FhirJson.NULL, result.get("output"));
     }
 
+    private static Map<?, ?> runObsDateTime(String context, String xml) {
+        String dtMapping = "[{\"key\":\"Observation.effectiveDateTime\",\"element\":\"Observation.effectiveDateTime\",\"type\":\"dateTime\",\"expression\":\"msg['OBX']['OBX.14']['OBX.14.1'].toString()\",\"path\":[[\"effectiveDateTime\"]]}]";
+        Map<String, Object> step = Map.of("action", "resource", "name", "Observation", "resourceType", "Observation",
+                "profileUrl", "Observation", "addMetaProfile", false, "context", context, "mappings", dtMapping);
+        return (Map<?, ?>) FhirJson.parse(FhirMapperTester.test(FhirJson.write(Map.of("step", step, "dataType", "XML", "message", xml)), ENV));
+    }
+
+    @Test public void dateTimePolicyRejectsIncompleteHoursAndDstAmbiguityUnlessConfigured() {
+        fr.kazepoy.fhir.mapper.FhirMapperSettings.load("{\"contexts\":[{\"name\":\"paris-strict\",\"timeZone\":\"Europe/Paris\",\"validation\":\"off\"},"
+                + "{\"name\":\"paris-earlier\",\"timeZone\":\"Europe/Paris\",\"ambiguousTime\":\"earlier\",\"validation\":\"off\"},"
+                + "{\"name\":\"paris-later\",\"timeZone\":\"Europe/Paris\",\"ambiguousTime\":\"later\",\"validation\":\"off\"}]}");
+        try {
+            Map<?, ?> incomplete = runObsDateTime("paris-strict", "<HL7Message><OBX><OBX.14><OBX.14.1>2026102502</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertTrue(incomplete.toString(), incomplete.get("errors").toString().contains("timePrecision=minutes"));
+
+            Map<?, ?> ambiguous = runObsDateTime("paris-strict", "<HL7Message><OBX><OBX.14><OBX.14.1>202610250200</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertTrue(ambiguous.toString(), ambiguous.get("errors").toString().contains("ambiguous"));
+
+            Map<?, ?> gap = runObsDateTime("paris-strict", "<HL7Message><OBX><OBX.14><OBX.14.1>202603290230</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertTrue(gap.toString(), gap.get("errors").toString().contains("does not exist"));
+
+            Map<?, ?> msh7 = runObsDateTime("paris-strict", "<HL7Message><MSH><MSH.7><MSH.7.1>202610250100+0200</MSH.7.1></MSH.7></MSH><OBX><OBX.14><OBX.14.1>202610250200</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertEquals("[]", msh7.get("errors").toString());
+            assertEquals("2026-10-25T02:00:00+02:00", resource(msh7.get("output")).get("effectiveDateTime"));
+
+            Map<?, ?> earlier = runObsDateTime("paris-earlier", "<HL7Message><OBX><OBX.14><OBX.14.1>202610250200</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertEquals("[]", earlier.get("errors").toString());
+            assertEquals("2026-10-25T02:00:00+02:00", resource(earlier.get("output")).get("effectiveDateTime"));
+
+            Map<?, ?> later = runObsDateTime("paris-later", "<HL7Message><OBX><OBX.14><OBX.14.1>202610250200</OBX.14.1></OBX.14></OBX></HL7Message>");
+            assertEquals("[]", later.get("errors").toString());
+            assertEquals("2026-10-25T02:00:00+01:00", resource(later.get("output")).get("effectiveDateTime"));
+        } finally {
+            fr.kazepoy.fhir.mapper.FhirMapperSettings.load(null);
+        }
+    }
+
 }

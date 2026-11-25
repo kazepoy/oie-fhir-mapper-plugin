@@ -319,6 +319,9 @@ public class FhirMapperTransformStep extends Step {
         String terminologyAuthorization = shared == null ? this.terminologyAuthorization : shared.terminologyAuthorization;
         int terminologyCacheSeconds = shared == null ? this.terminologyCacheSeconds : shared.cacheSeconds;
         int terminologyTimeoutSeconds = shared == null ? this.terminologyTimeoutSeconds : shared.timeoutSeconds;
+        String timeZone = shared == null ? "" : shared.timeZone;
+        String timePrecision = shared == null ? "minutes" : shared.timePrecision;
+        String ambiguousTime = shared == null ? "error" : shared.ambiguousTime;
         sb.append("__fhir.options = {terminologyServer: ").append(FhirJson.write(effectiveTerminologyServer()))
                 .append(", profiles: ").append(FhirJson.write(effectiveProfiles()))
                 .append(", fhirVersion: ").append(FhirJson.write(effectiveFhirVersion()))
@@ -326,6 +329,9 @@ public class FhirMapperTransformStep extends Step {
                 .append(", validateOutput: ").append(isValidateOutput())
                 .append(", cacheSeconds: ").append(Math.max(0, terminologyCacheSeconds))
                 .append(", timeoutSeconds: ").append(terminologyTimeoutSeconds > 0 ? terminologyTimeoutSeconds : 10)
+                .append(", timeZone: ").append(FhirJson.write(timeZone))
+                .append(", timePrecision: ").append(FhirJson.write(timePrecision))
+                .append(", ambiguousTime: ").append(FhirJson.write(ambiguousTime))
                 .append(", authorization: ").append(text(terminologyAuthorization).isEmpty() ? "''" : "String((function () {\nreturn (" + text(terminologyAuthorization) + "\n);\n})())")
                 .append("};\n");
         int traceAt = sb.length();
