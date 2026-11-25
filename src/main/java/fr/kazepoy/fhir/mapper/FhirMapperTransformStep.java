@@ -418,10 +418,8 @@ public class FhirMapperTransformStep extends Step {
             sb.append("if ('xml' === typeof tmp) {\n");
             sb.append("    tmp = new XML(String(Packages.fr.kazepoy.fhir.mapper.fhir.FhirFacade.jsonToXml(__fhir.json(__out), tmp.namespace().uri == ")
                     .append(FhirJson.write(FhirFacade.FHIR_NS)).append(")));\n");
-            sb.append("} else if ('string' === typeof tmp) {\n");
-            sb.append("    tmp = __fhir.json(__out);\n");
             sb.append("} else if ('undefined' !== typeof tmp && tmp !== null) {\n");
-            sb.append("    tmp = __fhir.plain(__out);\n");
+            sb.append("    tmp = __fhir.json(__out);\n");
             // Without an outbound template the engine takes msg as the outbound message, not tmp.
             sb.append("} else {\n");
             sb.append("    msg = __fhir.json(__out);\n");

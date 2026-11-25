@@ -11,8 +11,10 @@ import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.hl7.fhir.r5.context.IWorkerContext;
 import org.hl7.fhir.r5.elementmodel.Element;
 import org.hl7.fhir.r5.elementmodel.Manager;
@@ -157,10 +159,13 @@ final class OieModelBuilder {
     // ------------------------------------------------------------------ JSON
 
     private static void json(Element message, String text) throws Exception {
-        JsonNode root = new ObjectMapper().readTree(text);
+        JsonNode root = new ObjectMapper()
+                .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true))
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .readTree(text);
         if (root == null) return;
         if (root.isValueNode()) {
-            message.setChildValue("value", root.asText());
+            message.setChildValue("value", scalarText(root));
             return;
         }
         jsonChildren(message, root);
@@ -191,8 +196,12 @@ final class OieModelBuilder {
     private static int jsonNode(Element parent, String name, JsonNode value, int rank, Map<String, Integer> occurrences) {
         Element node = node(parent, name, ++rank, occurrences.merge(name, 1, Integer::sum));
         if (value.isContainerNode()) jsonChildren(node, value);
-        else if (!value.isNull()) node.setChildValue("value", value.asText());
+        else if (!value.isNull()) node.setChildValue("value", scalarText(value));
         return rank;
+    }
+
+    private static String scalarText(JsonNode value) {
+        return value.isBigDecimal() ? value.decimalValue().toPlainString() : value.asText();
     }
 
     // ------------------------------------------------------------------ nodes

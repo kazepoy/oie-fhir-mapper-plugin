@@ -324,6 +324,28 @@ public class FhirMapperTransformStepTest {
     }
 
     @Test
+    public void jsonObjectTemplatePreservesDecimalPresentation() throws Exception {
+        FhirMapperTransformStep step = new FhirMapperTransformStep();
+        step.setResourceType("Observation");
+        step.setProfileUrl("Observation");
+        step.setAddMetaProfile(false);
+        step.setValidateOutput(false);
+        step.setMappings("[{\"key\":\"Observation.valueQuantity.value\",\"element\":\"Observation.valueQuantity.value\",\"type\":\"decimal\",\"expression\":\"'6.80'\",\"path\":[[\"valueQuantity\"],[\"value\"]]},"
+                + "{\"key\":\"Observation.component[0].valueQuantity.value\",\"element\":\"Observation.component.valueQuantity.value\",\"type\":\"decimal\",\"expression\":\"'1.234567890123456789'\",\"path\":[[\"component\",\"#0\"],[\"valueQuantity\"],[\"value\"]]}]");
+        Context cx = new ContextFactory().enterContext();
+        try {
+            Scriptable scope = cx.initStandardObjects();
+            scope.put("hl7", scope, "<HL7Message/>");
+            String script = "var msg = new XML(hl7);\nvar tmp = {};\n" + step.getPreviewScript() + "\ntmp;";
+            String delivered = Context.toString(cx.evaluateString(scope, script, "transformer", 1, null));
+            assertTrue(delivered, delivered.contains("\"value\":6.80"));
+            assertTrue(delivered, delivered.contains("\"value\":1.234567890123456789"));
+        } finally {
+            Context.exit();
+        }
+    }
+
+    @Test
     public void remoteFirstMatchRejectsAmbiguousTargetsAndUnverifiedDependsOn() throws Exception {
         String multi = "{\"resourceType\":\"Parameters\",\"parameter\":["
                 + "{\"name\":\"result\",\"valueBoolean\":true},"

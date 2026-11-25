@@ -200,6 +200,14 @@ public class FmlBridgeTest {
     }
 
     @Test
+    public void oieMessagePreservesJsonDecimalTrailingZerosAndPrecision() throws Exception {
+        String source = bridge.source("{\"a\":6.80,\"b\":1.234567890123456789}", "json", Map.of(), Map.of(), options());
+        JsonNode nodes = JSON.readTree(source).path("node");
+        assertEquals("6.80", nodes.get(0).path("value").asText());
+        assertEquals("1.234567890123456789", nodes.get(1).path("value").asText());
+    }
+
+    @Test
     public void reportsAnUnknownOrAmbiguousFmlSourceModel() throws Exception {
         Map<String, String> opts = new LinkedHashMap<>(options());
         opts.put("sourceModel", "fhir");
