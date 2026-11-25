@@ -45,7 +45,7 @@
 .fhir-fml .fml-properties { display: flex; flex-direction: column; gap: 16px; }
 .fhir-fml .fml-context-section { padding: 14px 16px; border: 1px solid var(--border, #cbd5e1); border-radius: 8px; background: var(--bg2, #fff); }
 .fhir-fml .fml-context-details > .fhir-context-fields { margin-top: 12px; }
-.fhir-fml .fml-context-details > summary, .fhir-context-terminology > summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.fhir-fml .fml-context-details > summary, .fhir-context-terminology > summary, .fhir-context-datetime > summary { cursor: pointer; font-size: 13px; font-weight: 600; }
 .fhir-fml .fml-context-summary { margin: 6px 0 10px; font-size: 13px; color: var(--text-faint, #64748b); }
 .fhir-fml .fml-property-section { padding: 0 0 14px; border-bottom: 1px solid var(--border, #cbd5e1); }
 .fhir-fml .fml-property-section h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 14px; }
