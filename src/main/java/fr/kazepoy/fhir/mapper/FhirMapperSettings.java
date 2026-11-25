@@ -158,7 +158,7 @@ public final class FhirMapperSettings {
                     }
                     if (listener != null) listener.run();
                 }
-            } catch (RuntimeException ignored) {
+            } catch (RuntimeException | LinkageError ignored) {
                 // Keep the currently loaded contexts if the external source cannot be queried or parsed.
             }
         }

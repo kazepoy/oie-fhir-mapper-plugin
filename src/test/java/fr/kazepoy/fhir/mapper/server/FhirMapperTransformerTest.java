@@ -372,6 +372,7 @@ public class FhirMapperTransformerTest {
             assertEquals("[]", later.get("errors").toString());
             assertEquals("2026-10-25T02:00:00+01:00", resource(later.get("output")).get("effectiveDateTime"));
         } finally {
+            fr.kazepoy.fhir.mapper.FhirMapperSettings.configureSource(null, null);
             fr.kazepoy.fhir.mapper.FhirMapperSettings.load(null);
         }
     }
