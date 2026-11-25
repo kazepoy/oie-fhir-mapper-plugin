@@ -40,6 +40,8 @@ jobs:
 
       - name: Download provided jars
         if: steps.jars.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p provided-jars dl
@@ -55,7 +57,7 @@ jobs:
           cp dl/oie/server-lib/mirth-client-core.jar provided-jars/client-core.jar
           cp dl/oie/server-lib/donkey/donkey-model.jar provided-jars/donkey-model.jar
           cp dl/oie/server-lib/donkey/donkey-server.jar provided-jars/donkey-server.jar
-          curl -fsSL --retry 3 -H 'Accept: application/octet-stream' -o dl/datatype-fhir.zip "${DATATYPE_FHIR_ASSET}"
+          curl -fsSL --retry 3 -H 'Accept: application/octet-stream' -H "Authorization: Bearer ${GITHUB_TOKEN}" -o dl/datatype-fhir.zip "${DATATYPE_FHIR_ASSET}"
           echo "${DATATYPE_FHIR_SHA256}  dl/datatype-fhir.zip" | sha256sum -c -
           unzip -q -j dl/datatype-fhir.zip datatype-fhir/datatype-fhir-shared.jar datatype-fhir/lib/datatype-fhir-engine.jar -d dl
           cp dl/datatype-fhir-shared.jar provided-jars/datatype-fhir-api.jar
