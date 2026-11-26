@@ -1,14 +1,25 @@
 # syntax=docker/dockerfile:1.7
-# OIE est fourni par le service de build oie-engine de compose.yaml.
+# OIE 4.7.0 with Web Support, Role Based Access Control, Community Store, FHIR Data Type, Flow UI and FHIR Mapper.
 ARG BUSYBOX_IMAGE=busybox:1.37.0-glibc@sha256:42a9ff19af33811ee466b24c66384461d37c32dcc28d1d27d49b8aca816bd5ee
 ARG MAVEN_IMAGE=maven:3.9.9-eclipse-temurin-17
 ARG NODE_IMAGE=node:22-bookworm-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
+ARG OIE_VERSION=4.7.0
+ARG OIE_TGZ_URL=https://github.com/OpenIntegrationEngine/engine/releases/download/v${OIE_VERSION}/oie_unix_4_7_0.tar.gz
+ARG OIE_TGZ_SHA256=ab08558873dc6be1e474afaacc46efe94d29c945cd3381c10d0ae548ecb429de
 
 FROM ${NODE_IMAGE} AS node-toolchain
 
 FROM curlimages/curl:8.21.0 AS downloads
+ARG OIE_TGZ_URL
+ARG OIE_TGZ_SHA256
 
-# Official archives, retrieved through the GitHub API and verified.
+# Official OIE 4.7.0 release archive, verified by SHA-256.
+RUN curl --fail --silent --show-error --location --max-time 300 \
+      "${OIE_TGZ_URL}" \
+      --output /tmp/oie.tar.gz \
+    && echo "${OIE_TGZ_SHA256}  /tmp/oie.tar.gz" | sha256sum -c -
+
+# Official archives, checked against their SHA-256.
 # Web Support 1.3.0 includes Web Admin 1.3.0.
 RUN curl --fail --silent --show-error --location --max-time 300 \
       --header 'Accept: application/octet-stream' \
@@ -16,15 +27,7 @@ RUN curl --fail --silent --show-error --location --max-time 300 \
       --output /tmp/websupport.zip \
     && echo '69a6b2285000d6c7356aaa547746528fe0bf145ba9bdf5d595fb9a390aff54ff  /tmp/websupport.zip' | sha256sum -c -
 
-# FHIR Data Type 1.6.2, without the POC mapper.
-RUN curl --fail --silent --show-error --location --max-time 300 \
-      --header 'Accept: application/octet-stream' \
-      https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/773430633 \
-      --output /tmp/datatype-fhir.zip \
-    && echo '845f172761ef63539a2b0fc9a918c6723e646ac3a1bc9c3775a3fd721b822f00  /tmp/datatype-fhir.zip' | sha256sum -c -
-
-# Role Based Access Control 1.3.0 (diridium-com), for OIE 4.7.0: role and channel
-# permissions on the server and in Web Admin.
+# Role Based Access Control 1.3.0 (diridium-com), for OIE 4.7.0.
 RUN curl --fail --silent --show-error --location --max-time 300 \
       https://github.com/diridium-com/role-based-access-control/releases/download/v1.3.0/rbac-1.3.0.zip \
       --output /tmp/rbac.zip \
@@ -35,6 +38,13 @@ RUN curl --fail --silent --show-error --location --max-time 300 \
       https://github.com/gibson9583/oie-community-store/releases/download/v0.8.2/communitystore-0.8.2.zip \
       --output /tmp/communitystore.zip \
     && echo '3fd4ce3a8ac954e57a941fd30b49e57e6eb91f83f4bdd37a5de5848c8477ad9e  /tmp/communitystore.zip' | sha256sum -c -
+
+# FHIR Data Type 1.6.2, without the POC mapper.
+RUN curl --fail --silent --show-error --location --max-time 300 \
+      --header 'Accept: application/octet-stream' \
+      https://api.github.com/repos/matthydehoog/fhir-datatype-Eclipse-OIE/releases/assets/773430633 \
+      --output /tmp/datatype-fhir.zip \
+    && echo '845f172761ef63539a2b0fc9a918c6723e646ac3a1bc9c3775a3fd721b822f00  /tmp/datatype-fhir.zip' | sha256sum -c -
 
 # OIE Flow UI 0.9.0 (kazepoy): Flows Monitoring and Channel Flow in Web Admin.
 RUN curl --fail --silent --show-error --location --max-time 300 \
@@ -78,9 +88,23 @@ RUN curl --fail --silent --show-error --location --max-time 300 \
       --output /tmp/hl7.fhir.uv.xver-r5.r4-0.1.0.tgz \
     && echo '7ee6f04d78ced803dd567559a0d178bafbd2d3b71db61bbbf6b15c796a1a664d  /tmp/hl7.fhir.uv.xver-r5.r4-0.1.0.tgz' | sha256sum -c -
 
+FROM ${BUSYBOX_IMAGE} AS oie-dist
+COPY --from=downloads /tmp/oie.tar.gz /tmp/oie.tar.gz
+RUN mkdir -p /tmp/oie-extract /opt/engine \
+    && tar -xzf /tmp/oie.tar.gz -C /tmp/oie-extract \
+    && if [ -f /tmp/oie-extract/oieserver ]; then \
+         cp -a /tmp/oie-extract/. /opt/engine/; \
+       else \
+         TOP="$(find /tmp/oie-extract -mindepth 1 -maxdepth 1 -type d | head -n 1)"; \
+         cp -a "$TOP"/. /opt/engine/; \
+       fi \
+    && rm -rf /opt/engine/cli-lib /opt/engine/mirth-cli-launcher.jar /opt/engine/mccommand \
+              /opt/engine/manager-lib /opt/engine/mirth-manager-launcher.jar /opt/engine/mcmanager \
+              /tmp/oie-extract /tmp/oie.tar.gz \
+    && chmod +x /opt/engine/configure-from-env /opt/engine/oieserver
+
 FROM ${BUSYBOX_IMAGE} AS plugins
 COPY --from=downloads /tmp/*.zip /downloads/
-
 RUN mkdir -p /extensions \
     && for zip in /downloads/*.zip; do unzip -q "$zip" -d /extensions; done \
     && chmod -R go-w /extensions
@@ -90,11 +114,11 @@ COPY --from=node-toolchain /usr/local/bin/node /usr/local/bin/node
 COPY --from=node-toolchain /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/npm
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 WORKDIR /build
-# The OIE API is not published on Maven Central: use the target image API.
-COPY --from=oie-engine /opt/engine/server-lib/mirth-server.jar /engine/server-api.jar
-COPY --from=oie-engine /opt/engine/server-lib/donkey/donkey-model.jar /engine/donkey-model.jar
-COPY --from=oie-engine /opt/engine/server-lib/donkey/donkey-server.jar /engine/donkey-server.jar
-COPY --from=oie-engine /opt/engine/server-lib/mirth-client-core.jar /engine/client-core.jar
+# The OIE API is not published on Maven Central: use the target release archive.
+COPY --from=oie-dist /opt/engine/server-lib/mirth-server.jar /engine/server-api.jar
+COPY --from=oie-dist /opt/engine/server-lib/donkey/donkey-model.jar /engine/donkey-model.jar
+COPY --from=oie-dist /opt/engine/server-lib/donkey/donkey-server.jar /engine/donkey-server.jar
+COPY --from=oie-dist /opt/engine/server-lib/mirth-client-core.jar /engine/client-core.jar
 COPY --from=plugins /extensions/datatype-fhir/datatype-fhir-shared.jar /engine/datatype-fhir-api.jar
 COPY --from=plugins /extensions/datatype-fhir/lib/datatype-fhir-engine.jar /engine/datatype-fhir-engine.jar
 COPY pom.xml assembly.xml LICENSE ./
@@ -116,12 +140,24 @@ RUN --mount=type=cache,target=/root/.m2 \
     && mvn -B -ntp package -DskipTests \
     && mkdir /extensions && cd /extensions && jar xf /build/target/fhir-mapper-*.zip
 
-FROM oie-engine
+FROM eclipse-temurin:21.0.9_10-jre-alpine
+RUN apk add --no-cache bash \
+    && addgroup -S engine \
+    && adduser -S -g engine engine \
+    && mkdir -p /opt/engine/appdata /opt/engine/custom-extensions \
+    && chown -R engine:engine /opt/engine
+WORKDIR /opt/engine
+COPY --from=oie-dist --chown=engine:engine /opt/engine/ /opt/engine/
 COPY --from=plugins --chown=engine:engine /extensions/ /opt/engine/extensions/
 COPY --from=mapper --chown=engine:engine /extensions/ /opt/engine/extensions/
 COPY --from=downloads --chown=engine:engine /tmp/hl7.fhir.fr.core-2.2.0.tgz /tmp/hl7.fhir.eu.laboratory-2.0.0.tgz /fhir-packages/
 COPY --from=downloads --chown=engine:engine /tmp/hl7.fhir.uv.extensions.r4-5.2.0.tgz /tmp/hl7.terminology.r4-7.1.0.tgz /tmp/ans.fr.terminologies-1.7.0.tgz /tmp/hl7.fhir.eu.base-2.0.0.tgz /tmp/hl7.fhir.eu.extensions.r4-1.3.0.tgz /tmp/hl7.fhir.uv.xver-r5.r4-0.1.0.tgz /fhir-packages/
 # OIE logs only errors by default for unconfigured loggers.
 RUN printf '\nlogger.fhirMapperTransform.name = fr.kazepoy.fhir.mapper\nlogger.fhirMapperTransform.level = INFO\nlogger.fhirFml.name = fr.kazepoy.fhir.fml\nlogger.fhirFml.level = INFO\n' >> conf/log4j2.properties
+VOLUME /opt/engine/appdata
+VOLUME /opt/engine/custom-extensions
+EXPOSE 8443
 USER engine
+ENTRYPOINT ["./configure-from-env"]
+CMD ["./oieserver"]
 LABEL org.opencontainers.image.title="OIE 4.7.0 FHIR Mapper - NOT FOR PRODUCTION USE"

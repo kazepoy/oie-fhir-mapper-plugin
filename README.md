@@ -12,7 +12,13 @@ bugs in [GitHub Issues](https://github.com/kazepoy/oie-fhir-mapper-plugin/issues
 and use [GitHub Discussions](https://github.com/kazepoy/oie-fhir-mapper-plugin/discussions)
 for questions, feedback and ideas.
 
+## Install
+
+Prebuilt plugin archives (`fhir-mapper-<version>.zip`) are available on [GitHub Releases](https://github.com/kazepoy/oie-fhir-mapper-plugin/releases) and can be installed directly on an existing **OIE 4.7** server (with Web Support / Web Admin 1.3 and FHIR Data Type 1.6.2): download the zip, extract it into your OIE `extensions/` directory (or deploy it via OIE Administrator / `custom-extensions`), and restart OIE.
+
 ## Try it
+
+The demo includes sample channels and test messages, making it a good way to evaluate the plugin before installing it on an existing OIE instance.
 
 ```sh
 git clone https://github.com/kazepoy/oie-fhir-mapper-plugin.git
