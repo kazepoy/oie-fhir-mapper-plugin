@@ -1,8 +1,9 @@
 #!/bin/sh
 # Restore OIE from the mounted initialization directory:
 # 1. Restore the OIE server configuration (overwriting existing settings, including FHIR contexts).
-# 2. Import channels (data/channels/) and groups (data/groups/) in OIE export format.
-# 3. Deploy channels and mark the first login as complete.
+# 2. Mark the first login as complete.
+# 3. Import channels (data/channels/) and groups (data/groups/) in OIE export format.
+# 4. Deploy channels and seed sample messages.
 set -eu
 
 OIE_URL="${OIE_URL:-https://oie-app:8443}"
@@ -61,7 +62,17 @@ echo "=== Restoring OIE ($OIE_URL) ==="
 echo "Importing OIE server configuration..."
 api PUT "/server/configuration?deploy=true&overwriteConfigMap=true" "$CONFIG_FILE"
 
-# 2. Import channels in OIE export format.
+# 2. Mark the first login as complete (skip the password-change wizard).
+if [ "$OIE_SKIP_FIRST_LOGIN" = true ]; then
+  request GET /users/current > /dev/null
+  user_id=$(xml_value id "$RESPONSE_FILE")
+  [ -n "$user_id" ] || fail "Account ID not found for $OIE_USER"
+  printf false > /tmp/firstlogin.txt
+  api PUT "/users/$user_id/preferences/firstlogin" /tmp/firstlogin.txt text/plain
+  echo "First login marked complete for $OIE_USER"
+fi
+
+# 3. Import channels in OIE export format.
 count=0
 printf '<set>\n' > /tmp/oie-deploy-ids.xml
 for file in "$CHANNELS_DIR"/*.xml; do
@@ -81,7 +92,7 @@ if grep -Fq "This channel is invalid." "$RESPONSE_FILE"; then
   fail "At least one channel is invalid after import. Check extensions and step deserialization."
 fi
 
-# 3. Import channel groups.
+# 4. Import channel groups.
 printf '<set/>\n' > "$EMPTY_SET_FILE"
 {
   printf '<set>\n'
@@ -109,30 +120,20 @@ if grep -Fq "<channelGroup" /tmp/oie-groups.xml; then
   echo "Groups installed"
 fi
 
-# 3b. Apply channel tags after channels exist on the server.
+# 4b. Apply channel tags after channels exist on the server.
 awk '/<channelTags>/{in_tags=1; print "<set>"; next} /<\/channelTags>/{in_tags=0; print "</set>"; next} in_tags{print}' "$CONFIG_FILE" > /tmp/oie-channel-tags.xml
 if grep -Fq "<channelTag" /tmp/oie-channel-tags.xml; then
   api PUT /server/channelTags /tmp/oie-channel-tags.xml
   echo "Channel tags installed"
 fi
 
-# 4. Deploy imported channels together.
+# 5. Deploy imported channels together.
 if [ "$count" -gt 0 ]; then
   echo "Deploying $count channel(s)..."
   api POST "/channels/_deploy?returnErrors=true" /tmp/oie-deploy-ids.xml
   if [ -s "$RESPONSE_FILE" ]; then
     fail "Deployment rejected: $(cat "$RESPONSE_FILE")"
   fi
-fi
-
-# 5. Mark the first login as complete (skip the password-change wizard).
-if [ "$OIE_SKIP_FIRST_LOGIN" = true ]; then
-  request GET /users/current > /dev/null
-  user_id=$(xml_value id "$RESPONSE_FILE")
-  [ -n "$user_id" ] || fail "Account ID not found for $OIE_USER"
-  printf false > /tmp/firstlogin.txt
-  api PUT "/users/$user_id/preferences/firstlogin" /tmp/firstlogin.txt text/plain
-  echo "First login marked complete for $OIE_USER"
 fi
 
 # 6. Seed one sample message per active channel (when examples.json is present).
